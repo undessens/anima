@@ -13,6 +13,7 @@ int bufferindex = 0;
 void setup() {
 
   Serial.begin(9600);
+  pinMode(LED_BUILTIN, OUTPUT);
 
 }
 
