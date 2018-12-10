@@ -20,7 +20,7 @@ class serial_effect:
                                         self.currentValue = 127
                                 else:
                                         self.currentValue = 0
-                                self.isModifield = True
+                                self.isModified = True
                 # fader and analog value
                 else:
                         if(newVal>=0 and newVal <= 127):

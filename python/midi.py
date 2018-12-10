@@ -33,12 +33,12 @@ def receive_midi_msg(msg):
         for c in list_of_all['videoFx']:
                 if (c.midiChannel == msg.control):
                         c.setValue(msg.value)
-                        c.printResult()
+                        #c.printResult()
 
         for c in list_of_all['serial']:
                 if (c.midiChannel == msg.control):
                         c.setValue(msg.value)
-                        c.printResult()
+                        #c.printResult()
 
 
 
@@ -46,22 +46,25 @@ def receive_midi_msg(msg):
 def update_serial( ser):
         result = ser.update()
         if result !=None:
-                #print result
+                ser.printResult()
                 send_serial( ser.arduinoID, result)
 
 def update_videoFx( vidFx):
         result = vidFx.update()
         if result != None :
-                #print result
+                vidFx.printResult()
                 send_osc ( vidFx.oscAddress, result)
 
 
 def send_serial( ard_id, val ):
         msg = ""
-        msg = str(chr(ard_id))+str(chr(val))+str(chr(255))
+        #msg = str(chr(ard_id))+str(chr(val))+str(chr(255))
         if(ser):
                 try:
-                        ser.write(msg)
+                        ser.write(ard_id)
+                        ser.write(val)
+                        ser.write(255)
+                        
                 except Exception, e:
                         print e
 
@@ -95,20 +98,20 @@ def main():
         
         global list_of_serial
         list_of_serial = []
-        list_of_serial.append( serial_effect("ledR jardin", 32, 1))
-        list_of_serial.append( serial_effect("ledG jardin", 48, 2))
-        list_of_serial.append( serial_effect("ledB jardin", 64, 3))
-        list_of_serial.append( serial_effect("ledPower jardin", 0, 4))
-        list_of_serial.append( serial_effect("ledR haut", 33, 5))
-        list_of_serial.append( serial_effect("ledG haut", 49, 6))
-        list_of_serial.append( serial_effect("ledB haut", 65, 7))
-        list_of_serial.append( serial_effect("ledPower haut", 1, 8))
-        list_of_serial.append( serial_effect("ledR cour", 34, 9))
-        list_of_serial.append( serial_effect("ledG cour", 50, 10))
-        list_of_serial.append( serial_effect("ledB cour", 66, 11))
-        list_of_serial.append( serial_effect("ledPower cour", 2, 12))
-        list_of_serial.append( serial_effect("relay1", 35, 20))
-        list_of_serial.append( serial_effect("relay2", 36, 21))
+        list_of_serial.append( serial_effect("ledR jardin", 32, 1, True))
+        list_of_serial.append( serial_effect("ledG jardin", 48, 2, True))
+        list_of_serial.append( serial_effect("ledB jardin", 64, 3 , True))
+        list_of_serial.append( serial_effect("ledPower jardin", 0, 4, False))
+        list_of_serial.append( serial_effect("ledR haut", 33, 5, True))
+        list_of_serial.append( serial_effect("ledG haut", 49, 6, True))
+        list_of_serial.append( serial_effect("ledB haut", 65, 7, True))
+        list_of_serial.append( serial_effect("ledPower haut", 1, 8, False))
+        list_of_serial.append( serial_effect("ledR cour", 34, 9,True))
+        list_of_serial.append( serial_effect("ledG cour", 50, 10, True))
+        list_of_serial.append( serial_effect("ledB cour", 66, 11 , True))
+        list_of_serial.append( serial_effect("ledPower cour", 2, 12, False))
+        list_of_serial.append( serial_effect("relay1", 35, 20, True))
+        list_of_serial.append( serial_effect("relay2", 36, 21, True))
         
         global list_of_all 
         list_of_all = dict()
@@ -141,7 +144,7 @@ def main():
         try:
                 global ser
                 if sys.platform.startswith('darwin'):
-                        ser = serial.Serial('/dev/tty.usbmodem1a151',115200)
+                        ser = serial.Serial('/dev/tty.usbmodem1a151',9600)
                         print "Serial connected"
                 elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
                         try:
