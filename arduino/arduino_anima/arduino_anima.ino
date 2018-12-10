@@ -6,15 +6,55 @@
   
 */
 
-#include <Servo.h>
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
+
+#define PINSTRIP 7
+
+//BUFFER SERIAL
 byte buffer[32];
 int bufferindex = 0;
+
+
+//STRIP LED
+int r_left = 0;
+int g_left = 0;
+int b_left = 0;
+int power_left = 70; // 0 to 127 going from 0 to maxintensity
+int r_top = 0;
+int g_top = 0;
+int b_top = 0;
+int power_top = 127;
+int r_right = 0;
+int g_right = 0;
+int b_right = 0;
+int power_right = 30;
+int strip_zone1 = 18;
+int strip_zone2 =41;
+int strip_maxled = 60;
+int strip_maxintensity = 15;
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(strip_maxled, PINSTRIP, NEO_GRB + NEO_KHZ800);
+
 
 void setup() {
 
   Serial.begin(9600);
-  pinMode(LED_BUILTIN, OUTPUT);
+  strip.begin();
 
+  for(int i=0;i<strip_maxled;i++){
+
+    // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
+    strip.setPixelColor(i, strip.Color(0,0,0)); // Moderately bright green color.
+
+  }
+  strip.show();
+  delay(500);
+
+ 
+  
 }
 
 void loop() {
@@ -40,47 +80,61 @@ void loop() {
 
 void processBuffer() {
 
+  Serial.println("process buffer");
+
   byte cmd = buffer[0];
+  
   switch (cmd) {
     case 0:
       //ledR jardin 
-      break;
+      r_left = buffer[1]/127;
+      strip_update_zone(1);
     case 1:
-      //ledG jardin 
+       g_left = buffer[1]/127;
+       strip_update_zone(1);
       break;
     case 2:
-      //ledB jardin 
+       b_left = buffer[1]/127;
+       strip_update_zone(1);
       break;
    case 3:
-      //ledPower jardin 
+      power_left = buffer[1];
+      strip_update_zone(1);
       break;
    case 4:
-      //ledR haut 
+       r_top = buffer[1]/127; 
+       strip_update_zone(2);
       break;
     case 5:
-      //ledG haut 
+      g_top = buffer[1]/127;
+      strip_update_zone(2); 
       break;
     case 6:
-      //ledB haut 
+      b_top = buffer[1]/127;
+      strip_update_zone(2);
       break;
    case 7:
-      //ledPower haut 
+      power_top = buffer[1];
+      strip_update_zone(2); 
       break;
    case 8:
-      //ledR cour 
+      r_right = buffer[1]/127;
+      strip_update_zone(3); 
       break;
     case 9:
-      //ledG cour 
+      g_right = buffer[1]/127;
+      strip_update_zone(3);  
       break;
     case 10:
-      //ledB cour 
+      b_right = buffer[1]/127;
+      strip_update_zone(3);  
       break;
    case 11:
-      //ledPower cour
+      power_right = buffer[1];
+      strip_update_zone(3); 
       break;
    case 20:
-      //relay1 
-      digitalWrite(LED_BUILTIN, buffer[1]);
+      //relay
       break;
    case 21:
       //realy2
@@ -90,5 +144,42 @@ void processBuffer() {
 
   }
 }
+
+void strip_update_zone(int z){
+int finalpower;
+
+switch(z){
+  case 1://ZONE 1 :
+    finalpower = map(power_left, 0, 127, 0, strip_maxintensity);
+     
+    for( int i = 0; i<strip_zone1; i++){
+    
+      strip.setPixelColor(i, strip.Color( r_left*finalpower,g_left*finalpower,b_left*finalpower));
+    }
+  break;
+  
+  case 2://ZONE 2:
+    finalpower = map(power_top, 0, 127, 0, strip_maxintensity);
+    for( int i = strip_zone1; i<strip_zone2; i++){
+    
+      strip.setPixelColor(i, strip.Color( r_top*finalpower,g_top*finalpower,b_top*finalpower));
+    }
+  break;
+  
+  
+  case 3://ZONE 3:
+    finalpower = map(power_right, 0, 127, 0, strip_maxintensity);
+    for( int i = strip_zone2; i<strip_maxled; i++){
+    
+      strip.setPixelColor(i, strip.Color( r_right*finalpower,g_right*finalpower,b_right*finalpower));
+    }    
+   break;
+
+}//end of switch
+
+strip.show();
+
+}
+
 
 
