@@ -12,10 +12,16 @@
 #endif
 
 #define PINSTRIP 7
+#define PINRELAY1 8
+#define PINRELAY2 9
 
 //BUFFER SERIAL
 byte buffer[32];
 int bufferindex = 0;
+
+//Relay
+boolean relay1 = false;
+boolean relay2 = false;
 
 
 //STRIP LED
@@ -42,6 +48,14 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(strip_maxled, PINSTRIP, NEO_GRB + NE
 void setup() {
 
   Serial.begin(9600);
+
+  //Pinmode
+  pinMode(PINRELAY1, OUTPUT);
+  pinMode(PINRELAY2, OUTPUT);
+  digitalWrite(PINRELAY1, relay1);
+  digitalWrite(PINRELAY2, relay2);
+
+  
   strip.begin();
 
   for(int i=0;i<strip_maxled;i++){
@@ -89,6 +103,7 @@ void processBuffer() {
       //ledR jardin 
       r_left = buffer[1]/127;
       strip_update_zone(1);
+      break;
     case 1:
        g_left = buffer[1]/127;
        strip_update_zone(1);
@@ -135,9 +150,15 @@ void processBuffer() {
       break;
    case 20:
       //relay
+      boolean state1;
+      state1= (buffer[1]==0);
+      digitalWrite( PINRELAY1, state1 );
       break;
    case 21:
       //realy2
+      boolean state2 ;
+      state2 = (buffer[1]==0);
+      digitalWrite( PINRELAY2, state2 );
       break;
       
 
@@ -151,8 +172,7 @@ int finalpower;
 switch(z){
   case 1://ZONE 1 :
     finalpower = map(power_left, 0, 127, 0, strip_maxintensity);
-     
-    for( int i = 0; i<strip_zone1; i++){
+    for( int i = strip_zone2; i<strip_maxled; i++){ 
     
       strip.setPixelColor(i, strip.Color( r_left*finalpower,g_left*finalpower,b_left*finalpower));
     }
@@ -169,7 +189,7 @@ switch(z){
   
   case 3://ZONE 3:
     finalpower = map(power_right, 0, 127, 0, strip_maxintensity);
-    for( int i = strip_zone2; i<strip_maxled; i++){
+    for( int i = 0; i<strip_zone1; i++){  
     
       strip.setPixelColor(i, strip.Color( r_right*finalpower,g_right*finalpower,b_right*finalpower));
     }    

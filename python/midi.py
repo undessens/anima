@@ -100,17 +100,17 @@ def main():
         
         global list_of_serial
         list_of_serial = []
-        list_of_serial.append( serial_effect("ledR jardin", 32, 0, True))
-        list_of_serial.append( serial_effect("ledG jardin", 48, 1, True))
-        list_of_serial.append( serial_effect("ledB jardin", 64, 2 , True))
+        list_of_serial.append( serial_effect("ledR jardin", 32, 0, False))
+        list_of_serial.append( serial_effect("ledG jardin", 48, 1, False))
+        list_of_serial.append( serial_effect("ledB jardin", 64, 2 , False))
         list_of_serial.append( serial_effect("ledPower jardin", 0, 3, False))
-        list_of_serial.append( serial_effect("ledR haut", 33, 4, True))
-        list_of_serial.append( serial_effect("ledG haut", 49, 5, True))
-        list_of_serial.append( serial_effect("ledB haut", 65, 6, True))
+        list_of_serial.append( serial_effect("ledR haut", 33, 4, False))
+        list_of_serial.append( serial_effect("ledG haut", 49, 5, False))
+        list_of_serial.append( serial_effect("ledB haut", 65, 6, False))
         list_of_serial.append( serial_effect("ledPower haut", 1, 7, False))
-        list_of_serial.append( serial_effect("ledR cour", 34, 8,True))
-        list_of_serial.append( serial_effect("ledG cour", 50, 9, True))
-        list_of_serial.append( serial_effect("ledB cour", 66, 10 , True))
+        list_of_serial.append( serial_effect("ledR cour", 34, 8,False))
+        list_of_serial.append( serial_effect("ledG cour", 50, 9, False))
+        list_of_serial.append( serial_effect("ledB cour", 66, 10 , False))
         list_of_serial.append( serial_effect("ledPower cour", 2, 11, False))
         list_of_serial.append( serial_effect("relay1", 35, 20, True))
         list_of_serial.append( serial_effect("relay2", 36, 21, True))
@@ -146,7 +146,7 @@ def main():
         try:
                 global ser
                 if sys.platform.startswith('darwin'):
-                        ser = serial.Serial('/dev/cu.usbmodem1411',9600)
+                        ser = serial.Serial('/dev/cu.usbmodem1421',9600)
                         print "Serial connected"
                 elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
                         try:
