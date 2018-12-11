@@ -16,7 +16,7 @@ public:
         doChangeWhiteBalance = false; 
         currentWhiteBalanceIndex = 0;
         whiteBalanceNames = OMX_Maps::getInstance().getWhiteBalanceNames();
-        videoGrabber->setFlickerCancellation(true);
+        
     };
     
     void update()
@@ -28,6 +28,7 @@ public:
     {
         currentWhiteBalanceIndex = 0;
         videoGrabber->setWhiteBalance(GetWhiteBalance(whiteBalanceNames[currentWhiteBalanceIndex]));
+	
     }
 
     
@@ -57,6 +58,22 @@ public:
              }
              videoGrabber->setWhiteBalance(GetWhiteBalance(whiteBalanceNames[currentWhiteBalanceIndex]));
          }
+	if(address == "whiteBalanceGainR" )
+	{
+             float f = value/127.0 ;
+             videoGrabber->setWhiteBalanceGainR(f);
+         }
+	if(address == "whiteBalanceGainB" )
+	{
+             float f = value/127.0 ;
+             videoGrabber->setWhiteBalanceGainB(f);
+         }
+	if(address == "shutterSpeed" )
+	{
+             value = value/127.0 * 500;
+             videoGrabber->setShutterSpeed(value);
+         }
+
 
     }
 };

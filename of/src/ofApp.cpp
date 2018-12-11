@@ -67,6 +67,7 @@ void ofApp::update()
 	    
 
 		for (int i=0; i<NB_SETTINGS; i++){
+			ofLogVerbose() << " For: " << ofToString(i);
 			
 			if( add0 == (listOfSettings[i]->name)){
 				ofLogVerbose() << "\n OSC settings:" << add0 << " - " << add1 << " : " << ofToString(value);
@@ -83,6 +84,7 @@ void ofApp::update()
 
 
 	    	}
+		ofLogVerbose() << " end of For: " ;
 		if( add0 == "transport"){
 			transport = add1;
 		}

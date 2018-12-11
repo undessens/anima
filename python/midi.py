@@ -70,6 +70,7 @@ def send_serial( ard_id, val ):
                         print e
 
 def send_osc(address, value):
+        print "OSC addresse: "+str(address)+" value: "+str(value)
         oscMsg = OSCMessage()
         oscMsg.setAddress(address)
         oscMsg.append(int(value))
@@ -84,18 +85,18 @@ def main():
 
         global list_of_videoFx 
         list_of_videoFx = []
-        list_of_videoFx.append ( video_effect("sharpness", 5 , "enhancement/sharpness"))
-        list_of_videoFx.append ( video_effect("Constrate", 4 , "enhancement/contrast"))
-        list_of_videoFx.append ( video_effect("Saturation", 6, "enhancement/saturation"))
-        list_of_videoFx.append ( video_effect("Brightness", 7, "enhancement/brightness"))
-        list_of_videoFx.append ( video_effect("Filter +", 62, "filters/nextFilter"))
-        list_of_videoFx.append ( video_effect("Filter -", 61, "filters/previousFilter"))
-        list_of_videoFx.append ( video_effect("init Filter", 60, "filters/initFilter"))
-        #list_of_videoFx.append ( video_effect("zoom", 20, "zoomCrop/topMargin"))
-        #list_of_videoFx.append ( video_effect("zoom", 21, "zoomCrop/leftMargin"))
-        #list_of_videoFx.append ( video_effect("zoom", 0, "zoomCrop/zoomLevel"))
-        list_of_videoFx.append ( video_effect("zoom", 59, "whiteBalance/wbNext"))
-        list_of_videoFx.append ( video_effect("zoom", 58, "whiteBalance/wbPrev"))
+        list_of_videoFx.append ( video_effect("sharpness", 5 , "/enhancement/sharpness"))
+        list_of_videoFx.append ( video_effect("Constrate", 4 , "/enhancement/contrast"))
+        list_of_videoFx.append ( video_effect("Saturation", 6, "/enhancement/saturation"))
+        list_of_videoFx.append ( video_effect("Brightness", 7, "/enhancement/brightness"))
+        list_of_videoFx.append ( video_effect("Filter +", 62, "/filters/nextFilter"))
+        list_of_videoFx.append ( video_effect("Filter -", 61, "/filters/previousFilter"))
+        list_of_videoFx.append ( video_effect("init Filter", 60, "/filters/initFilter"))
+        #list_of_videoFx.append ( video_effect("zoom", 20, "/zoomCrop/topMargin"))
+        #list_of_videoFx.append ( video_effect("zoom", 21, "/zoomCrop/leftMargin"))
+        #list_of_videoFx.append ( video_effect("zoom", 0, "/zoomCrop/zoomLevel"))
+        list_of_videoFx.append ( video_effect("zoom", 59, "/whiteBalance/wbNext"))
+        list_of_videoFx.append ( video_effect("zoom", 58, "/whiteBalance/wbPrev"))
         
         global list_of_serial
         list_of_serial = []
