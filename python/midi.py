@@ -146,7 +146,7 @@ def main():
         try:
                 global ser
                 if sys.platform.startswith('darwin'):
-                        ser = serial.Serial('/dev/tty.usbmodem1a151',9600)
+                        ser = serial.Serial('/dev/cu.usbmodem1411',9600)
                         print "Serial connected"
                 elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
                         try:
