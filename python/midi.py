@@ -114,6 +114,7 @@ def main():
         list_of_serial.append( serial_effect("ledPower cour", 2, 11, False))
         list_of_serial.append( serial_effect("relay1", 35, 20, True))
         list_of_serial.append( serial_effect("relay2", 36, 21, True))
+	list_of_serial.append( serial_effect("rien", 3, 30, False))
         
         global list_of_all 
         list_of_all = dict()
