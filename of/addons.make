@@ -1,0 +1,2 @@
+ofxOMXCamera
+ofxOsc
