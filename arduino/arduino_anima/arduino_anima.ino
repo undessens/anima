@@ -47,7 +47,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(strip_maxled, PINSTRIP, NEO_GRB + NE
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(38400);
 
   //Pinmode
   pinMode(PINRELAY1, OUTPUT);
