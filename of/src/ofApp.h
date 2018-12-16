@@ -1,20 +1,36 @@
 #pragma once
 
+#define EMULATE_ON_OSX !defined(TARGET_RASPBERRY_PI)
+
 #include "ofMain.h"
+#include "ofxOsc.h"
+
+
+#ifdef EMULATE_ON_OSX
+
+#else 
 #include "ofAppEGLWindow.h"
 #include "TerminalListener.h"
 #include "ofxOMXVideoGrabber.h"
 #include "CameraSettings.h"
-#include "ofxOsc.h"
-
 #include "Enhancement.h"
 #include "ZoomCrop.h"
 #include "Filters.h"
 #include "WhiteBalance.h"
 
+#endif
+#include "ShaderFx.h"
+
+
+
+
 #define NB_SETTINGS 4
 
-class ofApp : public ofBaseApp, public KeyListener{
+class ofApp : public ofBaseApp
+#ifndef EMULATE_ON_OSX
+ ,public KeyListener
+ #endif
+ {
     
 public:
     
@@ -23,17 +39,23 @@ public:
     void draw();
     void keyPressed(int key);
     
+    #ifndef EMULATE_ON_OSX
     void onCharacterReceived(KeyListenerEventData& e);
     TerminalListener consoleListener;
-    
     ofxOMXCameraSettings omxCameraSettings;
     ofxOMXVideoGrabber videoGrabber;
-    
     CameraSettings* listOfSettings[NB_SETTINGS];
+    #else
+    ofVideoGrabber videoGrabber;
+    #endif
+    
+    ShaderFx shaderFx;
     ofxOscReceiver receiver;
 
     string transport;
 
     bool doDrawInfo;
     bool doPrintInfo;
+
+    float lastFrameTime;
 };
