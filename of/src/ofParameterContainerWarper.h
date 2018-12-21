@@ -1,23 +1,20 @@
 #pragma once
 
-// namespace std{
-// static string to_string(const ofVec2f & v){
-// return  string("["+std::to_string(v.x)+std::to_string(v.y)+"]");
-//         }
-// }
-template <class T>
-ostream & operator<<(ostream & o,const ofxOscMessage & m){
-  o << m.getAddress();
-  o << "types : " << m.getTypeString();
-  // for (int i = 0 ; i < m.getNumArgs() ; i++){
-  //   if()
-  //   o << "," << e;
-  // }
-  return o;
-}
-
 
 #include "ParameterContainer.hpp"
+
+// force ofVectors to be enclosed in brackets
+template<>
+string Parameter<ofVec2f>::stateToString() const;
+template<>
+void Parameter<ofVec2f>::stateFromString(const string & s);
+
+template<>
+string Parameter<ofVec3f>::stateToString() const;
+template<>
+void Parameter<ofVec3f>::stateFromString(const string & s);
+
+
 class OSCParameterBinder{
 public:
   OSCParameterBinder(ParameterContainer & _owner):owner(_owner){
@@ -72,10 +69,12 @@ private:
   }
   else if(msg.getNumArgs()==1){// check /myname value
     if(acc==None){
+
       if(auto np =dynamic_cast<Parameter<float>*>(p)){np->setValue(msg.getArgAsFloat(0));return true;}
       else if(auto np =dynamic_cast<Parameter<int>*>(p)){np->setValue(msg.getArgAsInt(0));return true;}
       else if(auto np =dynamic_cast<Parameter<double>*>(p)){np->setValue(msg.getArgAsFloat(0));return true;}
       else if(auto np =dynamic_cast<Parameter<bool>*>(p)){np->setValue(msg.getArgAsFloat(0));return true;}
+      else if(auto np =dynamic_cast<Parameter<string>*>(p)){np->setValue(msg.getArgAsString(0));return true;}
     }
     else if(acc==isX || acc==isY || acc==isZ){
       if(auto np =dynamic_cast<Parameter<ofVec2f>*>(p)){

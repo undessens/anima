@@ -59,7 +59,7 @@ string toString(const T & o){
 }
 
 template <class T>
-ostream & operator<<(ostream & o,const vector<T> & v){
+std::ostream & operator<<(std::ostream & o,const std::vector<T> & v){
   for (auto e:v){
     o << "," << e;
   }
