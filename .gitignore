@@ -3,3 +3,6 @@ obj/
 *.o
 *.app/
 *.lldb*
+*.sublime*
+of/.test
+of/itermLauncher
