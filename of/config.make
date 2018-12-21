@@ -105,9 +105,10 @@
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-PROJECT_CFLAGS = -Wno-unused-but-set-variable 
+# PROJECT_CFLAGS = -Wno-unused-but-set-variable 
 PROJECT_CFLAGS += -Wno-unused-function 
 PROJECT_CFLAGS += -Wno-unknown-pragmas 
+# PROJECT_CFLAGS += -include ../../../libs/openFrameworks/ofMain.h
 #-Wunused-variable -Wunused-function -Wunknown-pragmas
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #pragma GCC diagnostic ignored "-Wunused-variable"

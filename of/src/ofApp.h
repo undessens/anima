@@ -1,6 +1,6 @@
 #pragma once
 
-#define EMULATE_ON_OSX !defined(TARGET_RASPBERRY_PI)
+#include "AppConfig.h"
 
 #include "ofMain.h"
 #include "ofxOsc.h"
@@ -19,10 +19,10 @@
 #include "WhiteBalance.h"
 
 #endif
+
+
+
 #include "ShaderFx.h"
-
-
-
 
 #define NB_SETTINGS 4
 
@@ -33,7 +33,8 @@ class ofApp : public ofBaseApp
  {
     
 public:
-    
+    ofApp();
+    ~ofApp();
     void setup();
     void update();
     void draw();

@@ -2,185 +2,75 @@
 
 #include "ofMain.h"
 #include "ofxOsc.h"
-#include <map>
-
-extern string toIndentedString(const string & ins,int numSpaces);
 
 
-template<class T>
-class CustomP{
+
+#include "ofParameterContainerWarper.h"
+
+class ShaderBase : public ParameterContainer{
 public:
-       CustomP(const T & t):value(t){}; 
-        const T & set(const T & t){bhasChanged |= t!=value;value = t; return value;}
-        const T & get()const{return value;}
-        bool hasChanged(bool clearFlag = true){if(bhasChanged){if(clearFlag){bhasChanged = false;}return true;} return false;}
-        friend std::ostream& operator<<(std::ostream& os, const CustomP<T>& cp){os << cp.value;return os;}
-        friend std::istream& operator>>(std::istream& is, const CustomP<T>& cp){T v;is >> v;cp.set(v);return is;}
-        const T & operator =(const T & t){return set(t);}
-        const T & operator ++(){set(value++);}
-        const T & operator +(const T & o){return set(value+o);}
-        const T & operator /(const T & o){return set(value/o);}
-        operator const T&(){return value;}
-private:
-        T value;
-        bool bhasChanged;
-
-
-};
-
-
-template<class T>
-class PList : public map<string,T>{
-public:
-        void setIfContains(const string & name,const T & v){
-                auto l = map<string,T>::find(name);
-                if(l!=map<string,T>::end()){l->second = v;}
-        }
-
-        T* getRef(const string & name){return &map<string,T>::find(name)->second;}
-        T * add(const string & n,const T & v){return &map<string,T >::emplace(n,v).first->second;}
-
-        string toString(int indentSpace=0)const {return toIndentedString(ofToString(*this),indentSpace);}
-
-        friend std::ostream& operator<<(std::ostream& os, const PList<T>& cp){
-                const bool shouldEncloseInBrackets = std::is_same<T,ofVec2f>::value  || std::is_same<T,ofVec3f>::value  ;
-                os <<"{";
-                int i = cp.size()-1;
-                for(const auto &v:cp){
-                        os << v.first <<  ":" ;
-                        if(shouldEncloseInBrackets)os<<"[";
-                        os << v.second;
-                        if(shouldEncloseInBrackets)os<<"]";
-                        if(i!=0){os << ",";}
-                        i--;
-                }
-                os << "}";
-                return os;
-        }
-        
-        friend std::istream& operator>>(std::istream& is, const PList<T>& cp){
-                const bool shouldEncloseInBrackets = std::is_same<T,ofVec2f>::value  || std::is_same<T,ofVec3f>::value  ;
-                const string ignore=" \t\r\n"; 
-                int depth = -1;
-                char c;
-                string cs ,name;
-                while(is >>c){
-                        if(ignore.find(c))continue;
-                        if(c=='{' ){depth++;}
-                        if(c==':' && depth == 0){name = cs;}
-                        if (c==',' && depth==0){
-                                if(shouldEncloseInBrackets && cs.size()>0){cs=cs.substr(1,cs.size()-2);}
-                                cp[name] = ofTo<T>(cs);
-                                cs = "";name = "";
-                        }
-                        if(depth>=0){cs+=c;}
-                        if(c=='}' && depth==0){break;}
-                }
-                if(name!="" && cs!=""){
-                        if(shouldEncloseInBrackets && cs.size()>0){cs=cs.substr(1,cs.size()-2);}
-                        cp[name] = ofTo<T>(cs);
-                }
-
-                return is;
-        }
-
-};
-
-
-
-
-
-
-
-class ShaderBase{
-public:
-  ShaderBase(const string & _name):name(_name){
+  typedef Node::PtrT<ShaderBase> Ptr;
+  typedef PCollection<FloatParameter> FloatParameterListType;
+  typedef NumericParameter<ofVec2f> ofVec2fParameter ;
+  typedef PCollection<ofVec2fParameter> Vec2ParameterListType;
+  ShaderBase(const string & _name):ParameterContainer(_name){
+    // fParams = nodes.createWithType<FloatParameterListType>("floatParams");
+    // vParams = nodes.createWithType<Vec2ParameterListType>("vecParams");
+    // customfParams = nodes.createWithType<FloatParameterListType>("customfloatParams");
+    // customvParams = nodes.createWithType<Vec2ParameterListType>("customvecParams");
   }
+  virtual ~ShaderBase(){};
   
-  string name;
   ofShader shader;
-  PList<float> fParams;
-  PList<ofVec2f> vParams;
-  PList<CustomP<float>> customfParams;
+  FloatParameterListType fParams;
+  Vec2ParameterListType vParams;
+  FloatParameterListType customfParams;
+  Vec2ParameterListType customvParams;
 
   bool load(){
-        shader.load("shaders/"+name);
-        initParams();
-        return shader.isLoaded();
+    shader.load("shaders/"+getName());
+    autoParseUniforms();
+    initParams();
+    
+    return shader.isLoaded();
   }
-  string getPreset(){
-
-  }
+  
   bool reload(){shader.unload() ; return load();}
   
   void begin(const ofVec2f & resolution,const float deltaT){shader.begin();setUniforms(resolution,deltaT);}
   void end(){shader.end();}
   bool isLoaded(){return shader.isLoaded();}
 
-  void clearParams(){fParams.clear();vParams.clear();customfParams.clear();}
-  string pToString(){
-        const int ind = 4;
-        return vParams.toString(ind) + "\n" + fParams.toString(ind) + "\n" + customfParams.toString(ind) + "\n";
-}
+  void clearParams(){
+    fParams.clear();vParams.clear();customfParams.clear();customvParams.clear();
+    clearNode();
+  }
 
-
+  virtual void drawDbg(){};
 
 protected:
 
-  void addfP(const string & name,float v){fParams[name] = v;}
-  void addvP(const string & name,ofVec2f v){vParams[name] = v;}
-  CustomP<float> * addCustomfP(const string & name,float v){return customfParams.add(name,CustomP<float>(v));}
+  FloatParameterListType::ElemPtr addfP(const string & name,float v){auto p = addParameter<FloatParameter>(name,v); fParams.addToCollection(p);return p;}
+  Vec2ParameterListType::ElemPtr addvP(const string & name,ofVec2f v){auto p = addParameter<ofVec2fParameter>(name,v); vParams.addToCollection(p);return p;}
+  FloatParameterListType::ElemPtr addCustomfP(const string & name,float v){auto p = addParameter<FloatParameter>(name,v); customfParams.addToCollection(p);return p;}
+  Vec2ParameterListType::ElemPtr addCustomvP(const string & name,ofVec2f v){auto p = addParameter<ofVec2fParameter>(name,v); customvParams.addToCollection(p);return p;}
 
-  void autoParseUniforms(); // utility function parsing frag shader for uniforms (float or vec2) one can define defaultValues : // (value) or (x,y)
-  virtual void initParams()=0;
+  
+  virtual void initParams(){};
   virtual void updateParams(float deltaT){};
   virtual void update(){};
-  virtual bool processOSCMessage(const ofxOscMessage & msg,const vector<string> & splitted,int idx){
-
-    if(msg.getNumArgs()>=1){// check /myname value
-      auto elem =  fParams.find(splitted[idx]);
-      if(elem!=fParams.end()){elem->second = msg.getArgAsFloat(0);return true;}
-      auto elem2= customfParams.find(splitted[idx]);
-      if(elem2!=customfParams.end()){elem2->second.set( msg.getArgAsFloat(0));return true;}
-    }
-    if(msg.getNumArgs()>=2){ // check /myname x y
-
-      auto velem =  vParams.find(splitted[idx]);
-      if(velem!=vParams.end()){
-        velem->second.set(msg.getArgAsFloat(0) , msg.getArgAsFloat(1));
-        return true;
-      }
-    }
-    if(msg.getNumArgs()==1 ){ // check /myname/x value
-      bool isX = splitted[splitted.size()-1] == "x" ;
-      bool isY = splitted[splitted.size()-1] == "y" ;
-      if(isX || isY){
-        auto velem =  vParams.find(splitted[idx]);
-        if(velem!=vParams.end()){
-          velem->second[isX?0:1] = msg.getArgAsFloat(0);
-          return true;
-        }
-
-      }
-    }
-    return false;
-    
-  };
-
- static std::vector<ShaderBase*> & getAvailableShaders(){
-    static std::vector<ShaderBase*> availableShaders;
-    return availableShaders;
-  }
 
   virtual void setUniforms(const ofVec2f & resolution,const float deltaT) {
     vParams.setIfContains("resolution" , resolution);
     vParams.setIfContains("mouse" , ofVec2f(ofGetMouseX()*1.0/ofGetWidth(),ofGetMouseY()*1.0/ofGetHeight()));
     fParams.setIfContains("time",ofGetElapsedTimef());
-    for (const auto & p:fParams){shader.setUniform1f(p.first,p.second);}
-    for (const auto & p:vParams){shader.setUniform2f(p.first,p.second.x,p.second.y);}
-  };
+    updateParams(deltaT);
+    for (const auto & p:fParams.vectorIterator()){shader.setUniform1f(p->getName(),p->getValue());}
+      for (const auto & p:vParams.vectorIterator()){const ofVec2f & v ( p->getValue()); shader.setUniform2f(p->getName(),v.x,v.y);}
+    };
 
-  
+  private:
+    void autoParseUniforms(); // internal utility function parsing frag shader for uniforms (float or vec2) one can define defaultValues : // (value) or (x,y) or (disabled)
   friend class ShaderFx;
 
 };
@@ -191,43 +81,67 @@ protected:
 
 
 
-class ShaderFx{
+class ShaderFx : public ParameterContainer{
 public:
-  ShaderFx():curShaderIdx(0),bShouldProcess(true){}
+  ShaderFx():ParameterContainer("Shaders"),curShaderIdx(0),bShouldProcess(true),oscBind(*this){
+
+    curShaderName = leaves.createWithType<Parameter<string>>("shaderName","");
+    bDrawDbg = leaves.createWithType<Parameter<bool>>("drawDbg",false);
+    
+    addTrigger("next",[this](TriggerParameter *){nextShader();});
+    addTrigger("reload",[this](TriggerParameter *){reload();});
+    addTrigger("print",[this](TriggerParameter *){DBG(toNiceString());});
+    
+
+  }
   void setup();
   void update()                     {if(shouldProcess()){currentShader->update();}}
 
   void begin(const ofVec2f & resolution,const float deltaT)    {if(shouldProcess()){currentShader->begin(resolution,deltaT);}}
   void end()                        {if(shouldProcess()){currentShader->end();}}
 
-  void nextShader()                 {curShaderIdx++;curShaderIdx%=getAvailableShaders().size();loadShader(getAvailableShaders()[curShaderIdx]);}
+  void nextShader()                 {curShaderIdx++;curShaderIdx%=getAvailableShaders().size();loadShader(getAvailableShaders()[curShaderIdx]);ofLog() << currentShader->toNiceString(); }
 
-  string getCurrentShaderInfo()     {if(!currentShader) return "no shader loaded";return "shader  : " + currentShader->name + (currentShader->isLoaded()?"":"not") + " loaded : \n" + currentShader->pToString();}
+  string getCurrentShaderInfo()     {return toNiceString();}//if(!currentShader.get()) return "no shader loaded";return "shader  : " + currentShader->getName() + (currentShader->isLoaded()?"":"not") + " loaded : \n" + currentShader->toNiceString();}
 
 
-  bool loadShader(ShaderBase * s)   {currentShader = s;return currentShader && (currentShader->isLoaded() || currentShader->load());}
+  bool loadShader(ShaderBase::Ptr s)   {currentShader = s;curShaderName->setValue(currentShader.get()?currentShader->getName():"none");return currentShader.get() && (currentShader->isLoaded() || currentShader->load());}
 
-  bool reload()                     {if(currentShader){return  currentShader->reload();}return false;}
+  bool reload()                     {if(currentShader.get()){return  currentShader->reload();}return false;}
 
   bool isLoaded()                   {return currentShader && currentShader->isLoaded();}
   bool shouldProcess()              {return isLoaded() && bShouldProcess;}
-  bool processOSCMessage(const ofxOscMessage & m,const vector<string> & splitted,int idx){
-    if(splitted.size()<idx+1) return false;
-    if(splitted[idx] == "next"){nextShader();return true;}
-    if(splitted[idx] == "reload"){reload();return true;}
-    if(currentShader){return currentShader->processOSCMessage(m,splitted,idx );}
-    return false;  
+  
+  bool processOSCMessage(const ofxOscMessage & m,const vector<string> & splitted,int idx){return oscBind.processOSC(m,idx);}
+
+
+
+  void savePreset(string path){
+    ofFile f(path,ofFile::Mode::WriteOnly);
+    if(!f.exists()){f.create();}
+    auto nodeView = currentShader->createNodeView<ParameterBase>([](ParameterBase * c){return c->isSavable;});
+    ofBuffer buf; buf.set(nodeView->toNiceString());
+    f.writeFromBuffer(buf);
   }
+  void loadPreset(string path){
+    ofFile f(path,ofFile::Mode::ReadOnly);
+    if(!f.exists()){ofLogError() << "no file at " << path;return ;}
+    ofBuffer buf(f.readToBuffer());
+    currentShader->stateFromString(buf.getText());
+  }
+  void drawDbg(){if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
 
 private:
 
-  ShaderBase * currentShader;
+  ShaderBase::Ptr currentShader;
+  Parameter<string>::Ptr curShaderName;
+  Parameter<bool>::Ptr bDrawDbg;
+  
+  
   int curShaderIdx;
   bool bShouldProcess;
-
-  std::vector<ShaderBase*> & getAvailableShaders(){
-    return ShaderBase::getAvailableShaders();
-  }
+  OSCParameterBinder oscBind;
+  const std::vector<ShaderBase::Ptr> getAvailableShaders(){return nodes.getWithTypeSafe<ShaderBase>();}
   
 
 };

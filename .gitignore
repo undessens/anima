@@ -1,0 +1,5 @@
+obj/
+*.gch
+*.o
+*.app/
+*.lldb*

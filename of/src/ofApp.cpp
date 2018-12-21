@@ -1,10 +1,17 @@
+#include "AppConfig.h"
+
 #include "ofApp.h"
+#include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
 
 
+
+
+ofApp::ofApp(){}
+ofApp::~ofApp(){}
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-
+    // shaderFx = new ShaderFx();
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetLogLevel("ofThread", OF_LOG_ERROR);
     doDrawInfo = false;    
@@ -141,6 +148,8 @@ void ofApp::draw()
     shaderFx.begin(reso,deltaT);
     videoGrabber.draw(0,0,ofGetWidth(),ofGetHeight());
     shaderFx.end();
+
+    shaderFx.drawDbg();
     #endif
 
 
@@ -199,6 +208,12 @@ void ofApp::keyPressed  (int key)
         }
         case 'p' :
         {
+            shaderFx.savePreset("/tmp/preset.txt");
+            break;
+        }
+        case 'm' :
+        {
+            shaderFx.loadPreset("/tmp/preset.txt");
             break;
         }
         case 's':{
@@ -206,6 +221,7 @@ void ofApp::keyPressed  (int key)
                 ofLogError() << "couldn't reload shader";
             }
         }
+
 
 #ifndef EMULATE_ON_OSX
         case 'r' :
@@ -238,3 +254,4 @@ void ofApp::onCharacterReceived(KeyListenerEventData& e)
     keyPressed((int)e.character);
 }
 #endif
+

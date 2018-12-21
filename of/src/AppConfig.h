@@ -1,0 +1,2 @@
+
+#define EMULATE_ON_OSX !defined(TARGET_RASPBERRY_PI)
