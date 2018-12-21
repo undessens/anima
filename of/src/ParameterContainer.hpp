@@ -135,7 +135,7 @@ public:
   };
 
   template<class T>
-  Node::Ptr createNodeView(function<bool(T*)> f, int maxRecursion = -1) {
+  Node::Ptr createNodeView(function<bool(T*)> f, function<bool(NodeType*)> fnode = [](NodeType*) {return true;}, int maxRecursion = -1) {
     Node::Ptr res ( new Node(getName()) );
     for (auto &c : leaves.getContainer()) {
       if (auto cc = dynamic_pointer_cast<T>(c.second)) {
@@ -144,8 +144,10 @@ public:
     };
     if (maxRecursion != 0) {
       for (auto &c : nodes.getContainer()) {
-        auto vn = c.second->createNodeView<T>(f, maxRecursion - 1);
-        if (!vn->isEmpty()) {res->nodes.addShared(vn);}
+        if (fnode(c.second.get())) {
+          auto vn = c.second->createNodeView<T>(f, fnode, maxRecursion - 1);
+          if (!vn->isEmpty()) {res->nodes.addShared(vn);}
+        }
       }
     }
     return res;
@@ -295,8 +297,8 @@ public:
   // explicit operator const T&()const{return getValue();}
   operator const T&() {return value;}
 
-  void stateFromString(const string & s) override {setValue(StringUtils::fromString<T>(s));}
-  string stateToString() const override {return StringUtils::toString<T>(value);}
+  void stateFromString(const string & s) override {setValue(StringUtils::ElemSerializer<T>::fromString(s));}
+  string stateToString() const override {return StringUtils::ElemSerializer<T>::toString(value);}
   // virtual string toString()const{return stateToString();}
   // virtual void fromString(const string & s){return stateFromString(s);}
   void notifyValueChanged() {
@@ -438,13 +440,13 @@ public:
       if ((c == ']' || c == ',') && depth == 0) {
         if (idx >= getSize()) {
           if (!canResize()) {break;}
-          if (!add(StringUtils::fromString<ElemType>(cs))) {
+          if (!add(StringUtils::ElemSerializer<ElemType>::fromString(cs))) {
             // error while adding
             DBG("cant add to vector");
           }
         }
         else {
-          value[idx] = StringUtils::fromString<ElemType>(cs);
+          value[idx] = StringUtils::ElemSerializer<ElemType>::fromString(cs);
         }
         if (c == ',') {idx++; continue;}
         else {break;}
@@ -513,7 +515,7 @@ class TriggerParameter : public Parameter<TriggerValueType> {
 public:
   typedef Parameter<TriggerValueType> TriggerParameterType ;
   typedef std::function<void(TriggerParameter *)> TriggerFunctionType;
-  TriggerParameter(const string & name , TriggerFunctionType f): TriggerParameterType(name, {}), tf(f) {}
+  TriggerParameter(const string & name , TriggerFunctionType f): TriggerParameterType(name, {}), tf(f) {isSavable = false;}
   string stateToString() const override {return "";}
   void stateFromString(const string &) override {};
   void trigger() {tf(this);}

@@ -4,15 +4,40 @@
 #include "ParameterContainer.hpp"
 
 // force ofVectors to be enclosed in brackets
-template<>
-string Parameter<ofVec2f>::stateToString() const;
-template<>
-void Parameter<ofVec2f>::stateFromString(const string & s);
+
+  template<class T>
+static T ofVecFromString(const string & s){
+  if (s == "")return {};
+  int start = s.find('[');
+  int end = s.find(']');
+  if (start == string::npos || end == string::npos || end == start) {return{};}
+  auto sub = s.substr(start+1, end - start-1);
+  // DBG(sub);
+  istringstream is(sub);
+  is >> std::noskipws;
+  T res;
+  is >> res;
+  // DBG("res : " << res);
+  return res;
+}
+
+namespace StringUtils {
+
 
 template<>
-string Parameter<ofVec3f>::stateToString() const;
-template<>
-void Parameter<ofVec3f>::stateFromString(const string & s);
+struct ElemSerializer<ofVec2f> {
+  static string toString(const ofVec2f & value) {return "[" + ofToString(value) + "]"; }
+  static ofVec2f fromString(const string & s) {return ofVecFromString<ofVec2f>(s);}
+  };
+
+  template<>
+struct ElemSerializer<ofVec3f> {
+  static string toString(const ofVec3f & value) {return "[" + ofToString(value) + "]"; }
+  static ofVec3f fromString(const string & s) {return ofVecFromString<ofVec3f>(s);}
+  };
+}
+
+
 
 
 class OSCParameterBinder {
@@ -96,7 +121,6 @@ private:
     }
     else if ( msg.getNumArgs() == 2) {
       if (auto np = dynamic_cast<Parameter<ofVec2f>*>(p)) {
-        DBG(np->getName() << msg);
         np->setValue(ofVec2f(msg.getArgAsFloat(0), msg.getArgAsFloat(1)));
         return true;
       }

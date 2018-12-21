@@ -14,10 +14,7 @@ public:
   typedef NumericParameter<ofVec2f> ofVec2fParameter ;
   typedef PCollection<ofVec2fParameter> Vec2ParameterListType;
   ShaderBase(const string & _name): ParameterContainer(_name) {
-    // fParams = nodes.createWithType<FloatParameterListType>("floatParams");
-    // vParams = nodes.createWithType<Vec2ParameterListType>("vecParams");
-    // customfParams = nodes.createWithType<FloatParameterListType>("customfloatParams");
-    // customvParams = nodes.createWithType<Vec2ParameterListType>("customvecParams");
+
   }
   virtual ~ShaderBase() {};
 
@@ -119,7 +116,13 @@ public:
   void savePreset(string path) {
     ofFile f(path, ofFile::Mode::WriteOnly);
     if (!f.exists()) {f.create();}
-    auto nodeView = currentShader->createNodeView<ParameterBase>([](ParameterBase * c) {return c->isSavable;});
+    auto nodeView = createNodeView<ParameterBase>(
+    [](ParameterBase * c) {return c->isSavable;},
+    [this](Node * n) {
+      if (auto s = dynamic_cast<ShaderBase*>(n)) {return s->getName() == curShaderName->getValue();}
+      return true;
+    });
+
     ofBuffer buf; buf.set(nodeView->toNiceString());
     f.writeFromBuffer(buf);
   }
@@ -127,7 +130,7 @@ public:
     ofFile f(path, ofFile::Mode::ReadOnly);
     if (!f.exists()) {ofLogError() << "no file at " << path; return ;}
     ofBuffer buf(f.readToBuffer());
-    currentShader->stateFromString(buf.getText());
+    stateFromString(buf.getText());
   }
   void drawDbg() {if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
 

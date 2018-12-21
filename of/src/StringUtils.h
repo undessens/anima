@@ -8,7 +8,7 @@ namespace StringUtils {
 
 using std::string;
 
-inline string indentJSON(const string & ins, int numSpaces) {
+static string indentJSON(const string & ins, int numSpaces) {
   if (numSpaces == 0) {return ins;}
   char c;
   string res;
@@ -41,19 +41,19 @@ inline string indentJSON(const string & ins, int numSpaces) {
 
 
 template <class T>
-T fromString(const string & s) {
-  std::istringstream ss(s);
-  T num;
-  ss >> num;
-  return num;
-}
-
-template <class T>
-string toString(const T & o) {
-  std::ostringstream os;
-  os << o;
-  return os.str();
-}
+struct ElemSerializer{
+  static T fromString(const string & s) {
+    std::istringstream ss(s);
+    T num;
+    ss >> num;
+    return num;
+  }
+  static string toString(const T & o) {
+    std::ostringstream os;
+    os << o;
+    return os.str();
+  }
+};
 
 
 }
