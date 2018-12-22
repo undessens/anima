@@ -25,7 +25,15 @@ void ofApp::setup()
     receiver.setup(12345);
 
     // Shaders
-    shaderFx.setup();
+    root = make_shared<ParameterContainer>("root");
+    Node::setRoot(root);
+    presetManager = make_shared<PresetManager>(root);
+    root->addSharedParameterContainer(presetManager);
+    presetManager->setup(ofFile("presets").getAbsolutePath());
+    
+    shaderFx = make_shared<ShaderFx>();
+    root->addSharedParameterContainer(shaderFx);
+    shaderFx->setup();
 
 
     lastFrameTime = ofGetElapsedTimef();
@@ -67,11 +75,10 @@ void ofApp::setup()
     #define USE_ARB 1
 #if USE_ARB
     ofEnableArbTex();
-    videoGrabber.setup(ofGetWidth(),ofGetHeight(),GL_TEXTURE_RECTANGLE_ARB);
 #else
     ofDisableArbTex();
-    videoGrabber.setup(ofGetWidth(),ofGetHeight(),GL_TEXTURE_2D);
 #endif
+    videoGrabber.setup(ofGetWidth(),ofGetHeight(),true);
     
 
     #endif
@@ -82,7 +89,7 @@ void ofApp::setup()
 //--------------------------------------------------------------
 void ofApp::update()
 {
-    shaderFx.update();
+    shaderFx->update();
 
 	while(receiver.hasWaitingMessages()){
 		// get the next message
@@ -98,7 +105,7 @@ void ofApp::update()
         string add1= splitted[1];
         ofLogVerbose() << "\n osc message received add0: " << add0 << " add1 " << add1 << " value: "<< ofToString(value);
 
-        if(add0 == "shader" && shaderFx.processOSCMessage(m,splitted,1)) continue;
+        if( oscBind.processOSC(m,0,*root)) continue;
         #ifndef EMULATE_ON_OSX
         for (int i=0; i<NB_SETTINGS; i++){
           ofLogVerbose() << " For: " << ofToString(i);
@@ -145,11 +152,11 @@ void ofApp::draw()
     auto curT = ofGetElapsedTimef();
     float deltaT = curT - lastFrameTime ;
     lastFrameTime  =curT;
-    shaderFx.begin(reso,deltaT);
-    videoGrabber.draw(0,0,ofGetWidth(),ofGetHeight());
-    shaderFx.end();
+    shaderFx->draw(videoGrabber.getTexture(),deltaT);
 
-    shaderFx.drawDbg();
+    
+
+    shaderFx->drawDbg();
     #endif
 
 
@@ -169,7 +176,7 @@ void ofApp::draw()
         info << "Press r to reset camera settings" << endl;
         info << "Press z TO START RECORDING" << endl;
         info << "Press x TO STOP RECORDING" << endl;
-        info << shaderFx.getCurrentShaderInfo() << endl;
+        info << shaderFx->getInfo() << endl;
         
         if (doDrawInfo) 
         {
@@ -208,16 +215,16 @@ void ofApp::keyPressed  (int key)
         }
         case 'p' :
         {
-            shaderFx.savePreset("/tmp/preset.txt");
+            presetManager->savePreset(shaderFx,"1");
             break;
         }
         case 'm' :
         {
-            shaderFx.loadPreset("/tmp/preset.txt");
+            presetManager->recallPreset(shaderFx,"1");
             break;
         }
         case 's':{
-            if(!shaderFx.reload()){
+            if(!shaderFx->reload()){
                 ofLogError() << "couldn't reload shader";
             }
         }

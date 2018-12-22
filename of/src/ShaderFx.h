@@ -7,68 +7,89 @@
 
 #include "ofParameterContainerWarper.h"
 
+
+
 class ShaderBase : public ParameterContainer {
 public:
-  typedef Node::PtrT<ShaderBase> Ptr;
-  typedef PCollection<FloatParameter> FloatParameterListType;
-  typedef NumericParameter<ofVec2f> ofVec2fParameter ;
-  typedef PCollection<ofVec2fParameter> Vec2ParameterListType;
-  ShaderBase(const string & _name): ParameterContainer(_name) {
+    typedef Node::PtrT<ShaderBase> Ptr;
+    typedef PCollection<FloatParameter> FloatParameterListType;
+    typedef NumericParameter<ofVec2f> ofVec2fParameter ;
+    typedef PCollection<ofVec2fParameter> Vec2ParameterListType;
+    ShaderBase(const string & _name): ParameterContainer(_name) {
+        enabled = addParameter<BoolParameter>("enabled", false);
+        order = addParameter<IntParameter>("order", 0);
+    }
+    virtual ~ShaderBase() {};
 
-  }
-  virtual ~ShaderBase() {};
+    ofShader shader;
+    typedef enum {
+        resolution = 0,
+        mouse = 1,
+        time = 2
+    }DefaultUniform;
+    int defaultUniformFlags;
+    static const map<string,ShaderBase::DefaultUniform> reservedUniformsMap;
+    bool hasDefaultUniform(DefaultUniform  s){return (defaultUniformFlags >> (int)s) & 1;}
+    bool setDefaultUniform(DefaultUniform  s){return defaultUniformFlags|= (1 << (int)s);}
+    FloatParameterListType fParams;
+    Vec2ParameterListType vParams;
+    FloatParameterListType customfParams;
+    Vec2ParameterListType customvParams;
+    BoolParameter::Ptr enabled;
+    IntParameter::Ptr order;
 
-  ofShader shader;
-  FloatParameterListType fParams;
-  Vec2ParameterListType vParams;
-  FloatParameterListType customfParams;
-  Vec2ParameterListType customvParams;
+    bool load() {
+        shader.load("shaders/" + getName());
+        autoParseUniforms();
+        initParams();
 
-  bool load() {
-    shader.load("shaders/" + getName());
-    autoParseUniforms();
-    initParams();
+        return shader.isLoaded();
+    }
 
-    return shader.isLoaded();
-  }
+    bool reload() {shader.unload() ; return load();}
 
-  bool reload() {shader.unload() ; return load();}
+    void begin(const ofVec2f & resolution, const float deltaT) {shader.begin(); setUniforms(resolution, deltaT);}
+    void end() {shader.end();}
+    bool isLoaded() {return shader.isLoaded();}
 
-  void begin(const ofVec2f & resolution, const float deltaT) {shader.begin(); setUniforms(resolution, deltaT);}
-  void end() {shader.end();}
-  bool isLoaded() {return shader.isLoaded();}
+    void clearParams() {
+        leaves.clearElementsInVec(fParams.vIterator());
+        fParams.clear();
+        leaves.clearElementsInVec(vParams.vIterator());
+        vParams.clear();
+        leaves.clearElementsInVec(customfParams.vIterator());
+        customfParams.clear();
+        leaves.clearElementsInVec(customvParams.vIterator());
+        customvParams.clear();
 
-  void clearParams() {
-    fParams.clear(); vParams.clear(); customfParams.clear(); customvParams.clear();
-    clearNode();
-  }
 
-  virtual void drawDbg() {};
+    }
+
+    virtual void drawDbg() {};
 
 protected:
 
-  FloatParameterListType::ElemPtr addfP(const string & name, float v) {auto p = addParameter<FloatParameter>(name, v); fParams.addToCollection(p); return p;}
-  Vec2ParameterListType::ElemPtr addvP(const string & name, ofVec2f v) {auto p = addParameter<ofVec2fParameter>(name, v); vParams.addToCollection(p); return p;}
-  FloatParameterListType::ElemPtr addCustomfP(const string & name, float v) {auto p = addParameter<FloatParameter>(name, v); customfParams.addToCollection(p); return p;}
-  Vec2ParameterListType::ElemPtr addCustomvP(const string & name, ofVec2f v) {auto p = addParameter<ofVec2fParameter>(name, v); customvParams.addToCollection(p); return p;}
+    FloatParameterListType::ElemPtr addfP(const string & name, float v) {auto p = addParameter<FloatParameter>(name, v); fParams.addToCollection(p); return p;}
+    Vec2ParameterListType::ElemPtr addvP(const string & name, ofVec2f v) {auto p = addParameter<ofVec2fParameter>(name, v); vParams.addToCollection(p); return p;}
+    FloatParameterListType::ElemPtr addCustomfP(const string & name, float v) {auto p = addParameter<FloatParameter>(name, v); customfParams.addToCollection(p); return p;}
+    Vec2ParameterListType::ElemPtr addCustomvP(const string & name, ofVec2f v) {auto p = addParameter<ofVec2fParameter>(name, v); customvParams.addToCollection(p); return p;}
 
+    virtual void initParams() {};
+    virtual void updateParams(float deltaT) {};
+    virtual void update() {};
 
-  virtual void initParams() {};
-  virtual void updateParams(float deltaT) {};
-  virtual void update() {};
-
-  virtual void setUniforms(const ofVec2f & resolution, const float deltaT) {
-    vParams.setIfContains("resolution" , resolution);
-    vParams.setIfContains("mouse" , ofVec2f(ofGetMouseX() * 1.0 / ofGetWidth(), ofGetMouseY() * 1.0 / ofGetHeight()));
-    fParams.setIfContains("time", ofGetElapsedTimef());
-    updateParams(deltaT);
-    for (const auto & p : fParams.vectorIterator()) {shader.setUniform1f(p->getName(), p->getValue());}
-    for (const auto & p : vParams.vectorIterator()) {const ofVec2f & v ( p->getValue()); shader.setUniform2f(p->getName(), v.x, v.y);}
-  };
+    virtual void setUniforms(const ofVec2f & resolution, const float deltaT) {
+        if(hasDefaultUniform(DefaultUniform::resolution)){shader.setUniform2f("resolution", resolution.x, resolution.y);}
+        if(hasDefaultUniform(DefaultUniform::mouse)){shader.setUniform2f("mouse", ofGetMouseX() * 1.0 / ofGetWidth(), ofGetMouseY() * 1.0 / ofGetHeight());}
+        if(hasDefaultUniform(DefaultUniform::time)){shader.setUniform1f("time", ofGetElapsedTimef());}
+        updateParams(deltaT);
+        for (const auto & p : fParams.vIterator()) {shader.setUniform1f(p->getName(), p->getValue());}
+        for (const auto & p : vParams.vIterator()) {const ofVec2f & v ( p->getValue());shader.setUniform2f(p->getName(), v.x, v.y);}
+    };
 
 private:
-  void autoParseUniforms(); // internal utility function parsing frag shader for uniforms (float or vec2) one can define defaultValues : // (value) or (x,y) or (disabled)
-  friend class ShaderFx;
+    void autoParseUniforms(); // internal utility function parsing frag shader for uniforms (float or vec2) one can define defaultValues : // (value) or (x,y) or (disabled)
+    friend class ShaderFx;
 
 };
 
@@ -80,73 +101,205 @@ private:
 
 class ShaderFx : public ParameterContainer {
 public:
-  ShaderFx(): ParameterContainer("Shaders"), curShaderIdx(0), bShouldProcess(true), oscBind(*this) {
+    ShaderFx():
+    ParameterContainer("shaders"),
+    curShaderIdx(0),
+    bShouldProcess(true),
+    availableShaders(this->nodes),
+    enabledShaders(*this) {
 
-    curShaderName = leaves.createWithType<Parameter<string>>("shaderName", "");
-    bDrawDbg = leaves.createWithType<Parameter<bool>>("drawDbg", false);
+        curShaderName = addParameter<StringParameter>("shaderName", "");
+        bDrawDbg = addParameter<BoolParameter>("drawDbg", false);
 
-    addTrigger("next", [this](TriggerParameter *) {nextShader();});
-    addTrigger("reload", [this](TriggerParameter *) {reload();});
-    addTrigger("print", [this](TriggerParameter *) {DBG(toNiceString());});
-
-
-  }
-  void setup();
-  void update()                     {if (shouldProcess()) {currentShader->update();}}
-
-  void begin(const ofVec2f & resolution, const float deltaT)    {if (shouldProcess()) {currentShader->begin(resolution, deltaT);}}
-  void end()                        {if (shouldProcess()) {currentShader->end();}}
-
-  void nextShader()                 {curShaderIdx++; curShaderIdx %= getAvailableShaders().size(); loadShader(getAvailableShaders()[curShaderIdx]); ofLog() << currentShader->toNiceString(); }
-
-  string getCurrentShaderInfo()     {return toNiceString();}//if(!currentShader.get()) return "no shader loaded";return "shader  : " + currentShader->getName() + (currentShader->isLoaded()?"":"not") + " loaded : \n" + currentShader->toNiceString();}
-
-
-  bool loadShader(ShaderBase::Ptr s)   {currentShader = s; curShaderName->setValue(currentShader.get() ? currentShader->getName() : "none"); return currentShader.get() && (currentShader->isLoaded() || currentShader->load());}
-
-  bool reload()                     {if (currentShader.get()) {return  currentShader->reload();} return false;}
-
-  bool isLoaded()                   {return currentShader && currentShader->isLoaded();}
-  bool shouldProcess()              {return isLoaded() && bShouldProcess;}
-
-  bool processOSCMessage(const ofxOscMessage & m, const vector<string> & splitted, int idx) {return oscBind.processOSC(m, idx);}
+        addTrigger("next", [this](TriggerParameter *) {nextShader();});
+        addTrigger("reload", [this](TriggerParameter *) {reload();});
+        addTrigger("print", [this](TriggerParameter *) {DBG(toNiceString());});
 
 
 
-  void savePreset(string path) {
-    ofFile f(path, ofFile::Mode::WriteOnly);
-    if (!f.exists()) {f.create();}
-    auto nodeView = createNodeView<ParameterBase>(
-    [](ParameterBase * c) {return c->isSavable;},
-    [this](Node * n) {
-      if (auto s = dynamic_cast<ShaderBase*>(n)) {return s->getName() == curShaderName->getValue();}
-      return true;
-    });
+    }
+    void setup();
+    void update()                     {for(auto & s:enabledShaders){s->update();}}
 
-    ofBuffer buf; buf.set(nodeView->toNiceString());
-    f.writeFromBuffer(buf);
-  }
-  void loadPreset(string path) {
-    ofFile f(path, ofFile::Mode::ReadOnly);
-    if (!f.exists()) {ofLogError() << "no file at " << path; return ;}
-    ofBuffer buf(f.readToBuffer());
-    stateFromString(buf.getText());
-  }
-  void drawDbg() {if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
+
+    void draw(const ofTexture & tex, const float deltaT) {
+        if (!shouldProcess()) {return;}
+        ofRectangle targetR {0, 0, (float)ofGetWidth(), (float)ofGetHeight()};
+        ofVec2f resolution {targetR.getWidth(), targetR.getHeight()};
+        int numShaders = getNumShadersEnabled();
+        if (numShaders == 0) {
+            tex.draw(targetR );
+        }
+        else if (numShaders == 1) {
+            const ShaderBase::Ptr  s = *(enabledShaders.begin());
+            s->begin(resolution, deltaT);
+            tex.draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
+            s->end();
+
+        }
+        else {
+            pingPong.allocateIfNeeded(targetR.getWidth(), targetR.getHeight());
+            int i = 0;
+            for (auto s : enabledShaders) {
+                bool isLast = i == enabledShaders.size() - 1;
+                if (!isLast)    {pingPong.getFront()->begin();}
+
+                s->begin(resolution, deltaT);
+
+                if (i == 0) {
+                    tex.draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
+                }
+                else        {
+                    pingPong.getBack()->draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
+                }
+
+                s->end();
+
+                if (!isLast)    {pingPong.getFront()->end();}
+                pingPong.swap();
+                i++;
+            }
+        }
+    }
+
+    void nextShader()                 {
+        curShaderIdx++; curShaderIdx %= availableShaders.size();
+        soloShader(availableShaders[curShaderIdx]);
+        ofLog() << currentShader->toNiceString(); }
+
+    string getInfo()     {return toNiceString();}//if(!currentShader.get()) return "no shader loaded";return "shader  : " + currentShader->getName() + (currentShader->isLoaded()?"":"not") + " loaded : \n" + currentShader->toNiceString();}
+
+
+    bool soloShader(ShaderBase::Ptr s)   {
+        currentShader = s;
+        curShaderName->setValue(currentShader.get() ? currentShader->getName() : "none" , this);
+        for (auto v : availableShaders.getNamedPtrSet().vIterator()) {
+            v->enabled->setValue(v == currentShader);
+        }
+        return (currentShader->isLoaded() || currentShader->load());
+    }
+
+    bool reload(){
+        bool res = true;
+        for (auto v : availableShaders.getNamedPtrSet().vIterator()) {
+            if(v.get() && v->enabled->getValue())res&=v->reload();
+            else{res=false;}
+        }
+        return res;
+    }
+
+
+    bool shouldProcess()              {return bShouldProcess;}
+    int getNumShadersEnabled() {return enabledShaders.size();}
+
+    void parameterValueChanged(ParameterBase * ori) {
+        if (ori == curShaderName.get()) {
+            auto shaderToLoad = nodes.getWithTypeNamed<ShaderBase>(curShaderName->getValue());;
+            if (shaderToLoad) {soloShader(shaderToLoad);}
+            else {DBGE("no shader found for " << curShaderName->getValue())}
+        }
+    }
+
+
+    void savePreset(string path) {
+        ofFile f(path, ofFile::Mode::WriteOnly);
+        if (!f.exists()) {f.create();}
+        auto nodeView = createNodeView<ParameterBase>(
+                                                      [](ParameterBase * c) {return c->isSavable;},
+                                                      [this](Node * n) {
+                                                          if (auto s = dynamic_cast<ShaderBase*>(n)) {return s->enabled->getValue();}
+                                                          return true;
+                                                      });
+
+        ofBuffer buf; buf.set(nodeView->toNiceString());
+        f.writeFromBuffer(buf);
+    }
+    void loadPreset(string path) {
+        ofFile f(path, ofFile::Mode::ReadOnly);
+        if (!f.exists()) {ofLogError() << "no file at " << path; return ;}
+        ofBuffer buf(f.readToBuffer());
+        availableShaders.getNamedPtrSet().apply([](ShaderBase *s){s->enabled->setValue(false);});
+        stateFromString(buf.getText());
+    }
+    void drawDbg() {if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
 
 private:
 
-  ShaderBase::Ptr currentShader;
-  Parameter<string>::Ptr curShaderName;
-  Parameter<bool>::Ptr bDrawDbg;
+    ShaderBase::Ptr currentShader;
+    Parameter<string>::Ptr curShaderName;
+    BoolParameter::Ptr bDrawDbg;
+
+    struct PingPongBuffer {
+        PingPongBuffer() :alloW(0),alloH(0){}
+        void allocateIfNeeded(int w, int h) {
+            if(alloW!=w || alloH!=h){
+                front.allocate(w, h);
+                back.allocate(w, h);
+                alloW = w;
+                alloH = h;
+            }
+        };
+        void swap() {isSwapped = !isSwapped;};
+        ofFbo * getFront() {return isSwapped ? &back : &front;}
+        ofFbo * getBack() {return isSwapped ? &front : &back;}
+
+        bool isSwapped;
+        ofFbo front,back;
+        int alloW,alloH;
+    };
+    PingPongBuffer pingPong;
 
 
-  int curShaderIdx;
-  bool bShouldProcess;
-  OSCParameterBinder oscBind;
-  const std::vector<ShaderBase::Ptr> getAvailableShaders() {return nodes.getWithTypeSafe<ShaderBase>();}
+    struct ShaderEnabledListOrdered :
+        public std::vector<ShaderBase::Ptr>,
+        public TypedView< ShaderBase, Node>::Listener,
+        private ParameterBase::Listener {
 
+        typedef std::vector<ShaderBase::Ptr> OrderedSetType;
+        ShaderEnabledListOrdered(ShaderFx & _owner):
+        TypedView< ShaderBase, Node>::Listener("ShaderEnabledList"),
+        ParameterBase::Listener("shaderEnableListener"),
+        owner(_owner) {
+            _owner.availableShaders.listeners.add(this);
+        };
+        
+    private:
+        void valueChanged(ParameterBase* p)final {
+            auto c = p->getParent(); if (c) {
+                auto relEnSh = owner.availableShaders.getNamedPtrSet().findFirst<ShaderBase>([p](ShaderBase * s) {return (bool)(s && p == s->enabled.get());});
+                if (relEnSh) {
+                    auto it = std::find(begin(),end(),relEnSh);
+                    if (it!=OrderedSetType::end()) {OrderedSetType::erase(it);}
+                    if(relEnSh->enabled->getValue()){OrderedSetType::push_back(relEnSh);}
 
+                }
+                auto relOrdSh = owner.availableShaders.getNamedPtrSet().findFirst<ShaderBase>([p](ShaderBase * s) {return (bool)(s && p == s->order.get());});
+                if (relOrdSh || relEnSh) {
+                    std::sort(begin(),end(),
+                              [](const ShaderBase::Ptr a,const ShaderBase::Ptr b){
+                                  return *(a->order)<*(b->order);
+                              });
+                    DBG("reordering");
+                    for(auto & l :*this){
+                        DBG("inner : " << l->getName() << " : " << l->order->getValue()  << " x " <<(long)(void*)l.get());
+                    }
+
+                }
+
+                
+            }};
+        void typedElementAdded(const Node::PtrT<ShaderBase> & s )final{s->enabled->listeners.add(this);s->order->listeners.add(this);};
+            void typedElementRemoved(const Node::PtrT<ShaderBase> & s )final{s->enabled->listeners.remove(this);s->order->listeners.remove(this);};
+        const ShaderFx & owner;
+    };
+    
+    int curShaderIdx;
+    bool bShouldProcess;
+    
+    
+    TypedView<ShaderBase, Node> availableShaders;
+    ShaderEnabledListOrdered enabledShaders;
+    
 };
 
 

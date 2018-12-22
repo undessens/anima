@@ -23,6 +23,7 @@
 
 
 #include "ShaderFx.h"
+#include "PresetManager.hpp"
 
 #define NB_SETTINGS 4
 
@@ -50,7 +51,7 @@ public:
     ofVideoGrabber videoGrabber;
     #endif
     
-    ShaderFx shaderFx;
+    
     ofxOscReceiver receiver;
 
     string transport;
@@ -59,4 +60,9 @@ public:
     bool doPrintInfo;
 
     float lastFrameTime;
+    shared_ptr<ParameterContainer> root;
+    shared_ptr<PresetManager> presetManager;
+    shared_ptr<ShaderFx> shaderFx;
+
+    OSCParameterBinder oscBind;
 };

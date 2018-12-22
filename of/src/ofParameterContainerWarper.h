@@ -42,7 +42,7 @@ struct ElemSerializer<ofVec3f> {
 
 class OSCParameterBinder {
 public:
-  OSCParameterBinder(ParameterContainer & _owner): owner(_owner) {
+  OSCParameterBinder() {
 
   }
   typedef enum {
@@ -52,7 +52,7 @@ public:
     isZ = -4
   } SpecialAccessor;
 
-  bool processOSC(const ofxOscMessage & m, int fromLevel = 0) {
+  bool processOSC(const ofxOscMessage & m, int fromLevel ,ParameterContainer & owner) {
     auto spl = ofSplitString(m.getAddress(), "/", true, true);
     if (spl.size() <= fromLevel) return false;
     if (fromLevel > 0)spl.erase(spl.begin(), spl.begin() + fromLevel);
@@ -76,12 +76,15 @@ public:
 
         bool hasSet =  setParameterFromOSC(m, p, acc);
         if (!hasSet) {
-          DBG("wrong OSC message formating for " << p->getName() << m);
+          DBGE("wrong OSC message formating for " << p->getName() << m);
         }
+      }
+      else{
+          DBGE("parameter not found for " << m.getAddress() << "::" << insp->toNiceString() );
       }
     }
     else {
-      DBG("container not found for " << m.getAddress() << "::" << spl);
+      DBGW("container not found for " << m.getAddress() << "::" << spl);
     }
     return false;
   }
@@ -89,6 +92,10 @@ public:
 private:
   bool setParameterFromOSC(const ofxOscMessage & msg, ParameterBase * p, const SpecialAccessor & acc) {
     if (auto np = dynamic_cast<TriggerParameter*>(p)) {np->trigger(); return true;}
+    else if (auto np = dynamic_cast<ActionParameter*>(p)) {
+        string command; for(int i = 0 ;i < msg.getNumArgs();i++){if(i!=0){command+=" ";}command+=msg.getArgAsString(i);}
+        np->executeAction(command); return true;
+    }
     if (msg.getNumArgs() == 0) {
       if (auto np = dynamic_cast<Parameter<bool>*>(p)) {np->setValue(!np->getValue()); return true;}
     }
@@ -100,6 +107,8 @@ private:
         else if (auto np = dynamic_cast<Parameter<double>*>(p)) {np->setValue(msg.getArgAsFloat(0)); return true;}
         else if (auto np = dynamic_cast<Parameter<bool>*>(p)) {np->setValue(msg.getArgAsFloat(0)); return true;}
         else if (auto np = dynamic_cast<Parameter<string>*>(p)) {np->setValue(msg.getArgAsString(0)); return true;}
+
+
       }
       else if (acc == isX || acc == isY || acc == isZ) {
         if (auto np = dynamic_cast<Parameter<ofVec2f>*>(p)) {
@@ -133,6 +142,6 @@ private:
     return false;
   }
 private:
-  const ParameterContainer & owner;
+
 };
 
