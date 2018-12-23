@@ -1,4 +1,5 @@
 bin/data/presets/
+bin/data/images/
 
 obj/
 *.gch

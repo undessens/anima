@@ -30,7 +30,7 @@ public:
     LeafType(const string & n, LeafType * p = nullptr): name(n) {setParent(p);}
     virtual ~LeafType() {DBG("leaf deleting : " << getName());}
     virtual string stateToString()const = 0;
-    virtual void stateFromString(const string &) = 0;
+    virtual void setStateFromString(const string &) = 0;
     const string &  getName() const {return name;};
     const LeafType * getParent()const {return parent;}
     void setParent(LeafType * p) {parent = p;}
@@ -167,7 +167,7 @@ public:
         return res;
     }
 
-    virtual void stateFromString(const string & s) override {
+    virtual void setStateFromString(const string & s) override {
         const string ignore = " \t\r\n";
         int depth = -1;
         string cs , name;
@@ -179,8 +179,9 @@ public:
             if (c == ':' && depth == 0) {name = cs; cs = ""; continue;}
             if ((c == ',' && depth == 0) || (c == '}' && depth == 1) ) {
                 if (c == '}') {cs += c; depth--;}
-                if (auto cn = nodes.getByName(name)) {cn->stateFromString(cs);}
-                else if (auto cn = leaves.getByName(name)) {cn->stateFromString(cs);}
+                if (auto cn = nodes.getByName(name)) {cn->setStateFromString(cs);}
+                else if (auto cn = leaves.getByName(name)) {cn->setStateFromString(cs);}
+                else{DBGE("no child found at : " << name);}
                 cs = ""; name = "";
                 continue;
             }
@@ -188,8 +189,9 @@ public:
             if (depth >= 0) {cs += c;}
         }
         if (name != "" && cs != "") {
-            if (auto cn = nodes.getByName(name)) {cn->stateFromString(cs);}
-            else if (auto cn = leaves.getByName(name)) {cn->stateFromString(cs);}
+            if (auto cn = nodes.getByName(name)) {cn->setStateFromString(cs);}
+            else if (auto cn = leaves.getByName(name)) {cn->setStateFromString(cs);}
+            else{DBGE("no child found at : " << name);}
         }
 
     }
@@ -293,10 +295,10 @@ public:
     // explicit operator const T&()const{return getValue();}
     operator const T&() {return value;}
 
-    void stateFromString(const string & s) override {setValue(StringUtils::ElemSerializer<T>::fromString(s));}
+    void setStateFromString(const string & s) override {setValue(StringUtils::ElemSerializer<T>::fromString(s));}
     string stateToString() const override {return StringUtils::ElemSerializer<T>::toString(value);}
     // virtual string toString()const{return stateToString();}
-    // virtual void fromString(const string & s){return stateFromString(s);}
+    // virtual void fromString(const string & s){return setStateFromString(s);}
     void notifyValueChanged(Listener * from = nullptr) {
         if (!isCommiting) {
             // do stuff
@@ -428,7 +430,7 @@ public:
         }
         res += "]";
     }
-    void stateFromString(const string & s) final{
+    void setStateFromString(const string & s) final{
         int depth = -1;
         string cs;
         int idx  = 0;
@@ -515,7 +517,7 @@ public:
     typedef std::function<void(TriggerParameter *)> TriggerFunctionType;
     TriggerParameter(const string & name , TriggerFunctionType f): TriggerParameterType(name, {}), tf(f) {isSavable = false;}
     string stateToString() const override {return "";}
-    void stateFromString(const string &) override {};
+    void setStateFromString(const string &) override {};
     void trigger() {tf(this);}
 private:
     TriggerFunctionType tf;
@@ -538,7 +540,7 @@ public:
     typedef std::function<void(const string & )> ActionFunctionType;
     ActionParameter(const string & name , ActionFunctionType f): ActionParameterType(name, {}), Parameter<ActionValueType>::Listener("ActionListener"), af(f) {isSavable = false;}
     // string stateToString() const override {return "";}
-    // void stateFromString(const string &) override {};
+    // void setStateFromString(const string &) override {};
     void valueChanged(ParameterBase *)final{executeAction(value);};
     void executeAction(const string & s) {af(s);}
 private:
@@ -610,6 +612,8 @@ public:
         if (it != castedCont.end()) {return it->second;}
         else {return typename NamedPtrSet<PT>::Ptr(nullptr);}
     }
+
+    typename NamedPtrSet<PT>::Ptr operator[](const string & name) {return castedCont.getByName(name);}
 
 private:
 

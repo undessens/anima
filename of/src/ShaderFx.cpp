@@ -265,6 +265,7 @@ void addAndRegisterType (CONTAINER & cont, Args... args) {
 void ShaderFx::setup() {
 
     addAndRegisterType<ShaderBase>(nodes, "mirror");
+    addAndRegisterType<ShaderBase>(nodes, "champi");
     addAndRegisterType<CurveShader>(nodes);
     addAndRegisterType<KaleidoscopeShader>(nodes);
     addAndRegisterType<MaskShader>(nodes);
@@ -272,7 +273,7 @@ void ShaderFx::setup() {
     // nodes.add(new KaleidoscopeShader());
 
 
-    soloShader(availableShaders[0]);
+    soloShader(availableShaders["champi"]);
 
 }
 

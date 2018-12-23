@@ -50,37 +50,40 @@ public:
   void clear()                                      {ContainerType::clear();}
 
 
-    void apply(const std::function<void(VT*)> & f)const{for(auto &c:getContainer()){f(c.second.get());}}
+  void apply(const std::function<void(VT*)> & f)const {for (auto &c : getContainer()) {f(c.second.get());}}
 
 
-template <class T>
-    void clearElementsInMap(const T & cont){
-        for(auto c:cont){
-            if(contains(c.second)){
-                remove(c.second);
-            }
-        }
+  template <class T>
+  void clearElementsInMap(const T & cont) {
+    for (auto c : cont) {
+      if (contains(c.second)) {
+        remove(c.second);
+      }
     }
-    template <class T>
-    void clearElementsInVec(const T & cont){
-        for(auto c:cont){
-            if(contains(c)){
-                remove(c);
-            }
-        }
+  }
+  template <class T>
+  void clearElementsInVec(const T & cont) {
+    for (auto c : cont) {
+      if (contains(c)) {
+        remove(c);
+      }
     }
+  }
   const ContainerType &  getContainer()const        {return *this;}
 
-  Ptr  getByName(const string & n)const             {auto ni = getContainer().find(n);
-      if (ni != getContainer().end()) {
-          return ni->second;
-      };
-      return nullptr;
+  Ptr  getByName(const string & n)const             {
+    auto ni = getContainer().find(n);
+    if (ni != getContainer().end()) {
+      return ni->second;
+    };
+    return nullptr;
   }
+  Ptr operator[](const string & s) {return getByName(s);}
+
   Ptr add(VT * c)                                   { return addShared( Ptr(c));}
   Ptr addShared(const Ptr ori)                      { addInternal(ori); ContainerType::operator[](ori->getName()) = ori; return ori;};
-  bool remove(const Ptr p)                          {if(contains(p)){removeInternal(p); ContainerType::erase(p->getName());return true;}return false;}
-  bool contains(Ptr p)                              {return std::find_if(begin(),end(),[&p]( const std::pair<string,Ptr> & kv){return (bool)(kv.second ==p);})!=getContainer().end();}
+  bool remove(const Ptr p)                          {if (contains(p)) {removeInternal(p); ContainerType::erase(p->getName()); return true;} return false;}
+  bool contains(Ptr p)                              {return std::find_if(begin(), end(), [&p]( const std::pair<string, Ptr> & kv) {return (bool)(kv.second == p);}) != getContainer().end();}
   template<class T = VT>
   PtrT<T> findFirst(const std::function<bool(T*)> &func)const {for (auto & v : getWithType<T>()) {if (func(v.get())) {return v;}} return nullptr;}
   // cast Helpers

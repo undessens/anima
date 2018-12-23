@@ -13,8 +13,8 @@ uniform sampler2D tex0;
 uniform vec2 resolution;
 uniform float vertical; // (1)
 uniform float switchSide; // (1)
-uniform float zoom; //(1.0)
-uniform float zoomoffset; //(1.0)
+// uniform float zoom; //(1.0)
+// uniform float zoomoffset; //(1.0)
 // uniform float rotation; // default (1)
 uniform float offset; // (0.5)
 // uniform vec2 mouse;

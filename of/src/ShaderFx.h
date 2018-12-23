@@ -40,7 +40,9 @@ public:
 
     bool load() {
         shader.load("shaders/" + getName());
+        string s = stateToString();
         autoParseUniforms();
+        setStateFromString(s);
         initParams();
 
         return shader.isLoaded();
@@ -201,26 +203,26 @@ public:
     }
 
 
-    void savePreset(string path) {
-        ofFile f(path, ofFile::Mode::WriteOnly);
-        if (!f.exists()) {f.create();}
-        auto nodeView = createNodeView<ParameterBase>(
-                                                      [](ParameterBase * c) {return c->isSavable;},
-                                                      [this](Node * n) {
-                                                          if (auto s = dynamic_cast<ShaderBase*>(n)) {return s->enabled->getValue();}
-                                                          return true;
-                                                      });
+    // void savePreset(string path) {
+    //     ofFile f(path, ofFile::Mode::WriteOnly);
+    //     if (!f.exists()) {f.create();}
+    //     auto nodeView = createNodeView<ParameterBase>(
+    //                                                   [](ParameterBase * c) {return c->isSavable;},
+    //                                                   [this](Node * n) {
+    //                                                       if (auto s = dynamic_cast<ShaderBase*>(n)) {return s->enabled->getValue();}
+    //                                                       return true;
+    //                                                   });
 
-        ofBuffer buf; buf.set(nodeView->toNiceString());
-        f.writeFromBuffer(buf);
-    }
-    void loadPreset(string path) {
-        ofFile f(path, ofFile::Mode::ReadOnly);
-        if (!f.exists()) {ofLogError() << "no file at " << path; return ;}
-        ofBuffer buf(f.readToBuffer());
-        availableShaders.getNamedPtrSet().apply([](ShaderBase *s){s->enabled->setValue(false);});
-        stateFromString(buf.getText());
-    }
+    //     ofBuffer buf; buf.set(nodeView->toNiceString());
+    //     f.writeFromBuffer(buf);
+    // }
+    // void loadPreset(string path) {
+    //     ofFile f(path, ofFile::Mode::ReadOnly);
+    //     if (!f.exists()) {ofLogError() << "no file at " << path; return ;}
+    //     ofBuffer buf(f.readToBuffer());
+    //     availableShaders.getNamedPtrSet().apply([](ShaderBase *s){s->enabled->setValue(false);});
+    //     setStateFromString(buf.getText());
+    // }
     void drawDbg() {if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
 
 private:

@@ -84,7 +84,7 @@ public:
         f.open(pathStr);
         if (!f.is_open()) {f.close(); DBGE("no preset found for " << pathStr); return;}
         std::string s(std::istreambuf_iterator<char>(f), {});
-        pc->stateFromString(s);
+        pc->setStateFromString(s);
         f.close();
     }
     
