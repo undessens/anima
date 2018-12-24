@@ -35,6 +35,7 @@ void ofApp::setup()
     root->addSharedParameterContainer(shaderFx);
     shaderFx->setup();
 
+    oscBind.setup(root,"localhost",11001);
 
     lastFrameTime = ofGetElapsedTimef();
 
@@ -99,13 +100,15 @@ void ofApp::update()
 
 		int value = m.getArgAsInt32(0);
         auto splitted = ofSplitString(m.getAddress(), "/",true);
+
+        if( oscBind.processOSC(m,0)) continue;
+
         if(splitted.size()<2)continue;
-        
-		string add0= splitted[0];
+
+        string add0= splitted[0];
         string add1= splitted[1];
         ofLogVerbose() << "\n osc message received add0: " << add0 << " add1 " << add1 << " value: "<< ofToString(value);
 
-        if( oscBind.processOSC(m,0,*root)) continue;
         #ifndef EMULATE_ON_OSX
         for (int i=0; i<NB_SETTINGS; i++){
           ofLogVerbose() << " For: " << ofToString(i);

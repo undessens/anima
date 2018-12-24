@@ -164,7 +164,7 @@ public:
   void remove(T*t) {std::remove_if(listeners.begin(), listeners.end(), [t](const WeakReference<ListenerBase> &l) {return t == l.get();});}
 
   template<class FunType, class... Args>
-  void call(FunType f, Args... args) {
+  void call(FunType f, Args... args) const{
     // DBG( "listener list: " <<name <<" " << listeners.size());
     bool shouldCleanUp = false;
     for (auto & l : listeners) {
@@ -174,25 +174,25 @@ public:
         shouldCleanUp = true;
       }
     }
-    if (shouldCleanUp) {
-      cleanUp();
-    }
+    // if (shouldCleanUp) {
+    //   cleanUp();
+    // }
   }
   template<class FunType, class... Args>
-  void callExcluding(T* listenerToExclude, FunType f, Args... args) {
+  void callExcluding(void* listenerToExclude, FunType f, Args... args) const {
     // DBG( "listener list: " <<name <<" " << listeners.size());
     bool shouldCleanUp = false;
     for (auto & l : listeners) {
-      if (listenerToExclude && l.get() == listenerToExclude) {continue;}
+      if (listenerToExclude && (void*)l.get() == listenerToExclude) {continue;}
       if (T * ll = (T*)l.get()) {std::bind(f, ll, args...)();}
       else {
         if (l.get()) {DBGE("listener list : wrong cast  ");}
         shouldCleanUp = true;
       }
     }
-    if (shouldCleanUp) {
-      cleanUp();
-    }
+    // if (shouldCleanUp) {
+    //   cleanUp();
+    // }
   }
   void cleanUp() {
     std::remove_if(listeners.begin(), listeners.end(), [](const WeakReference<ListenerBase> &l) {if (!l.get()) {DBGE("old listener still linked");} return !l.get();});

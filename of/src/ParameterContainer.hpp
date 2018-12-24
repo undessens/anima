@@ -17,29 +17,26 @@ using namespace std;
 
 
 
-// class LeafType;
-class LeafParent {
-    public :
-    virtual ~LeafParent() {};
-    // virtual void removeLeaf(LeafType * ) =0;
-
-};
-
 class LeafType {
 public:
-    LeafType(const string & n, LeafType * p = nullptr): name(n) {setParent(p);}
+    LeafType(const string & n, LeafType * p = nullptr): name(n) ,parent(p){}
     virtual ~LeafType() {DBG("leaf deleting : " << getName());}
     virtual string stateToString()const = 0;
     virtual void setStateFromString(const string &) = 0;
     const string &  getName() const {return name;};
     const LeafType * getParent()const {return parent;}
-    void setParent(LeafType * p) {parent = p;}
+    void setParent(LeafType * p) {
+        parent = p;
+    }
 
     typedef vector<string> PathType;
     PathType getCurrentPath(LeafType* relativeTo=nullptr){
-        PathType res{getName()};
-        auto insp = getParent();
-        while(insp && insp!=relativeTo && insp->getParent()!=nullptr){res.push_back(insp->getName());insp = insp->getParent();}
+        PathType res{name};
+        LeafType * insp = LeafType::parent;
+        while(insp!=nullptr && insp!=relativeTo && insp->parent!=nullptr){
+            res.push_back(insp->name);
+            insp = insp->parent;}
+        std::reverse(res.begin(),res.end());
         return res;
 
     }
@@ -49,9 +46,9 @@ private:
 };
 
 
-class Node : public LeafType , public LeafParent {
+class Node : public LeafType {
 public:
-    Node(const string & n, Node *parent = nullptr): LeafType(n, parent), nodes(this), leaves(this) {}
+    Node(const string & n, Node *parent = nullptr,bool _shouldOwn=true): LeafType(n, parent), nodes(this), leaves(this),shouldOwn(_shouldOwn) {}
     virtual ~Node() {};
     typedef Node NodeType;
 
@@ -64,7 +61,7 @@ public:
 
 
     template<class T>
-    T * getParentAs() {return dynamic_cast<T*>(parent);}
+    const T * getParentAs() const{return dynamic_cast<T*>(LeafType::getParent());}
 
     static const string & getRootName(){static string r("root");return r;}
     static const Node::Ptr getRoot(){
@@ -112,8 +109,12 @@ public:
             virtual void leafRemoved(LeafContainer<VT> * ori, Ptr c) = 0;
         };
         ListenerList<Listener> listeners;
-        void addInternal(Ptr c) final          {c->setParent(owner); listeners.call(&Listener::leafAdded, this, c);}
-        void removeInternal(Ptr c)final        {c->setParent(nullptr); listeners.call(&Listener::leafRemoved, this, c);}
+        void addInternal(Ptr c) final          {
+            if(owner->shouldOwn){c->setParent(owner);} listeners.call(&Listener::leafAdded, this, c);
+        }
+        void removeInternal(Ptr c)final        {
+            if(owner->shouldOwn){c->setParent(nullptr);} listeners.call(&Listener::leafRemoved, this, c);
+        }
         string toStringList()const             {int i = getContainer().size() - 1; string res ; for (const auto &v : getContainer()) {res += v.first + ":" + v.second->stateToString(); if (i != 0) {res += ",";} i--;} return res;}
         friend class Node;
 
@@ -126,7 +127,7 @@ public:
     typedef Node::Ptr NodeView;
     template<class T>
     NodeView createNodeView(function<bool(T*)> f, function<bool(NodeType*)> fnode = [](NodeType*) {return true;}, int maxRecursion = -1) {
-        Node::Ptr res ( new Node(getName()) );
+        Node::Ptr res ( new Node(getName(),nullptr,false) );
         for (auto &c : leaves.getContainer()) {
             if (auto cc = dynamic_pointer_cast<T>(c.second)) {
                 if (f(cc.get())) {res->leaves.addShared(c.second);}
@@ -196,27 +197,65 @@ public:
 
     }
 
+    template<class T>
+    void applyRecursively(std::function<void(T*)> f){
+      for(auto & l:leaves){
+        if(auto pl = dynamic_pointer_cast<T>(l.second)){
+          f(pl.get());
+        }
+      }
+      for(auto & n:nodes){n.second->applyRecursively<T>(f);}
+    }
+
     LeafContainer<Node> nodes;
     LeafContainer<LeafType> leaves;
 
 protected:
-    NodeType*  parent;
+   const bool shouldOwn; // indicate if this is a normal container or just a reference to another
+    // NodeType*  parent;
 
 };
 
 
 class ParameterBase : public LeafType, public WeakReferenceAble<ParameterBase> {
 public:
-    ParameterBase(const string & n): LeafType(n), isSavable(true), listeners("paramListeners") {}
+    ParameterBase(const string & n): LeafType(n), isSavable(true), listeners("paramListeners"),bhasChanged(false), isCommiting(false) {}
 
     bool isSavable;
     struct Listener : public ListenerBase {
         using ListenerBase::ListenerBase;
         virtual ~Listener() {};
-        virtual void valueChanged(ParameterBase *) = 0;
+        virtual void valueChanged(ParameterBase *,void* notifier) = 0;
     };
     ListenerList<Listener> listeners;
+    void notifyValueChanged(void * from = nullptr) {
+        if (!isCommiting) {
+            // do stuff
+            listeners.callExcluding(from, &Listener::valueChanged, this,from);
+            // bhasChanged = false;
+        }
+    }
 
+    
+
+    struct CommitingSession {
+        CommitingSession(ParameterBase *_p,void * _commiter): p(_p),commiter(_commiter) {p->startCommit();}
+        ~CommitingSession() {p->endCommit(commiter);}
+        ParameterBase * const p;
+        void * commiter;
+    };
+    std::unique_ptr<CommitingSession> startScopedCommitingSession(void* commiter) {return make_unique<CommitingSession>(this,commiter);};
+    void startCommit() {isCommiting = true;}
+    void endCommit(void* commiter) {isCommiting = false; if (bhasChanged) {notifyValueChanged(commiter);}}
+
+
+
+    private : 
+
+    bool bhasChanged;
+    bool isCommiting;
+    template<class T>
+    friend class Parameter;
 };
 
 class ParameterContainerFactory {
@@ -275,9 +314,9 @@ class Parameter  : public ParameterBase {
 public:
 
     typedef Node::PtrT<Parameter<T>> Ptr;
-    Parameter(const string & _name, const T & t): ParameterBase(_name), value(t), bhasChanged(false), isCommiting(false) {};
+    Parameter(const string & _name, const T & t): ParameterBase(_name), value(t) {};
     // Parameter(const string & _name,const T && t):ParameterBase(_name),value(t){};
-    const T & setValue(const T & t, Listener * from = nullptr) {
+    const T & setValue(const T & t, void * from = nullptr) {
         bool isChange  = t != value;
         if (isChange)
             DBG("setting p:" << getName() << (isChange ? "change" : ""));
@@ -299,22 +338,7 @@ public:
     string stateToString() const override {return StringUtils::ElemSerializer<T>::toString(value);}
     // virtual string toString()const{return stateToString();}
     // virtual void fromString(const string & s){return setStateFromString(s);}
-    void notifyValueChanged(Listener * from = nullptr) {
-        if (!isCommiting) {
-            // do stuff
-            listeners.callExcluding(from, &Listener::valueChanged, this);
-            // bhasChanged = false;
-        }
-    }
 
-    struct CommitingSession {
-        CommitingSession(Parameter<T> &_p): p(_p) {p.startCommit();}
-        ~CommitingSession() {p.endCommit();}
-        const Parameter<T> & p;
-    };
-    std::unique_ptr<CommitingSession> startCommitingSession() {return new CommitingSession(*this);};
-    void startCommit() {isCommiting = true;}
-    void endCommit() {isCommiting = false; if (bhasChanged) {notifyValueChanged();}}
     const T& getLastValue(){return lastValue;}
 protected:
     T value;
@@ -322,8 +346,7 @@ protected:
 private:
 
 
-    bool bhasChanged;
-    bool isCommiting;
+    
 
 };
 
@@ -541,7 +564,7 @@ public:
     ActionParameter(const string & name , ActionFunctionType f): ActionParameterType(name, {}), Parameter<ActionValueType>::Listener("ActionListener"), af(f) {isSavable = false;}
     // string stateToString() const override {return "";}
     // void setStateFromString(const string &) override {};
-    void valueChanged(ParameterBase *)final{executeAction(value);};
+    void valueChanged(ParameterBase *,void* notifier)final{executeAction(value);};
     void executeAction(const string & s) {af(s);}
 private:
     ActionFunctionType af;
@@ -653,11 +676,16 @@ public:
 
 class ParameterContainer : public Node, private Node::LeafContainer<LeafType>::Listener, public WeakReferenceAble<ParameterContainer>, protected ParameterBase::Listener {
 public:
-    ParameterContainer(const string & n): Node(n), Node::LeafContainer<LeafType>::Listener(n), ParameterBase::Listener(n) {
+    ParameterContainer(const string & n): Node(n), 
+    Node::LeafContainer<LeafType>::Listener(n), 
+    ParameterBase::Listener(n),
+    parameterContainerListeners("containerListeners") {
         leaves.listeners.add(this);
     };
     using Node::PtrT;
     typedef PtrT<ParameterContainer> Ptr;
+
+    const ParameterContainer *  getParent()const {return Node::getParentAs<const ParameterContainer>();}
     
     template <class T, class ...Args>
     PtrT<T> addParameter(const string & n, Args... args) {
@@ -680,9 +708,26 @@ public:
     }
     
     virtual void parameterValueChanged(ParameterBase * p) {};
+
+
+    struct Listener : public ListenerBase{
+      Listener(const string & n):ListenerBase(n){};
+      virtual ~Listener(){};
+
+      virtual void childParameterChanged(ParameterContainer* parent,ParameterBase * p)=0;
+
+    };
+    ListenerList<Listener> parameterContainerListeners;
     
 private:
-    void valueChanged(ParameterBase * p) {parameterValueChanged(p);}
+    void valueChanged(ParameterBase * p,void* notifier) {
+      parameterValueChanged(p);
+
+      parameterContainerListeners.callExcluding(notifier,&Listener::childParameterChanged,this,p);
+      auto insp = ParameterContainer::getParent();
+      while(insp){insp->parameterContainerListeners.callExcluding(notifier,&Listener::childParameterChanged,this,p);insp = insp->getParent();}
+      
+    }
     
     
     void leafAdded(LeafContainer<LeafType> * ori, LeafPtr c) final{

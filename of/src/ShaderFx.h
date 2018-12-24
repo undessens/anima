@@ -19,7 +19,8 @@ public:
         enabled = addParameter<BoolParameter>("enabled", false);
         order = addParameter<IntParameter>("order", 0);
     }
-    virtual ~ShaderBase() {};
+    virtual ~ShaderBase() {
+    };
 
     ofShader shader;
     typedef enum {
@@ -42,9 +43,8 @@ public:
         shader.load("shaders/" + getName());
         string s = stateToString();
         autoParseUniforms();
-        setStateFromString(s);
         initParams();
-
+        setStateFromString(s);
         return shader.isLoaded();
     }
 
@@ -203,26 +203,6 @@ public:
     }
 
 
-    // void savePreset(string path) {
-    //     ofFile f(path, ofFile::Mode::WriteOnly);
-    //     if (!f.exists()) {f.create();}
-    //     auto nodeView = createNodeView<ParameterBase>(
-    //                                                   [](ParameterBase * c) {return c->isSavable;},
-    //                                                   [this](Node * n) {
-    //                                                       if (auto s = dynamic_cast<ShaderBase*>(n)) {return s->enabled->getValue();}
-    //                                                       return true;
-    //                                                   });
-
-    //     ofBuffer buf; buf.set(nodeView->toNiceString());
-    //     f.writeFromBuffer(buf);
-    // }
-    // void loadPreset(string path) {
-    //     ofFile f(path, ofFile::Mode::ReadOnly);
-    //     if (!f.exists()) {ofLogError() << "no file at " << path; return ;}
-    //     ofBuffer buf(f.readToBuffer());
-    //     availableShaders.getNamedPtrSet().apply([](ShaderBase *s){s->enabled->setValue(false);});
-    //     setStateFromString(buf.getText());
-    // }
     void drawDbg() {if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
 
 private:
@@ -266,7 +246,7 @@ private:
         };
         
     private:
-        void valueChanged(ParameterBase* p)final {
+        void valueChanged(ParameterBase* p,void* notifier)final {
             auto c = p->getParent(); if (c) {
                 auto relEnSh = owner.availableShaders.getNamedPtrSet().findFirst<ShaderBase>([p](ShaderBase * s) {return (bool)(s && p == s->enabled.get());});
                 if (relEnSh) {
@@ -281,11 +261,6 @@ private:
                               [](const ShaderBase::Ptr a,const ShaderBase::Ptr b){
                                   return *(a->order)<*(b->order);
                               });
-                    DBG("reordering");
-                    for(auto & l :*this){
-                        DBG("inner : " << l->getName() << " : " << l->order->getValue()  << " x " <<(long)(void*)l.get());
-                    }
-
                 }
 
                 
