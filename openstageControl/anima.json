@@ -1367,7 +1367,31 @@
           "widgets": [
             {
               "type": "strip",
-              "widgets": [],
+              "widgets": [
+                {
+                  "type": "dropdown",
+                  "id": "@{parent.address}/NUM_OCTAVES",
+                  "linkId": "",
+                  "height": "auto",
+                  "label": "NUM_OCTAVES",
+                  "color": "auto",
+                  "css": "",
+                  "values": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "default": "",
+                  "value": "",
+                  "precision": 0,
+                  "address": "@{this.id}",
+                  "preArgs": "",
+                  "target": "",
+                  "bypass": false
+                }
+              ],
               "label": false,
               "id": "strip_4",
               "linkId": "",

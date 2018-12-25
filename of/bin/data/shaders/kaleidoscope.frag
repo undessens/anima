@@ -1,6 +1,6 @@
 #define USE_ARB 1
 
-#define OLD_ALGO 1
+#define ALGO_NUM 0
 
 #if USE_ARB
 #extension GL_ARB_texture_rectangle : enable  
@@ -20,10 +20,10 @@ uniform vec2 offset; // (0,0)
 uniform vec2 mouse;
 // uniform float time;
 
-vec2 kal2d(vec2 x,vec2 s,vec2 o){
-    vec2 hs = s/2.0;
-    return o+abs(0.5-mod(hs*(x-o) +.5,1.0))/hs;
-}
+// vec2 kal2d(vec2 x,vec2 s,vec2 o){
+//     vec2 hs = s/2.0;
+//     return o+abs(0.5-mod(hs*(x-o) +.5,1.0))/hs;
+// }
 
 vec2 modul(vec2 x,vec2 s){
     return mod(s/2.0*(x-vec2(.5))+.5,1.);
@@ -70,12 +70,10 @@ void main( )
     // uv = zoom2d(uv,zoom,offset);  
   
 
-#if OLD_ALGO
+#if ALGO_NUM==0
     //kaleidoscope it
     uv = kal2d2(uv.xy,scale,offset,zoom);
 #else
-
-    
     // different algo for kaleidoscoe
     uv.x = mirrorOutS(uv.x-offset.x,1.0/scale.x)+offset.x;
     uv.y = mirrorOutS(uv.y-offset.y,1.0/scale.y)+offset.y;
