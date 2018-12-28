@@ -17,7 +17,7 @@ public:
     typedef NumericParameter<ofVec2f> ofVec2fParameter ;
     typedef PCollection<ofVec2fParameter> Vec2ParameterListType;
 
-    ShaderBase(const string & _name): ParameterContainer(_name) {
+    ShaderBase(const string & _name): ParameterContainer(_name),currentTime(0) {
         enabled = addParameter<BoolParameter>("enabled", false);
         order = addParameter<IntParameter>("order", 0);
     }
@@ -28,12 +28,16 @@ public:
     typedef enum {
         resolution = 0,
         mouse = 1,
-        time = 2
+        time = 2,
+        speed = 3
     } DefaultUniform;
     int defaultUniformFlags;
     static const map<string, ShaderBase::DefaultUniform> reservedUniformsMap;
     bool hasDefaultUniform(DefaultUniform  s) {return (defaultUniformFlags >> (int)s) & 1;}
-    bool setDefaultUniform(DefaultUniform  s) {return defaultUniformFlags |= (1 << (int)s);}
+    bool setDefaultUniform(DefaultUniform  s) {
+        if(s==speed){speedParameter = addParameter<FloatParameter>("speed",1.0);}
+        return defaultUniformFlags |= (1 << (int)s);
+    }
     FloatParameterListType fParams;
     Vec2ParameterListType vParams;
     FloatParameterListType customfParams;
@@ -112,7 +116,12 @@ protected:
     virtual void setUniforms(const ofVec2f & resolution, const float deltaT) {
         if (hasDefaultUniform(DefaultUniform::resolution)) {shader.setUniform2f("resolution", resolution.x, resolution.y);}
         if (hasDefaultUniform(DefaultUniform::mouse)) {shader.setUniform2f("mouse", ofGetMouseX() * 1.0 / ofGetWidth(), ofGetMouseY() * 1.0 / ofGetHeight());}
-        if (hasDefaultUniform(DefaultUniform::time)) {shader.setUniform1f("time", ofGetElapsedTimef());}
+        if (hasDefaultUniform(DefaultUniform::time)) {
+            float dt = deltaT;
+            if(hasDefaultUniform(DefaultUniform::speed)){dt*=speedParameter->getValue();}
+            currentTime+=dt;
+            shader.setUniform1f("time", currentTime);
+        }
         updateParams(deltaT);
         for (const auto & p : fParams.vIterator()) {shader.setUniform1f(p->getName(), p->getValue());}
         for (const auto & p : vParams.vIterator()) {const ofVec2f & v ( p->getValue()); shader.setUniform2f(p->getName(), v.x, v.y);}
@@ -121,6 +130,8 @@ protected:
 private:
     void autoParseUniforms(); // internal utility function parsing frag shader for uniforms (float or vec2) one can define defaultValues : // (value) or (x,y) or (disabled)
     friend class ShaderFx;
+    float currentTime;
+    FloatParameter::Ptr speedParameter;
 
 };
 

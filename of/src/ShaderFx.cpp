@@ -273,7 +273,7 @@ void ShaderFx::setup() {
 
 
 
-    soloShader(availableShaders["champi"]);
+    soloShader(availableShaders["kaleidoscope"]);
 
 }
 
@@ -284,7 +284,7 @@ void ShaderFx::setup() {
 
 
 
-const map<string,ShaderBase::DefaultUniform> ShaderBase::reservedUniformsMap {{"resolution",ShaderBase::DefaultUniform::resolution},{"time",ShaderBase::DefaultUniform::time},{"mouse",ShaderBase::DefaultUniform::mouse}};
+const map<string,ShaderBase::DefaultUniform> ShaderBase::reservedUniformsMap {{"resolution",ShaderBase::DefaultUniform::resolution},{"time",ShaderBase::DefaultUniform::time},{"mouse",ShaderBase::DefaultUniform::mouse},{"speed",ShaderBase::DefaultUniform::speed}};
 
 void ShaderBase::autoParseUniforms() {
     if (!isLoaded()) return;

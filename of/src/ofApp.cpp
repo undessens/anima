@@ -3,7 +3,11 @@
 #include "ofApp.h"
 #include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
 
+#define USE_TESTIMG 1
 
+#if USE_TESTIMG
+ofImage testImg;
+#endif
 
 
 ofApp::ofApp(){}
@@ -27,6 +31,9 @@ void ofApp::setup()
     // Shaders
     root = make_shared<ParameterContainer>("root");
     Node::setRoot(root);
+    auto tfps = root->addParameter<ActionParameter>("targetFPS",[this](const string & s){
+        float tfps = MAX(10.0,ofToFloat(s));ofSetFrameRate(tfps);DBG("setting FPS to " << tfps);
+    });
     presetManager = make_shared<PresetManager>(root);
     root->addSharedParameterContainer(presetManager);
     presetManager->setup(ofFile("presets").getAbsolutePath());
@@ -79,7 +86,11 @@ void ofApp::setup()
 #else
     ofDisableArbTex();
 #endif
+#if USE_TESTIMG
+testImg.load("/Users/Tintamar/Documents/phone_bup/DCIM/100LGDSC/CAM00019.jpg");
+#else
     videoGrabber.setup(ofGetWidth(),ofGetHeight(),true);
+    #endif
     
 
     #endif
@@ -155,7 +166,16 @@ void ofApp::draw()
     auto curT = ofGetElapsedTimef();
     float deltaT = curT - lastFrameTime ;
     lastFrameTime  =curT;
-    shaderFx->draw(videoGrabber.getTexture(),deltaT);
+    #if USE_TESTIMG
+    testImg.resize(ofGetWidth(),ofGetHeight());
+    #endif
+    shaderFx->draw(
+        #if USE_TESTIMG
+        testImg.getTexture()
+        #else
+        videoGrabber.getTexture()
+        #endif
+        ,deltaT);
 
     
 

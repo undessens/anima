@@ -6,11 +6,11 @@
 #include <iostream> //cout
 #include <csignal> // TRIGGER_BREAK
 
-#define TRIGGER_BREAK std::raise(SIGINT);
+//#define TRIGGER_BREAK std::raise(SIGINT);
 #define DBG(x) std::cout <<"[verbose] : " << x << std::endl;
 #define DBGW(x) std::cout <<"[warning] : " << x << std::endl;
-#define DBGE(x) {std::cerr <<"[error] : " << x << std::endl;TRIGGER_BREAK}
-#define passert(x) {if(!(x)){TRIGGER_BREAK}}
+#define DBGE(x) {std::cerr <<"[error] : " << x << std::endl;}
+//#define passert(x) {if(!(x)){TRIGGER_BREAK}}
 #include "StringUtils.h"
 #include "MiscUtils.h"
 

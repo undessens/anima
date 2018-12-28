@@ -18,7 +18,7 @@ uniform float time;
 
 uniform float scale; // (3)
 uniform float magnitude; // (100)
-uniform float velocity; // (1)
+uniform float speed; // (1)
 
 
 
@@ -57,19 +57,13 @@ float fbm ( in vec2 _st) {
     // Rotate to reduce axial bias
     mat2 rot = mat2(cos(0.5), sin(0.5),
                     -sin(0.5), cos(0.50));
-    #if UNROLLED
-        v += a * noise(_st);_st = rot * _st * 2.0 + shift;a *= 0.5;
-        v += a * noise(_st);_st = rot * _st * 2.0 + shift;a *= 0.5;
-        v += a * noise(_st);_st = rot * _st * 2.0 + shift;a *= 0.5;
-        v += a * noise(_st);_st = rot * _st * 2.0 + shift;a *= 0.5;
-    #else
 
     for (int i = 0; i < NUM_OCTAVES; ++i) {
         v += a * noise(_st);
         _st = rot * _st * 2.0 + shift;
         a *= 0.5;
     }
-    #endif
+    
     return v;
 }
 
@@ -79,15 +73,15 @@ void main() {
     // vec3 color = vec3(0.0);
 
     vec2 q = vec2(0.);
-    q.x = fbm( st+0.0*time*velocity );
+    q.x = fbm( st );
     q.y = q.x;//fbm( st + vec2(1.0));
 
     vec2 r = vec2(0.);
-    r.x = fbm( st + 1.0*q + vec2(0.230,0.690)+ time*velocity );
+    r.x = fbm( st + 1.0*q + vec2(0.230,0.690)+ time );
    // r.y = fbm( st + 1.0*q + vec2(8.3,2.8)+ 0.126*u_time);
 
     float f = fbm(st+r);
-    f*=(f*f*f+.6*f*f+.5*f);
+    // f*=(f*f*f+.6*f*f+.5*f);
     f= f*2.0-1.0;
     vec2 targetSt = vec2(f,f*sin(f));
     targetSt*=magnitude;

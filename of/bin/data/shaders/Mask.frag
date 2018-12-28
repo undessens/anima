@@ -19,6 +19,7 @@ uniform vec2 maskResolution;
 uniform float maskThreshold; //(0.5)
 uniform float invertMask; // (0)
 uniform float imageIsMask; // (1)
+uniform float smoothThresh; // (0.31)
 
 const vec3 lumW = vec3(0.2126,0.7152,0.0722);
 float getLuminance(vec3 c){return dot(c.rgb,lumW);}
@@ -26,7 +27,7 @@ float getLuminance(vec3 c){return dot(c.rgb,lumW);}
 vec3 maskAt(vec2 st){return texture2DRect(maskTex,st/resolution*maskResolution).rgb;}
 
 vec3 maskIt(vec3 source,vec3 mask){
-        float maskV = getLuminance(mask.rgb)>maskThreshold?1.0:0.0;
+        float maskV = smoothstep(maskThreshold-smoothThresh,maskThreshold+smoothThresh,getLuminance(mask.rgb));
         if(invertMask>0.0){maskV = 1.0-maskV;}
         return source.rgb*maskV;
 }
