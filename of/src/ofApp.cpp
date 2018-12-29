@@ -3,7 +3,7 @@
 #include "ofApp.h"
 #include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
 
-#define USE_TESTIMG 1
+#define USE_TESTIMG 0
 
 
 #if USE_TESTIMG
@@ -200,7 +200,7 @@ void ofApp::draw()
         info << "Press r to reset camera settings" << endl;
         info << "Press z TO START RECORDING" << endl;
         info << "Press x TO STOP RECORDING" << endl;
-        info << shaderFx->getInfo() << endl;
+//        info << shaderFx->getInfo() << endl;
         
         if (doDrawInfo) 
         {
