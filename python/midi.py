@@ -85,10 +85,10 @@ def main():
 
         global list_of_videoFx 
         list_of_videoFx = []
-        list_of_videoFx.append ( video_effect("sharpness", 5 , "/enhancement/sharpness"))
-        list_of_videoFx.append ( video_effect("Constrate", 4 , "/enhancement/contrast"))
-        list_of_videoFx.append ( video_effect("Saturation", 6, "/enhancement/saturation"))
-        list_of_videoFx.append ( video_effect("Brightness", 7, "/enhancement/brightness"))
+        list_of_videoFx.append ( video_effect("sharpness", 4 , "/enhancement/sharpness"))
+        list_of_videoFx.append ( video_effect("Constrate", 6 , "/enhancement/contrast"))
+        list_of_videoFx.append ( video_effect("Saturation", 5, "/enhancement/saturation"))
+        list_of_videoFx.append ( video_effect("Brightness",7, "/enhancement/brightness"))
         list_of_videoFx.append ( video_effect("Filter +", 62, "/filters/nextFilter"))
         list_of_videoFx.append ( video_effect("Filter -", 61, "/filters/previousFilter"))
         list_of_videoFx.append ( video_effect("init Filter", 60, "/filters/initFilter"))
@@ -147,14 +147,15 @@ def main():
         try:
                 global ser
                 if sys.platform.startswith('darwin'):
-                        ser = serial.Serial('/dev/cu.usbmodem1421',38400)
+                        ser = serial.Serial('/dev/cu.usbmodem1421',115200)
                         print "Serial connected"
                 elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
                         try:
-                                ser = serial.Serial('/dev/ttyACM0',38400)
+                                ser = serial.Serial('/dev/ttyACM0',baudrate=115200 )
                                 print "ACM0"
                         except :
-                                ser = serial.Serial('/dev/ttyACM1', 38400)
+                                ser.close()
+                                ser = serial.Serial('/dev/ttyACM1', 115200)
                                 print "ACM1"
                         
                 else:
