@@ -47,8 +47,8 @@ public:
     BoolParameter::Ptr enabled;
     IntParameter::Ptr order;
 
-    bool load() {
-            ofShader::Settings settings;
+    bool load(bool parseUniforms = true) {
+            ofShaderSettings settings;
             ofFile fragShader("shaders/"+getName()+".frag");
             settings.shaderFiles[GL_FRAGMENT_SHADER ] = fragShader;
             for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
@@ -65,20 +65,22 @@ public:
 
         // shader.load("shaders/" + getName());
         string s = stateToString();
+        if(parseUniforms){
         autoParseUniforms();
+        }
         initParams();
         setStateFromString(s);
         return shader.isLoaded();
     }
 
-    bool reload() {shader.unload() ; return load();}
+    bool reload(bool parseUniforms = true) {shader.unload() ; return load(parseUniforms);}
 
     void begin(const ofVec2f & resolution, const float deltaT) {
         bool needReload = false;
         for (auto d : defineParams.vIterator()) {
             if (d->hasChanged(true)) {needReload = true;}
         }
-        if (needReload) {reload();}
+        if (needReload) {reload(false);}
         shader.begin(); setUniforms(resolution, deltaT);
     }
     void end() {shader.end();}

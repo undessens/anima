@@ -1,7 +1,6 @@
 #define USE_ARB 1
-#ifdef GL_ES
-precision mediump float;
-#endif
+#define COLOR_MODE 1
+#define NUM_OCTAVES 4
 
 #if USE_ARB
 #extension GL_ARB_texture_rectangle : enable  
@@ -17,7 +16,7 @@ uniform float time;
 
 
 uniform float scale; // (3)
-uniform float magnitude; // (100)
+uniform float magnitude; // (.2)
 uniform float speed; // (1)
 
 
@@ -48,8 +47,7 @@ float noise (in vec2 _st) {
             (d - b) * u.x * u.y;
 }
 
-#define NUM_OCTAVES 4
-#define UNROLLED 0
+
 float fbm ( in vec2 _st) {
     float v = 0.0;
     float a = 0.5;
@@ -67,30 +65,64 @@ float fbm ( in vec2 _st) {
     return v;
 }
 
+float fbmS ( in vec2 _st) {
+    float v = 0.0;
+    float a = 0.5;
+    vec2 shift = vec2(100.0);
+    // Rotate to reduce axial bias
+    mat2 rot = mat2(cos(0.5), sin(0.5),
+                    -sin(0.5), cos(0.50));
+
+    //     for (int i = 0; i < NUM_OCTAVES; ++i) {
+    //     v += a * noise(_st);
+    //     _st = rot * _st * 2.0 + shift;
+    //     a *= 0.5;
+    // }
+        v += a * noise(_st);
+        _st = rot * _st * 2.0 + shift;
+        a *= 0.5;
+    
+    
+    return v;
+}
 void main() {
     vec2 st = gl_TexCoord[0].xy/resolution.xy*scale;
     // st += st * abs(sin(u_time*0.1)*3.0);
     // vec3 color = vec3(0.0);
 
     vec2 q = vec2(0.);
-    q.x = fbm( st );
-    q.y = q.x;//fbm( st + vec2(1.0));
+    q.x = fbmS( st +time);
+    // q.y = fbmS( st + time+ vec2(1.0) );
+    // q.y = q.x;//fbm( st + vec2(1.0));
 
     vec2 r = vec2(0.);
-    r.x = fbm( st + 1.0*q + vec2(0.230,0.690)+ time );
-   // r.y = fbm( st + 1.0*q + vec2(8.3,2.8)+ 0.126*u_time);
-
-    float f = fbm(st+r);
+    r.x = fbmS( st + 1.0*q + vec2(0.230,0.690)+ time );
+    r.y = r.x*sin(r.x*10.0);
+   // r.y = fbmS( st + 1.0*q + vec2(8.3,2.8)- time);
+   // r*=5.0;
+    float f = fbm(r);
     // f*=(f*f*f+.6*f*f+.5*f);
     f= f*2.0-1.0;
+    
+    #if COLOR_MODE==0
     vec2 targetSt = vec2(f,f*sin(f));
-    targetSt*=magnitude;
+    targetSt*=magnitude*resolution;
     targetSt += gl_TexCoord[0].xy;
+
     if(targetSt.x>resolution.x){targetSt.x=2.0*resolution.x-targetSt.x;}
     if(targetSt.y>resolution.y){targetSt.y=2.0*resolution.y-targetSt.y;}
     if(targetSt.x<0.0){targetSt.x=-targetSt.x;}
     if(targetSt.y<0.0){targetSt.y=-targetSt.y;}
     vec3 color = TEXTURE(tex0,targetSt).rgb;
+    #else
+    vec3 modC = vec3(f,f*sin(f*6.0),f*cos(f*6.0));
+    modC*=magnitude *vec3(resolution.xy,resolution.x);
+    vec2 stt = gl_TexCoord[0].xy;
+    vec3 color = vec3(  TEXTURE(tex0,stt+modC.rg).r,
+                        TEXTURE(tex0,stt+modC.gb).g,
+                        TEXTURE(tex0,stt+modC.rb).b);
+    // color+=modC;
+    #endif
     // color*=f;
     // color*=(f*f*f+.6*f*f+.5*f);
     //mix(vec3(0.101961,0.619608,0.666667),vec3(0.666667,0.666667,0.498039),clamp((f*f)*4.0,0.0,1.0));

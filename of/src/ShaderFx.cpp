@@ -9,7 +9,7 @@ class KaleidoscopeShader : public ShaderBase {
 public:
 
     KaleidoscopeShader(): ShaderBase("kaleidoscope"),
-    minAngularVelocity(.10) {
+    minAngularVelocity(.010) {
     }
 
     void initParams()final{
@@ -263,7 +263,9 @@ void addAndRegisterType (CONTAINER & cont, Args... args) {
 }
 
 void ShaderFx::setup() {
-
+    addAndRegisterType<ShaderBase>(nodes, "blur");
+    addAndRegisterType<ShaderBase>(nodes, "toon");
+    addAndRegisterType<ShaderBase>(nodes, "borders");
     addAndRegisterType<ShaderBase>(nodes, "mirror");
     addAndRegisterType<ShaderBase>(nodes, "champi");
     addAndRegisterType<CurveShader>(nodes);
@@ -273,7 +275,7 @@ void ShaderFx::setup() {
 
 
 
-    soloShader(availableShaders["kaleidoscope"]);
+    soloShader(availableShaders["blur"]);
 
 }
 

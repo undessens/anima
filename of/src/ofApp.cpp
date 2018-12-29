@@ -5,6 +5,7 @@
 
 #define USE_TESTIMG 1
 
+
 #if USE_TESTIMG
 ofImage testImg;
 #endif
