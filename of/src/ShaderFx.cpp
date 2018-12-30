@@ -1,4 +1,4 @@
-#include "AppConfig.h"
+
 
 #include "ShaderFx.h"
 
@@ -271,9 +271,6 @@ void ShaderFx::setup() {
     addAndRegisterType<CurveShader>(nodes);
     addAndRegisterType<KaleidoscopeShader>(nodes);
     addAndRegisterType<MaskShader>(nodes);
-//
-
-
 
     soloShader(availableShaders["blur"]);
 

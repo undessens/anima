@@ -274,11 +274,11 @@ class ParameterContainerFactory {
     }
     BaseObject* generateFromType(const string & typeName) {return factory[typeName]();}
 
-    // serialization
-    template<class T>
-    string instanceToString(T * ) {
+    // // serialization
+    // template<class T>
+    // string instanceToString(T * ) {
 
-    }
+    // }
 
     template<class T>
     T * instanceFromString(const string & s) {
@@ -447,6 +447,7 @@ public:
             res += std::to_string(value[i]);
         }
         res += "]";
+        return res;
     }
     void setStateFromString(const string & s) final{
         int depth = -1;

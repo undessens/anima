@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxOsc.h"
+#include "AppConfig.h"
 
 
 
@@ -52,7 +52,8 @@ public:
             ofFile fragShader("shaders/"+getName()+".frag");
             settings.shaderFiles[GL_FRAGMENT_SHADER ] = fragShader;
             for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
-                settings.sourceDirectoryPath = ofFilePath::getEnclosingDirectory(fragShader,false);
+        settings.intDefines["USE_ARB"] = USE_ARB;
+            settings.sourceDirectoryPath = ofFilePath::getEnclosingDirectory(fragShader,false);
         //             std::map<GLuint, std::filesystem::path> shaderFiles;
         // std::map<GLuint, std::string> shaderSources;
         // std::map<std::string, int> intDefines;

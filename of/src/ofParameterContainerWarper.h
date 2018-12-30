@@ -2,9 +2,10 @@
 
 
 #include "ParameterContainer.hpp"
+#include "ofxOsc.h"
+
 
 // force ofVectors to be enclosed in brackets
-
 template<class T>
 static T ofVecFromString(const string & s) {
   if (s == "")return {};

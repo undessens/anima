@@ -65,4 +65,8 @@ public:
     shared_ptr<ShaderFx> shaderFx;
 
     OSCParameterBinder oscBind;
+
+
+     void drawInfoIfAsked();
+     void processOSC();
 };

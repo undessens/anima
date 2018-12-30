@@ -1,7 +1,7 @@
 {
     "ISO": 0,
     "LED": true,
-    "autoISO": true,
+    "autoISO": false,
     "autoShutter": false,
     "brightness": 50,
     "contrast": -10,
@@ -17,7 +17,7 @@
     "dreLevel": 0,
     "enablePixels": false,
     "enableTexture": false,
-    "exposurePreset": "Auto",
+    "exposurePreset": "None",
     "flickerCancellation": true,
     "frameStabilization": false,
     "framerate": 30,

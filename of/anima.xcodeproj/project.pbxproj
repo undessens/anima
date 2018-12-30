@@ -8,12 +8,14 @@
 
 /* Begin PBXFileReference section */
 		3F60971321CDB991001F8990 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
+		3FA1CF3621D9136E0074A4BA /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = bin/data; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		3F6096E021CDB7D1001F8990 = {
 			isa = PBXGroup;
 			children = (
+				3FA1CF3621D9136E0074A4BA /* data */,
 				3F60971321CDB991001F8990 /* src */,
 				3F6096F121CDB91C001F8990 /* xcode */,
 				3F6096F021CDB91C001F8990 /* Products */,
