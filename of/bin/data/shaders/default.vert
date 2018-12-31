@@ -1,6 +1,6 @@
-#version 330
+#define TARGET_RASPBERRY_PI 0 // will be changed by of
 
-#ifdef TARGET_OPENGLES
+#if TARGET_RASPBERRY_PI
 precision highp float;
 #define IN attribute
 #define OUT varying

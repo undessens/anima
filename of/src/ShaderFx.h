@@ -55,8 +55,8 @@ public:
             settings.shaderFiles[GL_VERTEX_SHADER ] = ofFile("shaders/default.vert");
             for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
         settings.intDefines["USE_ARB"] = USE_ARB;
-#ifdef TARGET_OPENGLES
-        settings.intDefines["TARGET_OPENGLES"] = 1;
+#ifdef TARGET_RASPBERRY_PI
+        settings.intDefines["TARGET_RASPBERRY_PI"] = 1;
 #endif
             settings.sourceDirectoryPath = ofFilePath::getEnclosingDirectory(fragShader,false);
         //             std::map<GLuint, std::filesystem::path> shaderFiles;

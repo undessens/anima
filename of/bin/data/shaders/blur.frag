@@ -1,4 +1,3 @@
-
 #pragma include "Common.hfrag"
 
 
