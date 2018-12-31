@@ -1,16 +1,36 @@
+#version 330
+
 #define USE_ARB 1
 
+
+#ifdef TARGET_OPENGLES
+precision highp float;
+#define IN varying
+#define OUT
+#define TEXTURE texture2D
+#define FRAG_COLOR gl_FragColor
+#else
+#define IN in
+#define OUT out
+#define TEXTURE texture
+#define FRAG_COLOR fragColor
+OUT vec4 fragColor;
+#endif
+
+
+#define ST() v_texcoord
 
 #if USE_ARB
 #define SAMPLER_2D_TYPE sampler2DRect
 uniform sampler2DRect tex0;
-#define NORMALIZE_UV(non_normed_uv) non_normed_uv/resolution.xy
-#define NORMUV2TEXCOORD(normed_uv) normed_uv*resolution.xy
-#define TEXTURE(t,uv) texture2DRect(t,uv)
+#define NORMALIZE_UV(non_normed_uv) ((non_normed_uv)/resolution.xy)
+#define NORMUV2TEXCOORD(normed_uv) ((normed_uv)*resolution.xy)
 #else
 #define SAMPLER_2D_TYPE sampler2D
 uniform sampler2D tex0;
 #define NORMALIZE_UV(non_normed_uv) non_normed_uv
 #define NORMUV2TEXCOORD(normed_uv) normed_uv
-#define TEXTURE(t,uv) texture2D(t,uv)
 #endif
+
+
+IN vec2 v_texcoord;

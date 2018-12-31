@@ -42,7 +42,7 @@ void main( )
 {
     // Normalized pixel coordinates (from 0 to 1)
     
-    vec2 uv = NORMALIZE_UV(gl_TexCoord[0].st);
+    vec2 uv = NORMALIZE_UV(ST());
     
     //   // zoom
     // uv = zoom2d(uv,zoom,offset);  
@@ -69,8 +69,8 @@ void main( )
 
     
    vec4 col = TEXTURE(tex0,NORMUV2TEXCOORD(uv));
-   //  vec2 cuv = gl_TexCoord[0].st;
+   //  vec2 cuv = ST();
    // vec4 col = vec4(cuv,0.0,1.0);
     // Output to screen
-    gl_FragColor = col;
+    FRAG_COLOR = col;
 }

@@ -34,7 +34,7 @@ vec3 maskIt(vec3 source,vec3 mask){
  void main()
  {
 
-        vec2 st = gl_TexCoord[0].st;
+        vec2 st = ST();
         vec3 source = TEXTURE(tex0, st).rgb;
         vec3 img = maskAt(st);
         #if IMAGE_IS_MASK
@@ -43,6 +43,6 @@ vec3 maskIt(vec3 source,vec3 mask){
         vec3 result = maskIt(img,source);
         #endif
 
-        gl_FragColor = vec4(result.rgb,1.0);
+        FRAG_COLOR = vec4(result.rgb,1.0);
 
  }

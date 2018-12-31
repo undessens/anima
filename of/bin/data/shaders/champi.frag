@@ -77,28 +77,28 @@ float fbmS ( in vec2 _st) {
     return v;
 }
 void main() {
-    vec2 st = NORMALIZE_UV(gl_TexCoord[0].xy)*scale;
+    vec2 st = NORMALIZE_UV(ST())*scale;
     // st += st * abs(sin(u_time*0.1)*3.0);
     // vec3 color = vec3(0.0);
 
     vec2 q = vec2(0.);
     q.x = fbmS( st +time);
-    // q.y = fbmS( st + time+ vec2(1.0) );
+//     q.y = fbmS( st + time+ vec2(1.0) );
     // q.y = q.x;//fbm( st + vec2(1.0));
 
     vec2 r = vec2(0.);
     r.x = fbmS( st + 1.0*q + vec2(0.230,0.690)+ time );
-    r.y = r.x*sin(r.x*10.0);
-   // r.y = fbmS( st + 1.0*q + vec2(8.3,2.8)- time);
+//    r.y = r.x*sin(r.x*1.0);
+    r.y = fbmS( st + 1.0*q + vec2(8.3,2.8)- time);
    // r*=5.0;
     float f = fbm(r);
     // f*=(f*f*f+.6*f*f+.5*f);
-    f= f*2.0-1.0;
-    
+    f= -(f*2.0-1.0);
+
     #if COLOR_MODE==0
     vec2 targetSt = vec2(f,f*sin(f));
-    targetSt*=magnitude*resolution;
-    targetSt += NORMALIZE_UV(gl_TexCoord[0].xy);
+    targetSt*=magnitude;
+    targetSt += NORMALIZE_UV(ST());
 
     if(targetSt.x>1.0){targetSt.x=2.0-targetSt.x;}
     if(targetSt.y>1.0){targetSt.y=2.0-targetSt.y;}
@@ -107,19 +107,14 @@ void main() {
     vec3 color = TEXTURE(tex0,NORMUV2TEXCOORD(targetSt)).rgb;
     #else
     vec3 modC = vec3(f,f*sin(f*6.0),f*cos(f*6.0));
-    modC*=magnitude ;
-    vec2 stt = NORMALIZE_UV(gl_TexCoord[0].xy);
+    modC*=magnitude;
+    vec2 stt = NORMALIZE_UV(ST());
     vec3 color = vec3(  TEXTURE(tex0,NORMUV2TEXCOORD(stt+modC.rg)).r,
                         TEXTURE(tex0,NORMUV2TEXCOORD(stt+modC.gb)).g,
                         TEXTURE(tex0,NORMUV2TEXCOORD(stt+modC.rb)).b);
-    // color+=modC;
-    #endif
-    // color*=f;
-    // color*=(f*f*f+.6*f*f+.5*f);
-    //mix(vec3(0.101961,0.619608,0.666667),vec3(0.666667,0.666667,0.498039),clamp((f*f)*4.0,0.0,1.0));
-    //  color = mix(color,vec3(0,0,0.164706),clamp(length(q),0.0,1.0));
-    //color = mix(color,vec3(0.666667,1,1),clamp(length(r.x),0.0,1.0));
 
-   gl_FragColor = vec4(color,1.);
-     // gl_FragColor = vec4(color,1.);
+    #endif
+
+   FRAG_COLOR = vec4( color,1.);
+
 }

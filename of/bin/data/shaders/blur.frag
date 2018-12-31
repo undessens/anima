@@ -1,6 +1,8 @@
+
 #pragma include "Common.hfrag"
 
-varying vec2 texCoordVarying;
+
+
 uniform float size; // (2.0)
 
 
@@ -10,13 +12,13 @@ uniform float size; // (2.0)
 
 
 
-
+// no multiline defines on gles rpi...
 #define PASS(sx,sy) (TEXTURE( tex0, vec2( st.x - sx, st.y - sy ) ).rgb + TEXTURE( tex0, vec2( st.x - sx, st.y     ) ).rgb*2.0 +  TEXTURE( tex0, vec2( st.x - sx, st.y + sy ) ).rgb +  TEXTURE( tex0, vec2( st.x + sx, st.y - sy ) ).rgb +  TEXTURE( tex0, vec2( st.x + sx, st.y     ) ).rgb*2.0 +  TEXTURE( tex0, vec2( st.x + sx, st.y + sy ) ).rgb +  TEXTURE( tex0, vec2( st.x    , st.y - sy ) ).rgb*2.0 +  TEXTURE( tex0, vec2( st.x    , st.y + sy ) ).rgb*2.0)/8.0   
 
 
 
 void main(void) {
-        vec2 st = texCoordVarying.xy;
+        vec2 st = ST();
         float x = size ;
         float y = size ;
         // vec3 topL = TEXTURE( tex0, vec2( st.x - x, st.y - y ) ).rgb;
@@ -34,7 +36,7 @@ void main(void) {
         
 
 
-        vec4 originColor = TEXTURE( tex0, vec2( st.x , st.y  ) );;
+        vec4 originColor = TEXTURE( tex0, st   );
 
         #if COMPLEXITY==1
         originColor.rgb = ( originColor.rgb + .7*PASS(size,size))/2.0;
@@ -43,8 +45,8 @@ void main(void) {
         #elif COMPLEXITY==3
         originColor.rgb= (originColor.rgb  + .7/4.0*(PASS(size,size)+ PASS(size/2.0,size/2.0)+ PASS(size/4.0,size/4.0) + PASS(size*3.0/4.0,size*3.0/4.0))) / 2.0;
         #endif
+
         
-        
-        gl_FragColor = originColor;
+        FRAG_COLOR = originColor;
 
 }

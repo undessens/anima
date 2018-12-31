@@ -160,7 +160,7 @@ public:
         invertMask = fParams.getRef("invertMask");
         setMaskPath = addParameter<ActionParameter>("setMaskPath",std::bind(&MaskShader::loadImage,this,std::placeholders::_1));
         maskPath = addParameter<StringParameter>("maskPath","");
-        maskPath->setValue("tst.jpg",this);
+        maskPath->setValue("mask1.jpg",this);
 
     };
     void updateParams(float deltaT)final{
@@ -254,14 +254,15 @@ void addAndRegisterType (CONTAINER & cont, Args... args) {
 }
 
 void ShaderFx::setup() {
+
     addAndRegisterType<ShaderBase>(nodes, "blur");
-    // addAndRegisterType<ShaderBase>(nodes, "toon");
-    // addAndRegisterType<ShaderBase>(nodes, "borders");
-    // addAndRegisterType<ShaderBase>(nodes, "mirror");
-    // addAndRegisterType<ShaderBase>(nodes, "champi");
-    // addAndRegisterType<CurveShader>(nodes);
-    // addAndRegisterType<KaleidoscopeShader>(nodes);
-    // addAndRegisterType<MaskShader>(nodes);
+     addAndRegisterType<ShaderBase>(nodes, "toon");
+     addAndRegisterType<ShaderBase>(nodes, "borders");
+     addAndRegisterType<ShaderBase>(nodes, "mirror");
+     addAndRegisterType<ShaderBase>(nodes, "champi");
+     addAndRegisterType<CurveShader>(nodes);
+     addAndRegisterType<KaleidoscopeShader>(nodes);
+     addAndRegisterType<MaskShader>(nodes);
 
     soloShader(availableShaders["blur"]);
 
@@ -279,7 +280,9 @@ const map<string,ShaderBase::DefaultUniform> ShaderBase::reservedUniformsMap {{"
 void ShaderBase::autoParseUniforms() {
     if (!isLoaded()) return;
     clearParams();
-    string source = shader.getShaderSource(GL_FRAGMENT_SHADER);
+    ofBuffer fragBuffer= ofBufferFromFile("shaders/"+getName()+".frag");
+
+    string source = fragBuffer.getText();//shader.getShaderSource(GL_FRAGMENT_SHADER);
     defaultUniformFlags = 0;
     ofStringReplace(source, "\r", "");
     const auto lines = ofSplitString(source, "\n", true, true);

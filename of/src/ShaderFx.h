@@ -49,11 +49,15 @@ public:
 
     bool load(bool parseUniforms = true) {
             ofShaderSettings settings;
+        
             ofFile fragShader("shaders/"+getName()+".frag");
             settings.shaderFiles[GL_FRAGMENT_SHADER ] = fragShader;
             settings.shaderFiles[GL_VERTEX_SHADER ] = ofFile("shaders/default.vert");
             for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
         settings.intDefines["USE_ARB"] = USE_ARB;
+#ifdef TARGET_OPENGLES
+        settings.intDefines["TARGET_OPENGLES"] = 1;
+#endif
             settings.sourceDirectoryPath = ofFilePath::getEnclosingDirectory(fragShader,false);
         //             std::map<GLuint, std::filesystem::path> shaderFiles;
         // std::map<GLuint, std::string> shaderSources;

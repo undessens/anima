@@ -45,7 +45,7 @@ float getStepped(float x,float res,float off,float vsmooth){
 
 
 void main(void) {
-        vec2 st = gl_TexCoord[0].xy;
+        vec2 st = ST();
         vec4 originColor = TEXTURE( tex0, st );
         vec3 hsv = rgb2hsv(originColor.rgb);
         hsv.x = getStepped(hsv.x,hueRes,hueOff,hueSmooth);
@@ -53,6 +53,6 @@ void main(void) {
         hsv.z = getStepped(hsv.z,valRes,valOff,valSmooth);
         
         originColor.rgb = hsv2rgb(hsv);
-        gl_FragColor = originColor;
+        FRAG_COLOR = originColor;
 
 }

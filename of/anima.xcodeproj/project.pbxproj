@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		3F60971321CDB991001F8990 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
+		3F77683D21DA6569006FE449 /* openFrameworks */ = {isa = PBXFileReference; lastKnownFileType = folder; name = openFrameworks; path = ../../../libs/openFrameworks; sourceTree = "<group>"; };
 		3FA1CF3621D9136E0074A4BA /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = bin/data; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -18,6 +19,7 @@
 				3FA1CF3621D9136E0074A4BA /* data */,
 				3F60971321CDB991001F8990 /* src */,
 				3F6096F121CDB91C001F8990 /* xcode */,
+				3F77683D21DA6569006FE449 /* openFrameworks */,
 				3F6096F021CDB91C001F8990 /* Products */,
 			);
 			sourceTree = "<group>";
