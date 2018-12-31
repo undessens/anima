@@ -1,14 +1,4 @@
-#define USE_ARB 1
-
-
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv*resolution)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv*resolution)
-#endif
+#pragma include "Common.hfrag"
 
 uniform vec2 resolution;
 uniform float vertical; // (1)
@@ -52,7 +42,7 @@ void main( )
 {
     // Normalized pixel coordinates (from 0 to 1)
     
-    vec2 uv = gl_TexCoord[0].st/resolution.xy;
+    vec2 uv = NORMALIZE_UV(gl_TexCoord[0].st);
     
     //   // zoom
     // uv = zoom2d(uv,zoom,offset);  
@@ -78,9 +68,9 @@ void main( )
 
 
     
-   vec4 col = TEXTURE(tex0,uv.xy);
-    
-   // vec4 col = vec4(uv.y,0.0,0.0,1.0);
+   vec4 col = TEXTURE(tex0,NORMUV2TEXCOORD(uv));
+   //  vec2 cuv = gl_TexCoord[0].st;
+   // vec4 col = vec4(cuv,0.0,1.0);
     // Output to screen
     gl_FragColor = col;
 }

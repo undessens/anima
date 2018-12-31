@@ -55,7 +55,7 @@ public:
 
 class CurveShader : public ShaderBase {
 public:
-    const int textureRes = 512; // need to be power of two (shader don't use ARB)
+    const int textureRes = 512; // need to be power of two (shader lut is non ARB)
     CurveShader(): ShaderBase("ShadowHighlights") {
         cTex.allocate(textureRes, 1, GL_RGBA, false);
         cTex.readToPixels(pixBuf);
@@ -87,13 +87,11 @@ public:
         p1*=textureRes;
         p2*=textureRes;
 
-        // DBG("populating texture : " << low->getValue() << ":::" << high->getValue());
-
         float initT = p1.y / p1.x;
         float lastT = (1 - p2.y) / (1 - p2.x);
         float lowT = initT / 2.0 + .5 * (p2.y - p1.y) / (p2.x - p1.x);
         float highT = lowT / 2.0 + lastT / 2.0;
-        // ostringstream os;
+
 
         for (int i = 0 ; i < textureRes  ; i++) {
             float v ;
@@ -108,14 +106,10 @@ public:
             }
             v *= 255.0 / textureRes;
             float clamped = ofClamp(v, 0, 255);
-//            auto col = ofColor(clamped);
-//            if (v < 0) {col[1] = 255;}
-//            if (v > 255) {col[2] = 0;}
-            // os <<(int)v << ", ";
             cols[i][channelNum] = clamped;
-            // pixBuf.setColor(i,1,col);
+
         }
-        // DBG(os.str());
+
 
     }
     void populateTexture(){
@@ -140,9 +134,6 @@ public:
     }
 
     void updateParams(float deltaT)final{
-//        if (low->hasChanged(true) || high->hasChanged(true)) {
-//            populateTexture();
-//        }
         shader.setUniformTexture("curveTex", cTex, 1);
     }
 

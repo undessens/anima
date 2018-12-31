@@ -1,15 +1,6 @@
-#define USE_ARB 1
+#pragma include "Common.hfrag"
 #define COLOR_MODE 1
 #define NUM_OCTAVES 4
-
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv)
-#endif
 
 uniform vec2 resolution;
 uniform float time;
@@ -86,7 +77,7 @@ float fbmS ( in vec2 _st) {
     return v;
 }
 void main() {
-    vec2 st = gl_TexCoord[0].xy/resolution.xy*scale;
+    vec2 st = NORMALIZE_UV(gl_TexCoord[0].xy)*scale;
     // st += st * abs(sin(u_time*0.1)*3.0);
     // vec3 color = vec3(0.0);
 
@@ -107,20 +98,20 @@ void main() {
     #if COLOR_MODE==0
     vec2 targetSt = vec2(f,f*sin(f));
     targetSt*=magnitude*resolution;
-    targetSt += gl_TexCoord[0].xy;
+    targetSt += NORMALIZE_UV(gl_TexCoord[0].xy);
 
-    if(targetSt.x>resolution.x){targetSt.x=2.0*resolution.x-targetSt.x;}
-    if(targetSt.y>resolution.y){targetSt.y=2.0*resolution.y-targetSt.y;}
+    if(targetSt.x>1.0){targetSt.x=2.0-targetSt.x;}
+    if(targetSt.y>1.0){targetSt.y=2.0-targetSt.y;}
     if(targetSt.x<0.0){targetSt.x=-targetSt.x;}
     if(targetSt.y<0.0){targetSt.y=-targetSt.y;}
-    vec3 color = TEXTURE(tex0,targetSt).rgb;
+    vec3 color = TEXTURE(tex0,NORMUV2TEXCOORD(targetSt)).rgb;
     #else
     vec3 modC = vec3(f,f*sin(f*6.0),f*cos(f*6.0));
-    modC*=magnitude *vec3(resolution.xy,resolution.x);
-    vec2 stt = gl_TexCoord[0].xy;
-    vec3 color = vec3(  TEXTURE(tex0,stt+modC.rg).r,
-                        TEXTURE(tex0,stt+modC.gb).g,
-                        TEXTURE(tex0,stt+modC.rb).b);
+    modC*=magnitude ;
+    vec2 stt = NORMALIZE_UV(gl_TexCoord[0].xy);
+    vec3 color = vec3(  TEXTURE(tex0,NORMUV2TEXCOORD(stt+modC.rg)).r,
+                        TEXTURE(tex0,NORMUV2TEXCOORD(stt+modC.gb)).g,
+                        TEXTURE(tex0,NORMUV2TEXCOORD(stt+modC.rb)).b);
     // color+=modC;
     #endif
     // color*=f;

@@ -1,17 +1,9 @@
+#pragma include "Common.hfrag"
 
-#define USE_ARB 1
 #define INVERT 1
 #define MODE 1
 #define TRACK_MODE 1
 
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv)
-#endif
 
 
 uniform float size; // (2.0)
@@ -23,8 +15,14 @@ uniform float smoothEdge; // (1.0)
 
 void main(void) {
         vec2 st = gl_TexCoord[0].xy;
-        float x = size ;
-        float y = size ;
+        
+        #if USE_ARB
+        float x= size/resolution.x;
+        float y= size/resolution.y;
+        #else
+        float x = size/1000.0 ;
+        float y = x ;
+        #endif
         vec3 topL = TEXTURE( tex0, vec2( st.x - x, st.y - y ) ).rgb;
         vec3 midL = TEXTURE( tex0, vec2( st.x - x, st.y     ) ).rgb;
         vec3 botL = TEXTURE( tex0, vec2( st.x - x, st.y + y ) ).rgb;

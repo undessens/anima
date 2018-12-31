@@ -1,4 +1,4 @@
-#define USE_ARB 1
+#pragma include "Common.hfrag"
 
 #define ALGO_NUM 0
 #define TRI_MODE 3
@@ -6,14 +6,6 @@
 
 #define DO_SKEW 0// TRI_MODE==3
 
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv*resolution)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv*resolution)
-#endif
 
 
 #define PI 3.1415
@@ -187,7 +179,7 @@ void main( )
 {
     // Normalized pixel coordinates (from 0 to 1)
     
-    vec2 uv = gl_TexCoord[0].st/resolution.xy;
+    vec2 uv = NORMALIZE_UV(gl_TexCoord[0].st);
     
 
 
@@ -210,7 +202,7 @@ uv.y = mirrorOut(uv.y);
 #endif
 
 
-vec4 col = TEXTURE(tex0,uv.xy);
+vec4 col = TEXTURE(tex0,NORMUV2TEXCOORD(uv.xy));
 
    // vec4 col = vec4(uv.xy,0.0,1.0);
     // Output to screen

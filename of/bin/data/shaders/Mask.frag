@@ -1,21 +1,13 @@
- #define USE_ARB 1
+#pragma include "Common.hfrag"
 
 #define IMAGE_IS_MASK 1
 
 #define INVERT_MASK 0
 
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv)
-#endif
 
 
 
-uniform sampler2DRect maskTex;
+uniform SAMPLER_2D_TYPE maskTex;
 uniform float tst;
 uniform vec2 resolution;
 uniform vec2 maskResolution;
@@ -27,7 +19,7 @@ uniform float smoothThresh; // (0.31)
 const vec3 lumW = vec3(0.2126,0.7152,0.0722);
 float getLuminance(vec3 c){return dot(c.rgb,lumW);}
 
-vec3 maskAt(vec2 st){return texture2DRect(maskTex,st/resolution*maskResolution).rgb;}
+vec3 maskAt(vec2 st){return TEXTURE(maskTex,st/resolution*maskResolution).rgb;}
 
 vec3 maskIt(vec3 source,vec3 mask){
         float maskV = smoothstep(maskThreshold-smoothThresh,maskThreshold,

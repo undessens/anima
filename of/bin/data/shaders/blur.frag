@@ -1,17 +1,8 @@
-
-#define USE_ARB 1
+#pragma include "Common.hfrag"
 
 #define MODE 0
 #define COMPLEXITY 2
 
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv)
-#endif
 
 
 uniform float size; // (2.0)

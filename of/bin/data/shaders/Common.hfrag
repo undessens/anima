@@ -1,0 +1,17 @@
+#define USE_ARB 1
+
+
+#if USE_ARB
+#extension GL_ARB_texture_rectangle : enable  
+#define SAMPLER_2D_TYPE sampler2DRect
+uniform sampler2DRect tex0;
+#define NORMALIZE_UV(non_normed_uv) non_normed_uv/resolution.xy
+#define NORMUV2TEXCOORD(normed_uv) normed_uv*resolution.xy
+#define TEXTURE(t,uv) texture2DRect(t,uv)
+#else
+#define SAMPLER_2D_TYPE sampler2D
+uniform sampler2D tex0;
+#define NORMALIZE_UV(non_normed_uv) non_normed_uv
+#define NORMUV2TEXCOORD(normed_uv) normed_uv
+#define TEXTURE(t,uv) texture2D(t,uv)
+#endif

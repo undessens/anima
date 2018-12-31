@@ -1,14 +1,6 @@
- #define USE_ARB 1
-#define MULTI_CHANNEL 1
+#pragma include "Common.hfrag"
 
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv)
-#endif
+#define MULTI_CHANNEL 1
 
 
 uniform sampler2D curveTex;

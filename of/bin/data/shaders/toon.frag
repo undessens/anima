@@ -1,15 +1,4 @@
-
-#define USE_ARB 1
-
-
-#if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
-uniform sampler2DRect tex0;
-#define TEXTURE(t,uv) texture2DRect(t,uv)
-#else
-uniform sampler2D tex0;
-#define TEXTURE(t,uv) texture2D(t,uv)
-#endif
+#pragma include "Common.hfrag"
 
 uniform vec2 resolution;
 
