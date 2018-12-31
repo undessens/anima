@@ -49,16 +49,20 @@ public:
 
     bool load(bool parseUniforms = true) {
             ofShaderSettings settings;
-        
-            ofFile fragShader("shaders/"+getName()+".frag");
-            settings.shaderFiles[GL_FRAGMENT_SHADER ] = fragShader;
-            settings.shaderFiles[GL_VERTEX_SHADER ] = ofFile("shaders/default.vert");
+
+        auto renderer = ofGetGLRenderer();
+
+        string versionHeader = string("#version ")+ ofGLSLVersionFromGL(renderer->getGLVersionMajor(),renderer->getGLVersionMinor())+"\n";
+
+
+            settings.shaderSources[GL_FRAGMENT_SHADER ] = versionHeader+ofBufferFromFile("shaders/"+getName()+".frag").getText();
+            settings.shaderSources[GL_VERTEX_SHADER ] =versionHeader + ofBufferFromFile("shaders/default.vert").getText();
             for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
         settings.intDefines["USE_ARB"] = USE_ARB;
 #ifdef TARGET_RASPBERRY_PI
         settings.intDefines["TARGET_RASPBERRY_PI"] = 1;
 #endif
-            settings.sourceDirectoryPath = ofFilePath::getEnclosingDirectory(fragShader,false);
+            settings.sourceDirectoryPath = ofToDataPath("shaders/");
         //             std::map<GLuint, std::filesystem::path> shaderFiles;
         // std::map<GLuint, std::string> shaderSources;
         // std::map<std::string, int> intDefines;
