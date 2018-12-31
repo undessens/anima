@@ -3,7 +3,7 @@
 #include "ofApp.h"
 #include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
 
-#define USE_TESTIMG 0
+#define USE_TESTIMG 1
 #define USE_SHADERS 1
 
 
@@ -92,8 +92,9 @@ void ofApp::setup()
 #else
     ofDisableArbTex();
 #endif
+
 #if USE_TESTIMG
-    testImg.load("/Users/Tintamar/Documents/phone_bup/DCIM/100LGDSC/CAM00019.jpg");
+    testImg.load("images/tst.jpg");
 #else
     videoGrabber.setup(ofGetWidth(),ofGetHeight(),true);
 #endif
@@ -264,6 +265,9 @@ void ofApp::onCharacterReceived(KeyListenerEventData& e)
 #endif
 
 void ofApp::drawInfoIfAsked(){
+    if(ofGetFrameNum()%60*2==0){
+        ofLogVerbose() << ofGetFrameRate();
+    }
     if (doDrawInfo || doPrintInfo)
     {
         stringstream info;

@@ -255,13 +255,13 @@ void addAndRegisterType (CONTAINER & cont, Args... args) {
 
 void ShaderFx::setup() {
     addAndRegisterType<ShaderBase>(nodes, "blur");
-    addAndRegisterType<ShaderBase>(nodes, "toon");
-    addAndRegisterType<ShaderBase>(nodes, "borders");
-    addAndRegisterType<ShaderBase>(nodes, "mirror");
-    addAndRegisterType<ShaderBase>(nodes, "champi");
-    addAndRegisterType<CurveShader>(nodes);
-    addAndRegisterType<KaleidoscopeShader>(nodes);
-    addAndRegisterType<MaskShader>(nodes);
+    // addAndRegisterType<ShaderBase>(nodes, "toon");
+    // addAndRegisterType<ShaderBase>(nodes, "borders");
+    // addAndRegisterType<ShaderBase>(nodes, "mirror");
+    // addAndRegisterType<ShaderBase>(nodes, "champi");
+    // addAndRegisterType<CurveShader>(nodes);
+    // addAndRegisterType<KaleidoscopeShader>(nodes);
+    // addAndRegisterType<MaskShader>(nodes);
 
     soloShader(availableShaders["blur"]);
 
@@ -285,7 +285,7 @@ void ShaderBase::autoParseUniforms() {
     const auto lines = ofSplitString(source, "\n", true, true);
     for (const auto & l : lines) {
         const auto words = ofSplitString(l, " ", true, true);
-        if(words.size()>=3 && (words[0]=="#define" && words[1]!="USE_ARB" && words[1].find("(") == -1 )){
+        if(words.size()>=3 && (words[0]=="#define" && words[1]!="USE_ARB" && words[1]!="SAMPLER_2D_TYPE" && words[1].find("(") == -1 )){
             const string pname = words[1];
             addDefineP(pname,ofToInt(words[2]));
         }

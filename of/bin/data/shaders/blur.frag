@@ -1,25 +1,22 @@
 #pragma include "Common.hfrag"
 
+varying vec2 texCoordVarying;
+uniform float size; // (2.0)
+
+
 #define MODE 0
 #define COMPLEXITY 2
 
 
 
-uniform float size; // (2.0)
 
-#define PASS(sx,sy) (TEXTURE( tex0, vec2( st.x - sx, st.y - sy ) ).rgb +  \
-                TEXTURE( tex0, vec2( st.x - sx, st.y     ) ).rgb*2.0 +  \
-                TEXTURE( tex0, vec2( st.x - sx, st.y + sy ) ).rgb +  \
-                TEXTURE( tex0, vec2( st.x + sx, st.y - sy ) ).rgb +  \
-                TEXTURE( tex0, vec2( st.x + sx, st.y     ) ).rgb*2.0 +  \
-                TEXTURE( tex0, vec2( st.x + sx, st.y + sy ) ).rgb +  \
-                TEXTURE( tex0, vec2( st.x    , st.y - sy ) ).rgb*2.0 +  \
-                TEXTURE( tex0, vec2( st.x    , st.y + sy ) ).rgb*2.0)/8.0   \
+
+#define PASS(sx,sy) (TEXTURE( tex0, vec2( st.x - sx, st.y - sy ) ).rgb + TEXTURE( tex0, vec2( st.x - sx, st.y     ) ).rgb*2.0 +  TEXTURE( tex0, vec2( st.x - sx, st.y + sy ) ).rgb +  TEXTURE( tex0, vec2( st.x + sx, st.y - sy ) ).rgb +  TEXTURE( tex0, vec2( st.x + sx, st.y     ) ).rgb*2.0 +  TEXTURE( tex0, vec2( st.x + sx, st.y + sy ) ).rgb +  TEXTURE( tex0, vec2( st.x    , st.y - sy ) ).rgb*2.0 +  TEXTURE( tex0, vec2( st.x    , st.y + sy ) ).rgb*2.0)/8.0   
 
 
 
 void main(void) {
-        vec2 st = gl_TexCoord[0].xy;
+        vec2 st = texCoordVarying.xy;
         float x = size ;
         float y = size ;
         // vec3 topL = TEXTURE( tex0, vec2( st.x - x, st.y - y ) ).rgb;

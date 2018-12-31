@@ -4,6 +4,17 @@
 int main()
 {
 	ofSetLogLevel(OF_LOG_VERBOSE);
+  #ifdef TARGET_RASPBERRY_PI
+  ofGLESWindowSettings settings;
+  settings.glesVersion = 2;
+  settings.setSize(1280,720);
+  settings.setPosition({0,0});
+  settings.windowMode = OF_WINDOW;
+  ofCreateWindow(settings);
+  #else
 	ofSetupOpenGL(1280, 720, OF_WINDOW);
-	ofRunApp( new ofApp());
+  
+  #endif
+  ofRunApp( new ofApp());
+	
 }

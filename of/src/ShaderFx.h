@@ -51,6 +51,7 @@ public:
             ofShaderSettings settings;
             ofFile fragShader("shaders/"+getName()+".frag");
             settings.shaderFiles[GL_FRAGMENT_SHADER ] = fragShader;
+            settings.shaderFiles[GL_VERTEX_SHADER ] = ofFile("shaders/default.vert");
             for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
         settings.intDefines["USE_ARB"] = USE_ARB;
             settings.sourceDirectoryPath = ofFilePath::getEnclosingDirectory(fragShader,false);

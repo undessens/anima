@@ -2,7 +2,6 @@
 
 
 #if USE_ARB
-#extension GL_ARB_texture_rectangle : enable  
 #define SAMPLER_2D_TYPE sampler2DRect
 uniform sampler2DRect tex0;
 #define NORMALIZE_UV(non_normed_uv) non_normed_uv/resolution.xy
