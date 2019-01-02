@@ -51,8 +51,12 @@ public:
             ofShaderSettings settings;
 
         auto renderer = ofGetGLRenderer();
-
+#ifdef TARGET_RASPBERRY_PI
+        string versionHeader = "";
+#else
         string versionHeader = string("#version ")+ ofGLSLVersionFromGL(renderer->getGLVersionMajor(),renderer->getGLVersionMinor())+"\n";
+#endif
+        
 
 
             settings.shaderSources[GL_FRAGMENT_SHADER ] = versionHeader+ofBufferFromFile("shaders/"+getName()+".frag").getText();

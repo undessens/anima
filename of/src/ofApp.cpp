@@ -3,7 +3,7 @@
 #include "ofApp.h"
 #include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
 
-#define USE_TESTIMG 1
+#define USE_TESTIMG 0
 #define USE_SHADERS 1
 
 
@@ -13,8 +13,8 @@ ofImage testImg;
 #endif
 
 
-ofApp::ofApp(){}
-ofApp::~ofApp(){}
+ofApp::ofApp() {}
+ofApp::~ofApp() {}
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -34,8 +34,8 @@ void ofApp::setup()
     // Shaders
     root = make_shared<ParameterContainer>("root");
     Node::setRoot(root);
-    auto tfps = root->addParameter<ActionParameter>("targetFPS",[this](const string & s){
-        float tfps = MAX(10.0,ofToFloat(s));ofSetFrameRate(tfps);DBG("setting FPS to " << tfps);
+    auto tfps = root->addParameter<ActionParameter>("targetFPS", [this](const string & s) {
+        float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);
     });
     presetManager = make_shared<PresetManager>(root);
     root->addSharedParameterContainer(presetManager);
@@ -48,13 +48,16 @@ void ofApp::setup()
     shaderFx->setup();
 #endif
 
-    oscBind.setup(root,"localhost",11001);
+    oscBind.setup(root, "localhost", 11001);
 
     lastFrameTime = ofGetElapsedTimef();
 
-#ifndef EMULATE_ON_OSX
+#if !EMULATE_ON_OSX
     //allows keys to be entered via terminal remotely (ssh)
     consoleListener.setup(this);
+#if USE_TESTIMG
+    testImg.load("images/tst.jpg");
+#else
     ofxOMXCameraSettings settings;
     ofBuffer jsonBuffer = ofBufferFromFile("settings.json");
     settings.parseJSON(jsonBuffer.getText());
@@ -62,13 +65,13 @@ void ofApp::setup()
     videoGrabber.setup(settings);
     int settingsCount = 0;
 
-    SettingsEnhancement* enhancement= new SettingsEnhancement();
+    SettingsEnhancement* enhancement = new SettingsEnhancement();
     enhancement->setup(&videoGrabber);
     enhancement->name = "enhancement";
     listOfSettings[settingsCount] = enhancement;
     settingsCount++;
 
-    SettingsZoomCrop* zoomCrop= new SettingsZoomCrop();
+    SettingsZoomCrop* zoomCrop = new SettingsZoomCrop();
     zoomCrop->setup(&videoGrabber);
     zoomCrop->name = "zoomCrop";
     listOfSettings[settingsCount] = zoomCrop;
@@ -85,7 +88,16 @@ void ofApp::setup()
     whiteBalance->name = "whiteBalance";
     listOfSettings[settingsCount] = whiteBalance;
     settingsCount++;
+#endif // USE_TESTIMG
+
 #else
+
+#if USE_TESTIMG
+    testImg.load("images/tst.jpg");
+#else
+    videoGrabber.setup(ofGetWidth(), ofGetHeight(), true);
+#endif
+#endif
 
 #if USE_ARB
     ofEnableArbTex();
@@ -93,14 +105,12 @@ void ofApp::setup()
     ofDisableArbTex();
 #endif
 
-#if USE_TESTIMG
-    testImg.load("images/tst.jpg");
-#else
-    videoGrabber.setup(ofGetWidth(),ofGetHeight(),true);
-#endif
 
 
-#endif
+
+
+
+
 
 }
 
@@ -121,58 +131,58 @@ void ofApp::update()
 void ofApp::draw()
 {
 #if USE_TESTIMG
-    testImg.resize(ofGetWidth(),ofGetHeight());
+    testImg.resize(ofGetWidth(), ofGetHeight());
 #endif
 
     ofTexture & drawnTexture =
 #if USE_TESTIMG
-    testImg.getTexture();
+        testImg.getTexture();
 #elif EMULATE_ON_OSX
-    videoGrabber.getTexture();
+        videoGrabber.getTexture();
 #else
-    videoGrabber.getTextureReference();
+        videoGrabber.getTextureReference();
 #endif
 
 #if USE_SHADERS
     ofSetColor(255);
     auto curT = ofGetElapsedTimef();
     float deltaT = curT - lastFrameTime ;
-    lastFrameTime  =curT;
+    lastFrameTime  = curT;
 
-    shaderFx->draw(drawnTexture,deltaT);
+    shaderFx->draw(drawnTexture, deltaT);
     shaderFx->drawDbg();
 
 #elif EMULATE_ON_OSX
-    drawnTexture.draw(0,0,ofGetWidth(),ofGetHeight());
+    drawnTexture.draw(0, 0, ofGetWidth(), ofGetHeight());
 #endif
 
     drawInfoIfAsked();
 
 }
 
-void ofApp::processOSC(){
-    while(receiver.hasWaitingMessages()){
+void ofApp::processOSC() {
+    while (receiver.hasWaitingMessages()) {
         // get the next message
         ofxOscMessage m;
         receiver.getNextMessage(m);
 
 
         int value = m.getArgAsInt32(0);
-        auto splitted = ofSplitString(m.getAddress(), "/",true);
+        auto splitted = ofSplitString(m.getAddress(), "/", true);
 
-        if( oscBind.processOSC(m,0)) continue;
+        if ( oscBind.processOSC(m, 0)) continue;
 
-        if(splitted.size()<2)continue;
+        if (splitted.size() < 2)continue;
 
-        string add0= splitted[0];
-        string add1= splitted[1];
-        ofLogVerbose() << "\n osc message received add0: " << add0 << " add1 " << add1 << " value: "<< ofToString(value);
+        string add0 = splitted[0];
+        string add1 = splitted[1];
+        ofLogVerbose() << "\n osc message received add0: " << add0 << " add1 " << add1 << " value: " << ofToString(value);
 
-#ifndef EMULATE_ON_OSX
-        for (int i=0; i<NB_SETTINGS; i++){
+#if !EMULATE_ON_OSX
+        for (int i = 0; i < NB_SETTINGS; i++) {
             ofLogVerbose() << " For: " << ofToString(i);
 
-            if( add0 == (listOfSettings[i]->name)){
+            if ( add0 == (listOfSettings[i]->name)) {
                 ofLogVerbose() << "\n OSC settings:" << add0 << " - " << add1 << " : " << ofToString(value);
 
                 //ROUTE osc message according the type of settings
@@ -188,13 +198,13 @@ void ofApp::processOSC(){
         }
         ofLogVerbose() << " end of For: " ;
 #endif
-        
-        if( add0 == "transport"){
+
+        if ( add0 == "transport") {
             transport = add1;
         }
-        
-        
-        
+
+
+
     }
 }
 
@@ -205,91 +215,91 @@ void ofApp::keyPressed  (int key)
     switch (key)
     {
 
-        case 'd':
-        {
-            doDrawInfo = !doDrawInfo;
-            break;
+    case 'd':
+    {
+        doDrawInfo = !doDrawInfo;
+        break;
+    }
+    case 'i':
+    {
+        doPrintInfo = !doPrintInfo;
+        break;
+    }
+    case 'p' :
+    {
+        presetManager->savePreset(shaderFx, "1");
+        break;
+    }
+    case 'm' :
+    {
+        presetManager->recallPreset(shaderFx, "1");
+        break;
+    }
+    case 's': {
+        if (!shaderFx->reload()) {
+            ofLogError() << "couldn't reload shader";
         }
-        case 'i':
-        {
-            doPrintInfo = !doPrintInfo;
-            break;
-        }
-        case 'p' :
-        {
-            presetManager->savePreset(shaderFx,"1");
-            break;
-        }
-        case 'm' :
-        {
-            presetManager->recallPreset(shaderFx,"1");
-            break;
-        }
-        case 's':{
-            if(!shaderFx->reload()){
-                ofLogError() << "couldn't reload shader";
-            }
-        }
+    }
 
 
-#ifndef EMULATE_ON_OSX
-        case 'r' :
-        {
-            videoGrabber.reset();
-            break;
-        }
-        case 'z' :
-        {
-            videoGrabber.startRecording();
-            break;
-        }
-        case 'x' :
-        {
-            videoGrabber.stopRecording();
-            break;
-        }
+#if !EMULATE_ON_OSX
+    case 'r' :
+    {
+        videoGrabber.reset();
+        break;
+    }
+    case 'z' :
+    {
+        videoGrabber.startRecording();
+        break;
+    }
+    case 'x' :
+    {
+        videoGrabber.stopRecording();
+        break;
+    }
 #endif
-        default:
-        {
-            break;
-        }
-            
+    default:
+    {
+        break;
+    }
+
     }
 }
 
-#ifndef EMULATE_ON_OSX
+#if !EMULATE_ON_OSX
 void ofApp::onCharacterReceived(KeyListenerEventData& e)
 {
     keyPressed((int)e.character);
 }
 #endif
 
-void ofApp::drawInfoIfAsked(){
-    if(ofGetFrameNum()%60*2==0){
-        ofLogVerbose() << ofGetFrameRate();
-    }
+void ofApp::drawInfoIfAsked() {
+    // if (ofGetFrameNum() % 60 * 2 == 0) {
+    //     ofLogVerbose() << ofGetFrameRate();
+    // }
     if (doDrawInfo || doPrintInfo)
     {
         stringstream info;
         info << endl;
         info << "App FPS: " << ofGetFrameRate() << endl;
         info << "CAMERA RESOLUTION: "   << videoGrabber.getWidth() << "x" << videoGrabber.getHeight()
-#ifndef EMULATE_ON_OSX
-        <<" @ "<< videoGrabber.getFrameRate() <<"FPS"
+#if !EMULATE_ON_OSX
+             << " @ " << videoGrabber.getFrameRate() << "FPS"
 #endif
-        << endl;
+             << endl;
         info << endl;
         info << endl;
         info << "Press SPACE for next Demo" << endl;
         info << "Press r to reset camera settings" << endl;
         info << "Press z TO START RECORDING" << endl;
         info << "Press x TO STOP RECORDING" << endl;
-        //        info << shaderFx->getInfo() << endl;
+        
 
         if (doDrawInfo)
         {
             int x = 100;
-            if(videoGrabber.getWidth()<1280)
+            if (videoGrabber.getWidth() < 1280)
             {
                 x = videoGrabber.getWidth();
             }
@@ -297,6 +307,7 @@ void ofApp::drawInfoIfAsked(){
         }
         if (doPrintInfo)
         {
+            info << shaderFx->getInfo() << endl;
             ofLogVerbose() << info.str();
             doPrintInfo = false;
         }

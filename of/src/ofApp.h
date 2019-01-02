@@ -6,10 +6,10 @@
 #include "ofxOsc.h"
 
 
-#ifdef EMULATE_ON_OSX
+#if EMULATE_ON_OSX
 
 #else 
-#include "ofAppEGLWindow.h"
+// #include "ofAppEGLWindow.h"
 #include "TerminalListener.h"
 #include "ofxOMXVideoGrabber.h"
 #include "CameraSettings.h"
@@ -28,7 +28,7 @@
 #define NB_SETTINGS 4
 
 class ofApp : public ofBaseApp
-#ifndef EMULATE_ON_OSX
+#if !EMULATE_ON_OSX
  ,public KeyListener
  #endif
  {
@@ -41,7 +41,7 @@ public:
     void draw();
     void keyPressed(int key);
     
-    #ifndef EMULATE_ON_OSX
+    #if !EMULATE_ON_OSX
     void onCharacterReceived(KeyListenerEventData& e);
     TerminalListener consoleListener;
     ofxOMXCameraSettings omxCameraSettings;

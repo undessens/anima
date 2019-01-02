@@ -4,11 +4,9 @@
 precision highp float;
 #define IN attribute
 #define OUT varying
-#define TEXTURE texture2D
 #else
 #define IN in
 #define OUT out
-#define TEXTURE texture
 #endif
 
 IN vec4 position;

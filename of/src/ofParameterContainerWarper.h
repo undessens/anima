@@ -45,7 +45,7 @@ class OSCParameterBinder : public ParameterContainer::Listener {
 public:
   OSCParameterBinder() : ParameterContainer::Listener("OSCBinder"), processingParameter(nullptr) {}
   typedef enum {
-    None = -1,
+    NoAccessor = -1,
     isX = -2,
     isY = -3,
     isZ = -4
@@ -73,8 +73,8 @@ public:
       return true;
     }
     spl.resize(spl.size() - 1);
-    SpecialAccessor acc = leafName == "x" ? isX : (leafName == "y" ? isY : None);
-    if (acc != None) {
+    SpecialAccessor acc = leafName == "x" ? isX : (leafName == "y" ? isY : NoAccessor);
+    if (acc != NoAccessor) {
       leafName = spl[spl.size() - 1];
       spl.resize(spl.size() - 1);
     }
@@ -155,7 +155,7 @@ private:
       if (auto np = dynamic_cast<Parameter<bool>*>(p)) {np->setValue(!np->getValue()); return true;}
     }
     else if (msg.getNumArgs() == 1) { // check /myname value
-      if (acc == None) {
+      if (acc == NoAccessor) {
 
         if (auto np = dynamic_cast<Parameter<float>*>(p)) {np->setValue(msg.getArgAsFloat(0)); return true;}
         else if (auto np = dynamic_cast<Parameter<int>*>(p)) {np->setValue(msg.getArgAsInt(0)); return true;}
