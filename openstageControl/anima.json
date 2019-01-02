@@ -701,6 +701,26 @@
           "type": "strip",
           "widgets": [
             {
+              "type": "toggle",
+              "id": "@{parent.address}/@{this.label}",
+              "linkId": "",
+              "height": 30,
+              "label": "MULTI_CHANNEL",
+              "color": "auto",
+              "css": "",
+              "doubleTap": false,
+              "led": false,
+              "on": 1,
+              "off": 0,
+              "default": "",
+              "value": "",
+              "precision": 2,
+              "address": "@{this.id}",
+              "preArgs": "",
+              "target": "",
+              "bypass": false
+            },
+            {
               "type": "clone",
               "widgetId": "strip_3",
               "height": 150,
@@ -1540,7 +1560,8 @@
           "address": "/shaders/next",
           "preArgs": "",
           "target": "",
-          "bypass": false
+          "bypass": false,
+          "doubleTap": false
         },
         {
           "type": "push",
@@ -1560,7 +1581,8 @@
           "address": "/getAll",
           "preArgs": "",
           "target": "",
-          "bypass": false
+          "bypass": false,
+          "doubleTap": false
         },
         {
           "type": "input",
@@ -1584,6 +1606,52 @@
           "preArgs": "",
           "target": "",
           "bypass": false
+        },
+        {
+          "type": "toggle",
+          "top": 200,
+          "left": 240,
+          "id": "doStream",
+          "linkId": "",
+          "width": "auto",
+          "height": "auto",
+          "label": "auto",
+          "color": "auto",
+          "css": "",
+          "on": 1,
+          "off": 0,
+          "precision": 2,
+          "address": "/doStream",
+          "preArgs": "",
+          "target": "",
+          "bypass": false,
+          "doubleTap": false,
+          "led": false,
+          "default": "",
+          "value": ""
+        },
+        {
+          "type": "toggle",
+          "top": 310,
+          "left": 240,
+          "id": "TestImage",
+          "linkId": "",
+          "width": "auto",
+          "height": "auto",
+          "label": "auto",
+          "color": "auto",
+          "css": "",
+          "on": 1,
+          "off": 0,
+          "precision": 0,
+          "address": "/displayTestImage",
+          "preArgs": "",
+          "target": "",
+          "bypass": false,
+          "doubleTap": false,
+          "led": false,
+          "default": "",
+          "value": ""
         }
       ],
       "tabs": [],
