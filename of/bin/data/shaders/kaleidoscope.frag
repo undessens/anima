@@ -199,6 +199,8 @@ void main( )
 // // compensate out of image by applying mirroring
 uv.x = mirrorOut(uv.x);
 uv.y = mirrorOut(uv.y);
+#else
+uv = clamp(uv,vec2(0.0),vec2(1.0));
 #endif
 
 

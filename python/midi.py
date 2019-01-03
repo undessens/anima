@@ -146,15 +146,16 @@ def main():
         #Serial connect
         try:
                 global ser
+                baudrate = 115200
                 if sys.platform.startswith('darwin'):
-                        ser = serial.Serial('/dev/cu.usbmodem1421',38400)
+                        ser = serial.Serial('/dev/cu.usbmodem1421',baudrate)
                         print "Serial connected"
                 elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
                         try:
-                                ser = serial.Serial('/dev/ttyACM0',38400)
+                                ser = serial.Serial('/dev/ttyACM0',baudrate)
                                 print "ACM0"
                         except :
-                                ser = serial.Serial('/dev/ttyACM1', 38400)
+                                ser = serial.Serial('/dev/ttyACM1', baudrate)
                                 print "ACM1"
                         
                 else:

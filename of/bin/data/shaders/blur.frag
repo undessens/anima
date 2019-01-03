@@ -1,7 +1,7 @@
 #pragma include "Common.hfrag"
 
 
-
+uniform vec2 resolution;
 uniform float size; // (2.0)
 
 
@@ -18,8 +18,14 @@ uniform float size; // (2.0)
 
 void main(void) {
         vec2 st = ST();
+        
+        #if USE_ARB
         float x = size ;
-        float y = size ;
+        float y = x ;
+        #else
+        float x= size/resolution.x;
+        float y= size/resolution.y;
+        #endif
         // vec3 topL = TEXTURE( tex0, vec2( st.x - x, st.y - y ) ).rgb;
         // vec3 midL = TEXTURE( tex0, vec2( st.x - x, st.y     ) ).rgb;
         // vec3 botL = TEXTURE( tex0, vec2( st.x - x, st.y + y ) ).rgb;

@@ -3,14 +3,26 @@
 #include "ofApp.h"
 #include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
 
-#define USE_TESTIMG 0
+
 #define USE_SHADERS 1
 
-
-
-#if USE_TESTIMG
-ofImage testImg;
+#ifndef DO_STREAM
+    #define DO_STREAM 0
 #endif
+
+#if DO_STREAM
+#include "StreamVid.h"
+StreamVid & getStreamVid() {
+    static StreamVid streamVid;
+    return streamVid;
+}
+#endif
+
+ofImage & getTestImage(){
+static ofImage testImg;
+return testImg;
+}
+
 
 
 ofApp::ofApp() {}
@@ -21,6 +33,7 @@ void ofApp::setup()
     // shaderFx = new ShaderFx();
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetLogLevel("ofThread", OF_LOG_ERROR);
+    ofSetLogLevel("ofShader", OF_LOG_WARNING);
     doDrawInfo = false;
     doPrintInfo = false;
 
@@ -37,6 +50,16 @@ void ofApp::setup()
     auto tfps = root->addParameter<ActionParameter>("targetFPS", [this](const string & s) {
         float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);
     });
+#if DO_STREAM
+    auto doStream = root->addParameter<BoolActionParameter>("doStream",false, [this](const bool needStream) {
+        getStreamVid().setStreamState(needStream); DBG("setting Streaming to " << (needStream ? "true" : "false"));
+    });
+#endif
+    displayTestImage = root->addParameter<BoolActionParameter>("displayTestImage",false, [this](const bool s) {
+        if (s) {getTestImage().load("images/tst.jpg");}
+        else {getTestImage().clear();}
+    });
+    auto doDrawInfoParam = root->addParameter<BoolActionParameter>("displayDebugInfo",false, [this](const bool s) {doDrawInfo=s;});
     presetManager = make_shared<PresetManager>(root);
     root->addSharedParameterContainer(presetManager);
     presetManager->setup(ofFile("presets").getAbsolutePath());
@@ -55,14 +78,13 @@ void ofApp::setup()
 #if !EMULATE_ON_OSX
     //allows keys to be entered via terminal remotely (ssh)
     consoleListener.setup(this);
-#if USE_TESTIMG
-    testImg.load("images/tst.jpg");
-#else
+
     ofxOMXCameraSettings settings;
     ofBuffer jsonBuffer = ofBufferFromFile("settings.json");
     settings.parseJSON(jsonBuffer.getText());
     settings.enableTexture = bool(USE_SHADERS);
     videoGrabber.setup(settings);
+    ofSetFrameRate(30);
     int settingsCount = 0;
 
     SettingsEnhancement* enhancement = new SettingsEnhancement();
@@ -88,16 +110,11 @@ void ofApp::setup()
     whiteBalance->name = "whiteBalance";
     listOfSettings[settingsCount] = whiteBalance;
     settingsCount++;
-#endif // USE_TESTIMG
-
-#else
-
-#if USE_TESTIMG
-    testImg.load("images/tst.jpg");
 #else
     videoGrabber.setup(ofGetWidth(), ofGetHeight(), true);
 #endif
-#endif
+
+
 
 #if USE_ARB
     ofEnableArbTex();
@@ -106,7 +123,9 @@ void ofApp::setup()
 #endif
 
 
-
+#if DO_STREAM
+    getStreamVid().setup();
+#endif
 
 
 
@@ -119,8 +138,10 @@ void ofApp::setup()
 void ofApp::update()
 {
     shaderFx->update();
-#if EMULATE_ON_OSX && !USE_TESTIMG
-    videoGrabber.update();
+#if EMULATE_ON_OSX
+    if (!displayTestImage->getValue()) {
+        videoGrabber.update();
+    }
 #endif
 
     processOSC();
@@ -130,17 +151,15 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-#if USE_TESTIMG
-    testImg.resize(ofGetWidth(), ofGetHeight());
-#endif
+    if (displayTestImage->getValue()) {
+        getTestImage().resize(ofGetWidth(), ofGetHeight());
+    }
 
-    ofTexture & drawnTexture =
-#if USE_TESTIMG
-        testImg.getTexture();
-#elif EMULATE_ON_OSX
-        videoGrabber.getTexture();
+    ofTexture & drawnTexture = displayTestImage->getValue() ? getTestImage().getTexture() :
+#if EMULATE_ON_OSX
+                               videoGrabber.getTexture();
 #else
-        videoGrabber.getTextureReference();
+                               videoGrabber.getTextureReference();
 #endif
 
 #if USE_SHADERS
@@ -157,6 +176,9 @@ void ofApp::draw()
 #endif
 
     drawInfoIfAsked();
+#if DO_STREAM
+    getStreamVid().publishScreen(); // has internal control over fps
+#endif
 
 }
 
@@ -275,9 +297,9 @@ void ofApp::onCharacterReceived(KeyListenerEventData& e)
 #endif
 
 void ofApp::drawInfoIfAsked() {
-    // if (ofGetFrameNum() % 60 * 2 == 0) {
-    //     ofLogVerbose() << ofGetFrameRate();
-    // }
+    if (ofGetFrameNum() % 60 * 2 == 0) {
+        ofLogVerbose() << ofGetFrameRate();
+    }
     if (doDrawInfo || doPrintInfo)
     {
         stringstream info;
@@ -294,7 +316,7 @@ void ofApp::drawInfoIfAsked() {
         info << "Press r to reset camera settings" << endl;
         info << "Press z TO START RECORDING" << endl;
         info << "Press x TO STOP RECORDING" << endl;
-        
+
 
         if (doDrawInfo)
         {
@@ -313,4 +335,6 @@ void ofApp::drawInfoIfAsked() {
         }
     }
 }
+
+
 

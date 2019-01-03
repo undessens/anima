@@ -61,6 +61,7 @@ public:
 
     float lastFrameTime;
     shared_ptr<ParameterContainer> root;
+    BoolActionParameter::Ptr displayTestImage;
     shared_ptr<PresetManager> presetManager;
     shared_ptr<ShaderFx> shaderFx;
 

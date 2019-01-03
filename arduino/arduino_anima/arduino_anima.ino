@@ -47,7 +47,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(strip_maxled, PINSTRIP, NEO_GRB + NE
 
 void setup() {
 
-  Serial.begin(38400);
+  Serial.begin(115200);
 
   //Pinmode
   pinMode(PINRELAY1, OUTPUT);
@@ -94,7 +94,7 @@ void loop() {
 
 void processBuffer() {
 
-  Serial.println("process buffer");
+  // Serial.println("process buffer");
 
   byte cmd = buffer[0];
   

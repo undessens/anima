@@ -22,7 +22,7 @@ using namespace std;
 
 class LeafType {
 public:
-    LeafType(const string & n, LeafType * p = nullptr): name(n) ,parent(p){}
+    LeafType(const string & n, LeafType * p = nullptr): name(n) , parent(p) {}
     virtual ~LeafType() {DBG("leaf deleting : " << getName());}
     virtual string stateToString()const = 0;
     virtual void setStateFromString(const string &) = 0;
@@ -33,13 +33,14 @@ public:
     }
 
     typedef vector<string> PathType;
-    PathType getCurrentPath(LeafType* relativeTo=nullptr){
+    PathType getCurrentPath(LeafType* relativeTo = nullptr) {
         PathType res{name};
         LeafType * insp = LeafType::parent;
-        while(insp!=nullptr && insp!=relativeTo && insp->parent!=nullptr){
+        while (insp != nullptr && insp != relativeTo && insp->parent != nullptr) {
             res.push_back(insp->name);
-            insp = insp->parent;}
-        std::reverse(res.begin(),res.end());
+            insp = insp->parent;
+        }
+        std::reverse(res.begin(), res.end());
         return res;
 
     }
@@ -51,7 +52,7 @@ private:
 
 class Node : public LeafType {
 public:
-    Node(const string & n, Node *parent = nullptr,bool _shouldOwn=true): LeafType(n, parent), nodes(this), leaves(this),shouldOwn(_shouldOwn) {}
+    Node(const string & n, Node *parent = nullptr, bool _shouldOwn = true): LeafType(n, parent), nodes(this), leaves(this), shouldOwn(_shouldOwn) {}
     virtual ~Node() {};
     typedef Node NodeType;
 
@@ -64,35 +65,35 @@ public:
 
 
     template<class T>
-    const T * getParentAs() const{return dynamic_cast<T*>(LeafType::getParent());}
+    const T * getParentAs() const {return dynamic_cast<T*>(LeafType::getParent());}
 
-    static const string & getRootName(){static string r("root");return r;}
-    static const Node::Ptr getRoot(){
+    static const string & getRootName() {static string r("root"); return r;}
+    static const Node::Ptr getRoot() {
         return _sR();
     }
-    static void setRoot(Node::Ptr r){
-            _sR() = r;
-        }
-    static Node::Ptr & _sR(){
-            static Node::Ptr root;
-            return root;
-        }
-    Ptr resolveContainerForPath(const  PathType & path,Node::Ptr relativeTo=nullptr)const{
-            auto insp = relativeTo;
-            if(insp==nullptr && getParent()){insp =  ((Node*)getParent())->nodes.getByName(getName());}
-            if(insp==nullptr){insp = getRoot();}
-            if(path.size()==0){DBGE("no path provided");return nullptr;}
-            for(auto &p:path){
-                insp = insp->nodes.getByName(p);
-                if(!insp){return nullptr;}
-            }
-            return insp;
+    static void setRoot(Node::Ptr r) {
+        _sR() = r;
     }
-    LeafPtr resolveLeafForPath(PathType path,Node::Ptr relativeTo = nullptr)const{
-        if(path.size()==0){DBGE("should provide leaf path");return nullptr;}
-        auto leafName = path[path.size()-1];path.pop_back();
-        Node::Ptr parentC = resolveContainerForPath(path,relativeTo);
-        if(parentC){
+    static Node::Ptr & _sR() {
+        static Node::Ptr root;
+        return root;
+    }
+    Ptr resolveContainerForPath(const  PathType & path, Node::Ptr relativeTo = nullptr)const {
+        auto insp = relativeTo;
+        if (insp == nullptr && getParent()) {insp =  ((Node*)getParent())->nodes.getByName(getName());}
+        if (insp == nullptr) {insp = getRoot();}
+        if (path.size() == 0) {DBGE("no path provided"); return nullptr;}
+        for (auto &p : path) {
+            insp = insp->nodes.getByName(p);
+            if (!insp) {return nullptr;}
+        }
+        return insp;
+    }
+    LeafPtr resolveLeafForPath(PathType path, Node::Ptr relativeTo = nullptr)const {
+        if (path.size() == 0) {DBGE("should provide leaf path"); return nullptr;}
+        auto leafName = path[path.size() - 1]; path.pop_back();
+        Node::Ptr parentC = resolveContainerForPath(path, relativeTo);
+        if (parentC) {
             return parentC->leaves.getByName(leafName);
         }
         return nullptr;
@@ -113,10 +114,10 @@ public:
         };
         ListenerList<Listener> listeners;
         void addInternal(Ptr c) final          {
-            if(owner->shouldOwn){c->setParent(owner);} listeners.call(&Listener::leafAdded, this, c);
+            if (owner->shouldOwn) {c->setParent(owner);} listeners.call(&Listener::leafAdded, this, c);
         }
         void removeInternal(Ptr c)final        {
-            if(owner->shouldOwn){c->setParent(nullptr);} listeners.call(&Listener::leafRemoved, this, c);
+            if (owner->shouldOwn) {c->setParent(nullptr);} listeners.call(&Listener::leafRemoved, this, c);
         }
         string toStringList()const             {int i = getContainer().size() - 1; string res ; for (const auto &v : getContainer()) {res += v.first + ":" + v.second->stateToString(); if (i != 0) {res += ",";} i--;} return res;}
         friend class Node;
@@ -130,7 +131,7 @@ public:
     typedef Node::Ptr NodeView;
     template<class T>
     NodeView createNodeView(function<bool(T*)> f, function<bool(NodeType*)> fnode = [](NodeType*) {return true;}, int maxRecursion = -1) {
-        Node::Ptr res ( new Node(getName(),nullptr,false) );
+        Node::Ptr res ( new Node(getName(), nullptr, false) );
         for (auto &c : leaves.getContainer()) {
             if (auto cc = dynamic_pointer_cast<T>(c.second)) {
                 if (f(cc.get())) {res->leaves.addShared(c.second);}
@@ -148,7 +149,7 @@ public:
     }
 
 
-    void clearNode() {nodes.clear();leaves.clear();}
+    void clearNode() {nodes.clear(); leaves.clear();}
 
     bool isEmpty() {return nodes.size() == 0  && leaves.size() == 0;}
 
@@ -177,7 +178,7 @@ public:
                 if (c == '}') {cs += c; depth--;}
                 if (auto cn = nodes.getByName(name)) {cn->setStateFromString(cs);}
                 else if (auto cn = leaves.getByName(name)) {cn->setStateFromString(cs);}
-                else{DBGE("no child found at : " << name);}
+                else {DBGE("no child found at : " << name);}
                 cs = ""; name = "";
                 continue;
             }
@@ -187,26 +188,26 @@ public:
         if (name != "" && cs != "") {
             if (auto cn = nodes.getByName(name)) {cn->setStateFromString(cs);}
             else if (auto cn = leaves.getByName(name)) {cn->setStateFromString(cs);}
-            else{DBGE("no child found at : " << name);}
+            else {DBGE("no child found at : " << name);}
         }
 
     }
 
     template<class T>
-    void applyRecursively(std::function<void(T*)> f){
-      for(auto & l:leaves){
-        if(auto pl = dynamic_pointer_cast<T>(l.second)){
-          f(pl.get());
+    void applyRecursively(std::function<void(T*)> f) {
+        for (auto & l : leaves) {
+            if (auto pl = dynamic_pointer_cast<T>(l.second)) {
+                f(pl.get());
+            }
         }
-      }
-      for(auto & n:nodes){n.second->applyRecursively<T>(f);}
+        for (auto & n : nodes) {n.second->applyRecursively<T>(f);}
     }
 
     LeafContainer<Node> nodes;
     LeafContainer<LeafType> leaves;
 
 protected:
-   const bool shouldOwn; // indicate if this is a normal container or just a reference to another
+    const bool shouldOwn; // indicate if this is a normal container or just a reference to another
     // NodeType*  parent;
 
 };
@@ -214,38 +215,38 @@ protected:
 
 class ParameterBase : public LeafType, public WeakReferenceAble<ParameterBase> {
 public:
-    ParameterBase(const string & n): LeafType(n), isSavable(true), listeners("paramListeners"),bhasChanged(false), isCommiting(false) {}
+    ParameterBase(const string & n): LeafType(n), isSavable(true), listeners("paramListeners"), bhasChanged(false), isCommiting(false) {}
 
     bool isSavable;
     struct Listener : public ListenerBase {
         using ListenerBase::ListenerBase;
         virtual ~Listener() {};
-        virtual void valueChanged(ParameterBase *,void* notifier) = 0;
+        virtual void valueChanged(ParameterBase *, void* notifier) = 0;
     };
     ListenerList<Listener> listeners;
-    void notifyValueChanged(void * from = nullptr) {
+    virtual void notifyValueChanged(void * from = nullptr) {
         if (!isCommiting) {
             // do stuff
-            listeners.callExcluding(from, &Listener::valueChanged, this,from);
+            listeners.callExcluding(from, &Listener::valueChanged, this, from);
             // bhasChanged = false;
         }
     }
 
-    
+
 
     struct CommitingSession {
-        CommitingSession(ParameterBase *_p,void * _commiter): p(_p),commiter(_commiter) {p->startCommit();}
+        CommitingSession(ParameterBase *_p, void * _commiter): p(_p), commiter(_commiter) {p->startCommit();}
         ~CommitingSession() {p->endCommit(commiter);}
         ParameterBase * const p;
         void * commiter;
     };
-    std::unique_ptr<CommitingSession> startScopedCommitingSession(void* commiter) {return make_unique<CommitingSession>(this,commiter);};
+    std::unique_ptr<CommitingSession> startScopedCommitingSession(void* commiter) {return make_unique<CommitingSession>(this, commiter);};
     void startCommit() {isCommiting = true;}
     void endCommit(void* commiter) {isCommiting = false; if (bhasChanged) {notifyValueChanged(commiter);}}
 
 
 
-    private : 
+private :
 
     bool bhasChanged;
     bool isCommiting;
@@ -254,7 +255,7 @@ public:
 };
 
 class ParameterContainerFactory {
-    public :
+public :
     typedef Node BaseObject;
     typedef std::function<BaseObject*()> constructorType;
 
@@ -313,10 +314,10 @@ public:
     // Parameter(const string & _name,const T && t):ParameterBase(_name),value(t){};
     const T & setValue(const T & t, void * from = nullptr) {
         bool isChange  = t != value;
-        if (isChange)
-            DBG("setting p:" << getName() << (isChange ? "change" : ""));
+        // if (isChange)
+        //     DBG("setting p:" << getName() << (isChange ? "change" : ""));
         bhasChanged |= isChange ;
-        if (isChange){lastValue=value;value = t;}
+        if (isChange) {lastValue = value; value = t;}
         if (!isCommiting && isChange)notifyValueChanged(from);
         return value;
     }
@@ -334,14 +335,14 @@ public:
     // virtual string toString()const{return stateToString();}
     // virtual void fromString(const string & s){return setStateFromString(s);}
 
-    const T& getLastValue(){return lastValue;}
+    const T& getLastValue() {return lastValue;}
 protected:
     T value;
     T lastValue;
 private:
 
 
-    
+
 
 };
 
@@ -548,20 +549,39 @@ public:
 //    operator string&(){return *this;}
     void operator  =(const ActionValueType & o) {};
     bool operator !=(const ActionValueType & o)const {return true;}
-    
+
     friend ostream& operator<<(ostream & os, const ActionValueType& ) {return os;}
     friend istream& operator>>(istream & is, const ActionValueType& ) {return is;}
 };
 
-class ActionParameter : public Parameter<ActionValueType>, Parameter<ActionValueType>::Listener {
+
+class ActionParameter : public Parameter<ActionValueType>{
 public:
     typedef Parameter<ActionValueType> ActionParameterType ;
     typedef std::function<void(const string & )> ActionFunctionType;
-    ActionParameter(const string & name , ActionFunctionType f): ActionParameterType(name, {}), Parameter<ActionValueType>::Listener("ActionListener"), af(f) {isSavable = false;}
+    ActionParameter(const string & name , ActionFunctionType f): ActionParameterType(name, {}), af(f) {isSavable = false;}
     // string stateToString() const override {return "";}
     // void setStateFromString(const string &) override {};
-    void valueChanged(ParameterBase *,void* notifier)final{executeAction(value);};
+    void notifyValueChanged(void * from = nullptr)final{
+        executeAction(value);
+        Parameter<ActionValueType>::notifyValueChanged(from);
+    };
+    
     void executeAction(const string & s) {af(s);}
+private:
+    ActionFunctionType af;
+};
+
+class BoolActionParameter : public Parameter<bool> {
+public :
+    typedef std::function<void(const bool )> ActionFunctionType;
+    BoolActionParameter(const string & name, bool defaultV, ActionFunctionType f): Parameter<bool>(name, defaultV), af(f) {
+
+    }
+    void notifyValueChanged(void * from = nullptr)final{
+        af(value);
+        Parameter<bool>::notifyValueChanged(from);
+    }
 private:
     ActionFunctionType af;
 };
@@ -599,10 +619,10 @@ public:
     typedef Node::LeafContainer<NodeOrLeafType> OriginContainerType;
     typedef Node::PtrT<PT> ElemPtr;
     TypedView(OriginContainerType & o, std::function<bool(PT*)> _filterF = [](PT*) {return true;}):
-    Node::LeafContainer<NodeOrLeafType>::Listener("TypedView"),
-    listeners("typedViewListeners"),
-    originCont(o),
-    filterF(_filterF){
+        Node::LeafContainer<NodeOrLeafType>::Listener("TypedView"),
+        listeners("typedViewListeners"),
+        originCont(o),
+        filterF(_filterF) {
         o.listeners.add(this);
         for (auto o : originCont.vIterator()) {leafAdded(&originCont, o);}
     }
@@ -627,7 +647,7 @@ public:
 
     typename NamedPtrSet<PT>::Ptr operator[](int i) {
         int idx = 0; auto it = castedCont.begin();
-        while ( !(i == idx || it == castedCont.end())) {it++;idx++;}
+        while ( !(i == idx || it == castedCont.end())) {it++; idx++;}
         if (it != castedCont.end()) {return it->second;}
         else {return typename NamedPtrSet<PT>::Ptr(nullptr);}
     }
@@ -672,60 +692,60 @@ public:
 
 class ParameterContainer : public Node, private Node::LeafContainer<LeafType>::Listener, public WeakReferenceAble<ParameterContainer>, protected ParameterBase::Listener {
 public:
-    ParameterContainer(const string & n): Node(n), 
-    Node::LeafContainer<LeafType>::Listener(n), 
-    ParameterBase::Listener(n),
-    parameterContainerListeners("containerListeners") {
+    ParameterContainer(const string & n): Node(n),
+        Node::LeafContainer<LeafType>::Listener(n),
+        ParameterBase::Listener(n),
+        parameterContainerListeners("containerListeners") {
         leaves.listeners.add(this);
     };
     using Node::PtrT;
     typedef PtrT<ParameterContainer> Ptr;
 
     const ParameterContainer *  getParent()const {return Node::getParentAs<const ParameterContainer>();}
-    
+
     template <class T, class ...Args>
     PtrT<T> addParameter(const string & n, Args... args) {
         auto p = leaves.createWithType<T>(n, args...);
         return p;
     }
-    
+
     template <class ...Args>
     PtrT<TriggerParameter> addTrigger(const string & n, Args... args) {
         return leaves.createWithType<TriggerParameter>(n, args...);
     }
-    
+
     template <class T = ParameterContainer, class ...Args>
     PtrT<T> addParameterContainer(const string & n, Args... args) {
         return nodes.createWithType<T>(n, args...);
     }
-    
+
     void addSharedParameterContainer(Ptr other) {
         nodes.addShared(other);
     }
-    
+
     virtual void parameterValueChanged(ParameterBase * p) {};
 
 
-    struct Listener : public ListenerBase{
-      Listener(const string & n):ListenerBase(n){};
-      virtual ~Listener(){};
+    struct Listener : public ListenerBase {
+        Listener(const string & n): ListenerBase(n) {};
+        virtual ~Listener() {};
 
-      virtual void childParameterChanged(ParameterContainer* parent,ParameterBase * p)=0;
+        virtual void childParameterChanged(ParameterContainer* parent, ParameterBase * p) = 0;
 
     };
     ListenerList<Listener> parameterContainerListeners;
-    
-private:
-    void valueChanged(ParameterBase * p,void* notifier) {
-      parameterValueChanged(p);
 
-      parameterContainerListeners.callExcluding(notifier,&Listener::childParameterChanged,this,p);
-      auto insp = ParameterContainer::getParent();
-      while(insp){insp->parameterContainerListeners.callExcluding(notifier,&Listener::childParameterChanged,this,p);insp = insp->getParent();}
-      
+private:
+    void valueChanged(ParameterBase * p, void* notifier) {
+        parameterValueChanged(p);
+
+        parameterContainerListeners.callExcluding(notifier, &Listener::childParameterChanged, this, p);
+        auto insp = ParameterContainer::getParent();
+        while (insp) {insp->parameterContainerListeners.callExcluding(notifier, &Listener::childParameterChanged, this, p); insp = insp->getParent();}
+
     }
-    
-    
+
+
     void leafAdded(LeafContainer<LeafType> * ori, LeafPtr c) final{
         // DBG("param container : adding p : " << c->getName());
         // if(ori==&leaves){

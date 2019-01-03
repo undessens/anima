@@ -35,7 +35,7 @@ public:
     static const map<string, ShaderBase::DefaultUniform> reservedUniformsMap;
     bool hasDefaultUniform(DefaultUniform  s) {return (defaultUniformFlags >> (int)s) & 1;}
     bool setDefaultUniform(DefaultUniform  s) {
-        if(s==speed){speedParameter = addParameter<FloatParameter>("speed",1.0);}
+        if (s == speed) {speedParameter = addParameter<FloatParameter>("speed", 1.0);}
         return defaultUniformFlags |= (1 << (int)s);
     }
     FloatParameterListType fParams;
@@ -48,39 +48,32 @@ public:
     IntParameter::Ptr order;
 
     bool load(bool parseUniforms = true) {
-            ofShaderSettings settings;
+        ofShaderSettings settings;
 
         auto renderer = ofGetGLRenderer();
 #ifdef TARGET_RASPBERRY_PI
         string versionHeader = "";
 #else
-        string versionHeader = string("#version ")+ ofGLSLVersionFromGL(renderer->getGLVersionMajor(),renderer->getGLVersionMinor())+"\n";
+        string versionHeader = string("#version ") + ofGLSLVersionFromGL(renderer->getGLVersionMajor(), renderer->getGLVersionMinor()) + "\n";
 #endif
-        
 
-
-            settings.shaderSources[GL_FRAGMENT_SHADER ] = versionHeader+ofBufferFromFile("shaders/"+getName()+".frag").getText();
-            settings.shaderSources[GL_VERTEX_SHADER ] =versionHeader + ofBufferFromFile("shaders/default.vert").getText();
-            for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
+        settings.shaderSources[GL_FRAGMENT_SHADER ] = versionHeader + ofBufferFromFile("shaders/" + getName() + ".frag").getText();
+        settings.shaderSources[GL_VERTEX_SHADER ] = versionHeader + ofBufferFromFile("shaders/default.vert").getText();
+        for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
         settings.intDefines["USE_ARB"] = USE_ARB;
 #ifdef TARGET_RASPBERRY_PI
         settings.intDefines["TARGET_RASPBERRY_PI"] = 1;
 #endif
-            settings.sourceDirectoryPath = ofToDataPath("shaders/");
-        //             std::map<GLuint, std::filesystem::path> shaderFiles;
-        // std::map<GLuint, std::string> shaderSources;
-        // std::map<std::string, int> intDefines;
-        // std::map<std::string, float> floatDefines;
-        // std::filesystem::path sourceDirectoryPath;
-        // bool bindDefaults = true;
-        
-        
+        settings.sourceDirectoryPath = ofToDataPath("shaders/");
+        settings.bindDefaults = true;
+
+
         shader.setup(settings);
 
         // shader.load("shaders/" + getName());
         string s = stateToString();
-        if(parseUniforms){
-        autoParseUniforms();
+        if (parseUniforms) {
+            autoParseUniforms();
         }
         initParams();
         setStateFromString(s);
@@ -134,8 +127,8 @@ protected:
         if (hasDefaultUniform(DefaultUniform::mouse)) {shader.setUniform2f("mouse", ofGetMouseX() * 1.0 / ofGetWidth(), ofGetMouseY() * 1.0 / ofGetHeight());}
         if (hasDefaultUniform(DefaultUniform::time)) {
             float dt = deltaT;
-            if(hasDefaultUniform(DefaultUniform::speed)){dt*=speedParameter->getValue();}
-            currentTime+=dt;
+            if (hasDefaultUniform(DefaultUniform::speed)) {dt *= speedParameter->getValue();}
+            currentTime += dt;
             shader.setUniform1f("time", currentTime);
         }
         updateParams(deltaT);

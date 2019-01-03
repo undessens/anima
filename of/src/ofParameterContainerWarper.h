@@ -117,7 +117,7 @@ public:
 
     ofxOscMessage m;
     if (fillMessageWithParameter(m, p)) {
-      DBG("sending msg" << m);
+      // DBG("sending msg" << m);
       oscSender.sendMessage(m, false);
     }
     else {
