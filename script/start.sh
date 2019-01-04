@@ -1,14 +1,20 @@
 #!/bin/bash
+exec 1>/var/log/anima.log 2>&1  # send stdout and stderr from rc.local to a log file
+set -x                         # tell sh to display commands before execution
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $DIR/..
 #kill Old
+echo "killing Old Processes"
 ./script/killAll.sh
 
 #Start python both of
-node openstagecontrol/bin/open-stage-control -n -l openstagecontrol/anima.json -s 127.0.0.1:12345 -o 11001  &
+echo "starting New Processes"
+./script/runOSC.sh > /var/log/openstagecontrol.log  2>&1 &
 python python/midi.py & 
-./of/bin/of 
+./of/bin/of > /var/log/of_anima.log  2>&1 & 
+
+echo "getting out of script"
 
 
 
