@@ -156,7 +156,7 @@ public:
         ParameterContainer("shaders"),
         curShaderIdx(0),
         bShouldProcess(true),
-        availableShaders(this->nodes),
+        availableShaders(nodes),
         enabledShaders(*this) {
 
         curShaderName = addParameter<StringParameter>("shaderName", "");
@@ -274,7 +274,7 @@ private:
         void swap() {isSwapped = !isSwapped;};
         ofFbo * getFront() {return isSwapped ? &back : &front;}
         ofFbo * getBack() {return isSwapped ? &front : &back;}
-
+        private:
         bool isSwapped;
         ofFbo front, back;
         int alloW, alloH;

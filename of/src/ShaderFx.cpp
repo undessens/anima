@@ -164,8 +164,8 @@ public:
         setMaskPath = addParameter<ActionParameter>("setMaskPath", std::bind(&MaskShader::loadImage, this, std::placeholders::_1));
         maskPath = addParameter<StringParameter>("maskPath", "");
         maskPath->setValue("mask1.jpg", this);
-
     };
+    
     void updateParams(float deltaT)final{
         if (maskPath->hasChanged(true)) { // need to be don whi
             loadImage(maskPath->getValue());
@@ -180,18 +180,18 @@ public:
             }
             shader.setUniformTexture("maskTex", maskImg.getTexture(), 1);
         }
-//        shader.setUniformTexture("maskTex", maskFbo.getTexture(), 1);
+       
     }
     void parameterValueChanged(ParameterBase * p)final{
         //        if(p==)
     }
     void loadImage(const string & s) {
         {   ofFile f(s);
-            if (f.exists()) {ofImage im(f); setImage(im); return;}
+            if (f.exists() && f.isFile()) {ofImage im(f); setImage(im); return;}
         }
         {
             ofFile f(string("images/") + s);
-            if (f.exists()) {
+            if (f.exists()&& f.isFile()) {
                 ofImage im(f);
                 setImage(im);
                 return;
@@ -246,6 +246,40 @@ public:
 
 };
 
+
+class TOONShader: public ShaderBase {
+public:
+    TOONShader(): ShaderBase("toon") {
+
+    }
+    void initParams()final{
+        hueRes  = fParams.getRef("hueRes");
+        satRes  = fParams.getRef("satRes");
+        valRes  = fParams.getRef("valRes");
+        
+
+    };
+    void parameterValueChanged(ParameterBase * p)final{
+            if(p==hueRes.get() ){
+                if(auto def = defineParams.getRef("USE_HUE")){
+                    def->setValue(hueRes->getValue()==0?0:1);
+               }
+           }
+           else if(p==satRes.get() ){
+                if(auto def = defineParams.getRef("USE_SAT")){
+                    def->setValue(satRes->getValue()==0?0:1);
+               }
+           }
+           else if(p==valRes.get() ){
+                if(auto def = defineParams.getRef("USE_VAL")){
+                    def->setValue(valRes->getValue()==0?0:1);
+               }
+           }
+    };
+    FloatParameterListType::ElemPtr hueRes,satRes,valRes;
+
+};
+
 template<class T, class CONTAINER, class ...Args>
 void addAndRegisterType (CONTAINER & cont, Args... args) {
     auto inst = new T(args...);
@@ -259,7 +293,7 @@ void addAndRegisterType (CONTAINER & cont, Args... args) {
 void ShaderFx::setup() {
 
     addAndRegisterType<ShaderBase>(nodes, "blur");
-    addAndRegisterType<ShaderBase>(nodes, "toon");
+    addAndRegisterType<TOONShader>(nodes);
     addAndRegisterType<ShaderBase>(nodes, "borders");
     addAndRegisterType<ShaderBase>(nodes, "mirror");
     addAndRegisterType<ShaderBase>(nodes, "champi");

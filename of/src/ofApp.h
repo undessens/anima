@@ -12,18 +12,18 @@
 // #include "ofAppEGLWindow.h"
 #include "TerminalListener.h"
 #include "ofxOMXVideoGrabber.h"
-#include "CameraSettings.h"
-#include "Enhancement.h"
-#include "ZoomCrop.h"
-#include "Filters.h"
-#include "WhiteBalance.h"
+#include "CamEffects/CameraSettings.h"
+#include "CamEffects/Enhancement.h"
+#include "CamEffects/ZoomCrop.h"
+#include "CamEffects/Filters.h"
+#include "CamEffects/WhiteBalance.h"
 
 #endif
 
 
 
 #include "ShaderFx.h"
-#include "PresetManager.hpp"
+#include "ParameterContainer/PresetManager.hpp"
 
 #define NB_SETTINGS 4
 
@@ -61,7 +61,7 @@ public:
 
     float lastFrameTime;
     shared_ptr<ParameterContainer> root;
-    BoolActionParameter::Ptr displayTestImage;
+    TypedActionParameter<bool>::Ptr displayTestImage;
     shared_ptr<PresetManager> presetManager;
     shared_ptr<ShaderFx> shaderFx;
 

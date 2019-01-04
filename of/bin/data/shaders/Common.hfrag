@@ -3,7 +3,7 @@
 
 
 #if TARGET_RASPBERRY_PI
-precision highp float;
+precision mediump float;
 #define IN varying
 #define OUT
 #define TEXTURE texture2D

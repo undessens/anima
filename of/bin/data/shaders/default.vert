@@ -1,7 +1,9 @@
 #define TARGET_RASPBERRY_PI 0 // will be changed by of
 
 #if TARGET_RASPBERRY_PI
-precision highp float;
+precision lowp float;
+precision lowp vec2;
+precision lowp vec3;
 #define IN attribute
 #define OUT varying
 #else

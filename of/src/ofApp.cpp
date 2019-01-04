@@ -23,6 +23,9 @@ static ofImage testImg;
 return testImg;
 }
 
+#ifdef TARGET_RASPBERRY_PI
+#include "OMXController.hpp"
+#endif
 
 
 ofApp::ofApp() {}
@@ -47,23 +50,19 @@ void ofApp::setup()
     // Shaders
     root = make_shared<ParameterContainer>("root");
     Node::setRoot(root);
-    auto tfps = root->addParameter<ActionParameter>("targetFPS", [this](const string & s) {
-        float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);
-    });
+    auto tfps = root->addParameter<ActionParameter>("targetFPS", [this](const string & s) {float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);});
 #if DO_STREAM
-    auto doStream = root->addParameter<BoolActionParameter>("doStream",false, [this](const bool needStream) {
-        getStreamVid().setStreamState(needStream); DBG("setting Streaming to " << (needStream ? "true" : "false"));
-    });
+    auto doStream = root->addParameter<TypedActionParameter<bool> >("doStream",false, [this](const bool & needStream) {getStreamVid().setStreamState(needStream); DBG("setting Streaming to " << (needStream ? "true" : "false"));});
 #endif
-    displayTestImage = root->addParameter<BoolActionParameter>("displayTestImage",false, [this](const bool s) {
-        if (s) {getTestImage().load("images/tst.jpg");}
-        else {getTestImage().clear();}
-    });
-    auto doDrawInfoParam = root->addParameter<BoolActionParameter>("displayDebugInfo",false, [this](const bool s) {doDrawInfo=s;});
+    displayTestImage = root->addParameter<TypedActionParameter<bool> >("displayTestImage",false, [this](const bool & s) {if (s) {getTestImage().load("images/tst.jpg");}else {getTestImage().clear();}});
+    auto doDrawInfoParam = root->addParameter<TypedActionParameter<bool> >("displayDebugInfo",false, [this](const bool & s) {doDrawInfo=s;});
     presetManager = make_shared<PresetManager>(root);
     root->addSharedParameterContainer(presetManager);
     presetManager->setup(ofFile("presets").getAbsolutePath());
 
+#ifdef TARGET_RASPBERRY_PI
+root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
+#endif
 
     shaderFx = make_shared<ShaderFx>();
     root->addSharedParameterContainer(shaderFx);
@@ -72,6 +71,7 @@ void ofApp::setup()
 #endif
 
     oscBind.setup(root, "localhost", 11001);
+
 
     lastFrameTime = ofGetElapsedTimef();
 
@@ -84,7 +84,8 @@ void ofApp::setup()
     settings.parseJSON(jsonBuffer.getText());
     settings.enableTexture = bool(USE_SHADERS);
     videoGrabber.setup(settings);
-    ofSetFrameRate(30);
+    ofSetVerticalSync(false);
+    // ofSetFrameRate(30);
     int settingsCount = 0;
 
     SettingsEnhancement* enhancement = new SettingsEnhancement();
@@ -202,7 +203,7 @@ void ofApp::processOSC() {
 
 #if !EMULATE_ON_OSX
         for (int i = 0; i < NB_SETTINGS; i++) {
-            ofLogVerbose() << " For: " << ofToString(i);
+            // ofLogVerbose() << " For: " << ofToString(i);
 
             if ( add0 == (listOfSettings[i]->name)) {
                 ofLogVerbose() << "\n OSC settings:" << add0 << " - " << add1 << " : " << ofToString(value);
@@ -218,7 +219,7 @@ void ofApp::processOSC() {
 
 
         }
-        ofLogVerbose() << " end of For: " ;
+        // ofLogVerbose() << " end of For: " ;
 #endif
 
         if ( add0 == "transport") {
@@ -297,9 +298,8 @@ void ofApp::onCharacterReceived(KeyListenerEventData& e)
 #endif
 
 void ofApp::drawInfoIfAsked() {
-    if (ofGetFrameNum() % 60 * 2 == 0) {
-        ofLogVerbose() << ofGetFrameRate();
-    }
+    // if (ofGetFrameNum() % 60 * 2 == 0) {ofLogVerbose() << ofGetFrameRate();}
+    
     if (doDrawInfo || doPrintInfo)
     {
         stringstream info;
@@ -310,13 +310,6 @@ void ofApp::drawInfoIfAsked() {
              << " @ " << videoGrabber.getFrameRate() << "FPS"
 #endif
              << endl;
-        info << endl;
-        info << endl;
-        info << "Press SPACE for next Demo" << endl;
-        info << "Press r to reset camera settings" << endl;
-        info << "Press z TO START RECORDING" << endl;
-        info << "Press x TO STOP RECORDING" << endl;
-
 
         if (doDrawInfo)
         {

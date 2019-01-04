@@ -44,11 +44,11 @@ void main(void) {
         vec4 originColor = TEXTURE( tex0, st   );
 
         #if COMPLEXITY==1
-        originColor.rgb = ( originColor.rgb + .7*PASS(size,size))/2.0;
+        originColor.rgb = ( originColor.rgb + .7*PASS(x,y))/2.0;
         #elif COMPLEXITY==2
-        originColor.rgb= (originColor.rgb  + .7/2.0*(PASS(size,size)+ PASS(size/2.0,size/2.0))) / 2.0;
+        originColor.rgb= (originColor.rgb  + .7/2.0*(PASS(x,y)+ PASS(x/2.0,y/2.0))) / 2.0;
         #elif COMPLEXITY==3
-        originColor.rgb= (originColor.rgb  + .7/4.0*(PASS(size,size)+ PASS(size/2.0,size/2.0)+ PASS(size/4.0,size/4.0) + PASS(size*3.0/4.0,size*3.0/4.0))) / 2.0;
+        originColor.rgb= (originColor.rgb  + .7/4.0*(PASS(x,y)+ PASS(x/2.0,y/2.0)+ PASS(x/4.0,y/4.0) + PASS(x*3.0/4.0,y*3.0/4.0))) / 2.0;
         #endif
 
         

@@ -13,7 +13,7 @@ int main()
   #endif
     settings.setSize(1280,720);
     settings.setPosition({0,0});
-    settings.windowMode = OF_WINDOW;
+    settings.windowMode = OF_GAME_MODE;
 
     ofCreateWindow(settings);
 

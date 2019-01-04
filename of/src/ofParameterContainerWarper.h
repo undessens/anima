@@ -110,7 +110,7 @@ public:
     if (processingParameter == p) {return;}
 
 
-    sendOscMessageForParameter(p);
+    // sendOscMessageForParameter(p);
 
   }
   void sendOscMessageForParameter(ParameterBase * p) {

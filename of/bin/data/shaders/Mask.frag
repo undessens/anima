@@ -19,7 +19,7 @@ uniform float smoothThresh; // (0.31)
 const vec3 lumW = vec3(0.2126,0.7152,0.0722);
 float getLuminance(vec3 c){return dot(c.rgb,lumW);}
 
-vec3 maskAt(vec2 st){return TEXTURE(maskTex,st/resolution*maskResolution).rgb;}
+vec3 maskAt(vec2 st){return TEXTURE(maskTex,st).rgb;}
 
 vec3 maskIt(vec3 source,vec3 mask){
         float maskV = smoothstep(maskThreshold-smoothThresh,maskThreshold,

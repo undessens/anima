@@ -2,9 +2,15 @@
 
 uniform vec2 resolution;
 
+#define USE_HUE 1
+#define USE_SAT 1
+#define USE_VAL 1
+
+
 uniform float hueRes; // (5)
 uniform float hueOff; // (0)
 uniform float hueSmooth; // (0.1)
+
 uniform float satRes; // (5)
 uniform float satOff; // (0)
 uniform float satSmooth; // (0.1)
@@ -32,26 +38,28 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-float getStepped(float x,float res,float off,float vsmooth){
-        if(res>0.0){
-                float floated =x*res+off;
-                float floored = (floor(floated));
-                return (floored-1.0+ smoothstep(0.0,vsmooth,fract(floated)))/res;
-        }
-        else{
-                return x;
-        }
-}
+// float getStepped(float x,float res,float off,float vsmooth){
+//                 float floated =x*res+off;
+//                 float floored = (floor(floated));
+//                 return (floored-1.0+ smoothstep(0.0,vsmooth,fract(floated)))/res;
+// }   
 
+#define getStepped( x, res, off, vsmooth) ((floor(x*res+off)-1.0+ smoothstep(0.0,vsmooth,fract(x*res+off)))/res)
 
 void main(void) {
         vec2 st = ST();
         vec4 originColor = TEXTURE( tex0, st );
         vec3 hsv = rgb2hsv(originColor.rgb);
+        #if USE_HUE
         hsv.x = getStepped(hsv.x,hueRes,hueOff,hueSmooth);
+        #endif
+        #if USE_SAT
         hsv.y = getStepped(hsv.y,satRes,satOff,satSmooth);
+        #endif
+        #if USE_VAL
         hsv.z = getStepped(hsv.z,valRes,valOff,valSmooth);
-        
+        #endif
+
         originColor.rgb = hsv2rgb(hsv);
         FRAG_COLOR = originColor;
 

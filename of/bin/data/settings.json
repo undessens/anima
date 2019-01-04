@@ -29,5 +29,6 @@
     "saturation": 0,
     "sharpness": -50,
     "shutterSpeed": 0,
+    "whiteBalance":"Auto",
     "zoomLevel": 0
 }

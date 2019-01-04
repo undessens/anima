@@ -572,19 +572,21 @@ private:
     ActionFunctionType af;
 };
 
-class BoolActionParameter : public Parameter<bool> {
+template <class T>
+class TypedActionParameter : public Parameter<T> {
 public :
-    typedef std::function<void(const bool )> ActionFunctionType;
-    BoolActionParameter(const string & name, bool defaultV, ActionFunctionType f): Parameter<bool>(name, defaultV), af(f) {
+    typedef std::function<void(const T & )> ActionFunctionType;
+    TypedActionParameter(const string & name, const T & defaultV, ActionFunctionType f): Parameter<T>(name, defaultV), af(f) {
 
     }
     void notifyValueChanged(void * from = nullptr)final{
-        af(value);
-        Parameter<bool>::notifyValueChanged(from);
+        af(Parameter<T>::value);
+        Parameter<T>::notifyValueChanged(from);
     }
 private:
     ActionFunctionType af;
 };
+
 
 template<class PT>
 class PCollection {
