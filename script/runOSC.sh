@@ -9,5 +9,5 @@ echo `which node`
 
 OSC_SESSION=$DIR/../openstagecontrol/anima.json
 echo $OSC_SESSION 
-HOME=/home/pi node openstagecontrol/bin/open-stage-control -n -l $OSC_SESSION -s 127.0.0.1:12345 -o 11001 
+HOME=/home/pi node openstagecontrol/bin/open-stage-control-node -n -l $OSC_SESSION -s 127.0.0.1:12345 -o 11001 
 

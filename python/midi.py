@@ -103,10 +103,12 @@ def main():
         list_of_videoFx.append ( video_effect("mirror_enable", midiMap.nextb    , "/shaders/mirror/enabled"))
         list_of_videoFx.append ( video_effect("bord_enable", midiMap.stopb       , "/shaders/borders/enabled"))
         list_of_videoFx.append ( video_effect("toon_enable", midiMap.playb       , "/shaders/toon/enabled"))
-        list_of_videoFx.append ( video_effect("curve_enable", midiMap.recb      , "/shaders/ShadowHighlights/BASE_CHANNEL"))
-        list_of_videoFx.append ( video_effect("lowR", midiMap.encoders[5]       , "/shaders/ShadowHighlights/globalCol/x",lambda x:x/64.0))
-        list_of_videoFx.append ( video_effect("lowG", midiMap.encoders[6]       , "/shaders/ShadowHighlights/globalCol/y",lambda x:x/64.0))
-        list_of_videoFx.append ( video_effect("lowB", midiMap.encoders[7]       , "/shaders/ShadowHighlights/globalCol/z",lambda x:x/64.0))
+        list_of_videoFx.append ( video_effect("curve_enable", midiMap.recb      , "/shaders/ShadowHighlights/enabled"))
+
+        list_of_videoFx.append ( video_effect("whiteB", midiMap.solos[7]       , "/omx/disableWhiteB"))
+        list_of_videoFx.append ( video_effect("lowR", midiMap.encoders[5]       , "/omx/colors/x",lambda x:(x+0.5)*4))
+        list_of_videoFx.append ( video_effect("lowG", midiMap.encoders[6]       , "/omx/colors/y",lambda x:(x+0.5)*4))
+        list_of_videoFx.append ( video_effect("lowB", midiMap.encoders[7]       , "/omx/colors/z",lambda x:(x+0.5)*4))
         
         global list_of_serial
         list_of_serial = []

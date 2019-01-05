@@ -70,4 +70,6 @@ public:
 
      void drawInfoIfAsked();
      void processOSC();
+
+     void initParameters();
 };

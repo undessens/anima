@@ -34,7 +34,17 @@ public:
     
     addParameter<TypedActionParameter<float> >("ISONorm",0,[this](const float & s){vidGrab.setISONormalized(s);});
     addParameter<TypedActionParameter<bool> >("autoISO",false,[this](const bool & s){vidGrab.setAutoISO(s);});
-    
+    addParameter<TypedActionParameter<float> >("zoom",0,[this](const float & s){vidGrab.setDigitalZoomFromFloat(s);});
+    addParameter<TypedActionParameter<ofVec2f> >("enhancement",ofVec2f(0.0),[this](const ofVec2f & s){vidGrab.setColorEnhancement(s.x>0 || s.y>0 ,s.x,s.y);}); // -4 to 4
+    addParameter<TypedActionParameter<ofVec3f> >("colors",ofVec3f(0.0),[this](const ofVec3f & s){vidGrab.extraImageFXController.setImageFilter(OMX_ImageFilterColourBalance,{0,(int)s.x,(int)s.y,(int)s.z,0,0});;}); // -4 to 4
+    addParameter<TypedActionParameter<bool> >("disableWhiteB", false, [this](const bool & s) {vidGrab.setWhiteBalance(s ? "None" : "Auto");vidGrab.setWhiteBalanceGainR(1.0);vidGrab.setWhiteBalanceGainB(1.0);});
+    vidGrab.extraImageFXController.setImageFilter(OMX_ImageFilterColourBalance,{0,255,255,255,0,0});
+                //     filterParamConfig.addParam("lens", 0, 255, 0);
+                // filterParamConfig.addParam("r", 0, 255, 255);
+                // filterParamConfig.addParam("g", 0, 255, 255);
+                // filterParamConfig.addParam("b", 0, 255, 255);   
+                // filterParamConfig.addParam("u", 0, 255, 0);    
+                // filterParamConfig.addParam("v", 0, 255, 0);    
   }
   
 

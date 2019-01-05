@@ -721,8 +721,9 @@ public:
         return nodes.createWithType<T>(n, args...);
     }
 
-    void addSharedParameterContainer(Ptr other) {
+    Ptr addSharedParameterContainer(Ptr other) {
         nodes.addShared(other);
+        return other;
     }
 
     virtual void parameterValueChanged(ParameterBase * p) {};

@@ -7,21 +7,15 @@
 #define USE_SHADERS 1
 
 #ifndef DO_STREAM
-    #define DO_STREAM 0
+#define DO_STREAM 0
 #endif
 
 #if DO_STREAM
 #include "StreamVid.h"
-StreamVid & getStreamVid() {
-    static StreamVid streamVid;
-    return streamVid;
-}
+StreamVid & getStreamVid() {static StreamVid streamVid; return streamVid;}
 #endif
 
-ofImage & getTestImage(){
-static ofImage testImg;
-return testImg;
-}
+ofImage & getTestImage() {static ofImage testImg; return testImg;}
 
 #ifdef TARGET_RASPBERRY_PI
 #include "OMXController.hpp"
@@ -50,19 +44,12 @@ void ofApp::setup()
     // Shaders
     root = make_shared<ParameterContainer>("root");
     Node::setRoot(root);
-    auto tfps = root->addParameter<ActionParameter>("targetFPS", [this](const string & s) {float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);});
-#if DO_STREAM
-    auto doStream = root->addParameter<TypedActionParameter<bool> >("doStream",false, [this](const bool & needStream) {getStreamVid().setStreamState(needStream); DBG("setting Streaming to " << (needStream ? "true" : "false"));});
-#endif
-    displayTestImage = root->addParameter<TypedActionParameter<bool> >("displayTestImage",false, [this](const bool & s) {if (s) {getTestImage().load("images/tst.jpg");}else {getTestImage().clear();}});
-    auto doDrawInfoParam = root->addParameter<TypedActionParameter<bool> >("displayDebugInfo",false, [this](const bool & s) {doDrawInfo=s;});
-    auto reload = root->addParameter<TypedActionParameter<bool> >("reloadShaders",false, [this](const bool & s) { if (!shaderFx->reload()) {ofLogError() << "couldn't reload shader";}});
     presetManager = make_shared<PresetManager>(root);
     root->addSharedParameterContainer(presetManager);
     presetManager->setup(ofFile("presets").getAbsolutePath());
 
 #ifdef TARGET_RASPBERRY_PI
-root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
+    root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
 #endif
 
     shaderFx = make_shared<ShaderFx>();
@@ -70,9 +57,11 @@ root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
 #if USE_SHADERS
     shaderFx->setup();
 #endif
-    for(auto  s:shaderFx->availableShaders.getNamedPtrSet().vIterator()){
-        presetManager->recallPreset(s,"1");
-        s->enabled->setValue(s->getName()=="ShadowHighlights"); // keep only the curves on
+    initParameters();
+    for (auto  s : shaderFx->availableShaders.getNamedPtrSet().vIterator()) {
+        presetManager->recallPreset(s, "1");
+        s->enabled->setValue(false); 
+        // s->enabled->setValue(s->getName() == "ShadowHighlights"); // keep only the curves on
     }
 
     oscBind.setup(root, "localhost", 11001);
@@ -89,8 +78,7 @@ root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
     settings.parseJSON(jsonBuffer.getText());
     settings.enableTexture = bool(USE_SHADERS);
     videoGrabber.setup(settings);
-    vidGrab.setWhiteBalanceGainR(1.0);
-    vidGrab.setWhiteBalanceGainB(1.0);
+
     ofSetVerticalSync(true);
     // ofSetFrameRate(30);
     int settingsCount = 0;
@@ -137,6 +125,21 @@ root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
 
 
 
+
+
+}
+
+void ofApp::initParameters() {
+
+
+    auto tfps = root->addParameter<ActionParameter>("targetFPS", [this](const string & s) {float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);});
+#if DO_STREAM
+    auto doStream = root->addParameter<TypedActionParameter<bool> >("doStream", false, [this](const bool & needStream) {getStreamVid().setStreamState(needStream); DBG("setting Streaming to " << (needStream ? "true" : "false"));});
+#endif
+    displayTestImage = root->addParameter<TypedActionParameter<bool> >("displayTestImage", false, [this](const bool & s) {if (s) {getTestImage().load("images/tst.jpg");} else {getTestImage().clear();}});
+    auto doDrawInfoParam = root->addParameter<TypedActionParameter<bool> >("displayDebugInfo", false, [this](const bool & s) {doDrawInfo = s;});
+    auto reload = root->addParameter<TypedActionParameter<bool> >("reloadShaders", false, [this](const bool & s) { if (!shaderFx->reload()) {ofLogError() << "couldn't reload shader";}});
+    auto vSync = root->addParameter<TypedActionParameter<bool> >("Vsync", false, [this](const bool & s) { ofSetVerticalSync(s);});
 
 
 }

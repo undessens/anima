@@ -30,5 +30,6 @@
     "sharpness": -50,
     "shutterSpeed": 0,
     "whiteBalance":"Auto",
-    "zoomLevel": 0
+    "zoomLevel": 0,
+    "enableExtraVideoFilter": true
 }
