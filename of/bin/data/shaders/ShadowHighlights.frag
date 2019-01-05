@@ -1,10 +1,12 @@
 #pragma include "Common.hfrag"
 
 #define MULTI_CHANNEL 0
+#define BASE_CHANNEL 0
 
 
 uniform sampler2D curveTex;
- uniform vec2 resolution;
+uniform vec2 resolution;
+uniform vec3 globalCol; //(1.0)
 
 
  const vec3 lumW = vec3(0.2126,0.7152,0.0722);
@@ -26,11 +28,15 @@ uniform sampler2D curveTex;
         source.g=pCurveTex(source.g).g;
         source.b=pCurveTex(source.b).b;
         #endif
+        #if BASE_CHANNEL
         float luminance = getLuminance(source.rgb);
         float targetLum = pCurveTex(luminance).a;
         vec3 deltaLum = vec3(targetLum-luminance);
-        vec3 result = source.rgb+deltaLum;
+        FRAG_COLOR = vec4((source.rgb+deltaLum)*globalCol, source.a);
+        #else
+        FRAG_COLOR = vec4(source.rgb*globalCol, source.a);
+        #endif
         
-        FRAG_COLOR = vec4(result.rgb, source.a);
+        
         
  }

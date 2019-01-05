@@ -16,6 +16,8 @@ public:
     typedef PCollection<IntParameter> IntParameterListType;
     typedef NumericParameter<ofVec2f> ofVec2fParameter ;
     typedef PCollection<ofVec2fParameter> Vec2ParameterListType;
+    typedef NumericParameter<ofVec3f> ofVec3fParameter ;
+    typedef PCollection<ofVec3fParameter> Vec3ParameterListType;
 
     ShaderBase(const string & _name): ParameterContainer(_name),currentTime(0) {
         enabled = addParameter<BoolParameter>("enabled", false);
@@ -40,6 +42,7 @@ public:
     }
     FloatParameterListType fParams;
     Vec2ParameterListType vParams;
+    Vec3ParameterListType v3Params;
     FloatParameterListType customfParams;
     Vec2ParameterListType customvParams;
     IntParameterListType defineParams;
@@ -98,6 +101,8 @@ public:
         fParams.clear();
         leaves.clearElementsInVec(vParams.vIterator());
         vParams.clear();
+        leaves.clearElementsInVec(v3Params.vIterator());
+        v3Params.clear();
         leaves.clearElementsInVec(customfParams.vIterator());
         customfParams.clear();
         leaves.clearElementsInVec(customvParams.vIterator());
@@ -114,6 +119,7 @@ protected:
 
     FloatParameterListType::ElemPtr addfP(const string & name, float v) {auto p = addParameter<FloatParameter>(name, v); fParams.addToCollection(p); return p;}
     Vec2ParameterListType::ElemPtr addvP(const string & name, ofVec2f v) {auto p = addParameter<ofVec2fParameter>(name, v); vParams.addToCollection(p); return p;}
+    Vec3ParameterListType::ElemPtr addv3P(const string & name, ofVec3f v) {auto p = addParameter<ofVec3fParameter>(name, v); v3Params.addToCollection(p); return p;}
     FloatParameterListType::ElemPtr addCustomfP(const string & name, float v) {auto p = addParameter<FloatParameter>(name, v); customfParams.addToCollection(p); return p;}
     Vec2ParameterListType::ElemPtr addCustomvP(const string & name, ofVec2f v) {auto p = addParameter<ofVec2fParameter>(name, v); customvParams.addToCollection(p); return p;}
     IntParameterListType::ElemPtr addDefineP(const string & name, int v) {auto p = addParameter<IntParameter>(name, v); defineParams.addToCollection(p); return p;}
@@ -134,6 +140,7 @@ protected:
         updateParams(deltaT);
         for (const auto & p : fParams.vIterator()) {shader.setUniform1f(p->getName(), p->getValue());}
         for (const auto & p : vParams.vIterator()) {const ofVec2f & v ( p->getValue()); shader.setUniform2f(p->getName(), v.x, v.y);}
+        for (const auto & p : v3Params.vIterator()) {const ofVec3f & v ( p->getValue()); shader.setUniform3f(p->getName(), v.x, v.y,v.z);}
     };
 
 private:
@@ -154,9 +161,9 @@ class ShaderFx : public ParameterContainer {
 public:
     ShaderFx():
         ParameterContainer("shaders"),
+        availableShaders(nodes),
         curShaderIdx(0),
         bShouldProcess(true),
-        availableShaders(nodes),
         enabledShaders(*this) {
 
         curShaderName = addParameter<StringParameter>("shaderName", "");
@@ -234,7 +241,10 @@ public:
     bool reload() {
         bool res = true;
         for (auto v : availableShaders.getNamedPtrSet().vIterator()) {
-            if (v.get() && v->enabled->getValue())res &= v->reload();
+            if (v.get()){
+                if( v->enabled->getValue())
+                    res &= v->reload();
+            } 
             else {res = false;}
         }
         return res;
@@ -255,6 +265,7 @@ public:
 
     void drawDbg() {if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
 
+    TypedView<ShaderBase, Node> availableShaders;        
 private:
 
     ShaderBase::Ptr currentShader;
@@ -295,7 +306,8 @@ private:
             _owner.availableShaders.listeners.add(this);
         };
 
-    private:
+
+    
         void valueChanged(ParameterBase* p, void* notifier)final {
             auto c = p->getParent(); if (c) {
                 auto relEnSh = owner.availableShaders.getNamedPtrSet().findFirst<ShaderBase>([p](ShaderBase * s) {return (bool)(s && p == s->enabled.get());});
@@ -324,7 +336,7 @@ private:
     bool bShouldProcess;
 
 
-    TypedView<ShaderBase, Node> availableShaders;
+    
     ShaderEnabledListOrdered enabledShaders;
 
 };

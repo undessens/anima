@@ -1,26 +1,26 @@
 #pragma include "Common.hfrag"
 
 #define ALGO_NUM 0
-#define TRI_MODE 3
+#define TRI_MODE 0
 #define MIRROR_OUT 0
 
 #define DO_SKEW 0// TRI_MODE==3
 
 
 
-#define PI 3.1415
+
 uniform vec2 resolution;
 uniform float zoom; //(1.0)
 uniform vec2 zoomoffset; //(1.0)
 uniform float rotation; // default (0)
 uniform vec2 scale; // default(1,1)
 uniform vec2 offset; // (0,0)
-// uniform vec2 mouse;
-// uniform float time;
+
 uniform float dbg; // (0)
 uniform float dbg2; // (0)
 uniform float dbg3; // (0)
 
+const float PI=3.1415926536; 
 const float sqrt2 = 1.414213562;
 const float isqrt2 = 1.0/sqrt2;
 

@@ -5,12 +5,14 @@
 #define TRACK_MODE 1
 
 
+uniform vec2 resolution;
+
 
 uniform float size; // (2.0)
 uniform float minEdge; // (.0)
 uniform float maxEdge; // (1.0)
 uniform float smoothEdge; // (1.0)
-uniform vec2 resolution; // (1.0)
+
 
 
 
@@ -36,6 +38,7 @@ void main(void) {
         vec3 vertEdge  = -topL-topR - 2.0*topMid + botR+botL+2.0*botMid;
         
         float edge = length(sqrt((horizEdge.rgb * horizEdge.rgb) + (vertEdge.rgb * vertEdge.rgb)));
+
         #if TRACK_MODE==0
         edge = (edge-minEdge)/(maxEdge-minEdge)+minEdge ;
         #else

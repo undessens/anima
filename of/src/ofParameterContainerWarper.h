@@ -73,7 +73,7 @@ public:
       return true;
     }
     spl.resize(spl.size() - 1);
-    SpecialAccessor acc = leafName == "x" ? isX : (leafName == "y" ? isY : NoAccessor);
+    SpecialAccessor acc = leafName == "x" ? isX : (leafName == "y" ? isY :(leafName == "z" ? isZ : NoAccessor));
     if (acc != NoAccessor) {
       leafName = spl[spl.size() - 1];
       spl.resize(spl.size() - 1);

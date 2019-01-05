@@ -1,0 +1,11 @@
+{
+  INVERT:1,
+  MODE:0,
+  TRACK_MODE:0,
+  enabled:0,
+  maxEdge:1,
+  minEdge:0,
+  order:2,
+  size:2.05,
+  smoothEdge:0.67
+}

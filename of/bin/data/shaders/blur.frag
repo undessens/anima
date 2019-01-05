@@ -26,19 +26,6 @@ void main(void) {
         float x= size/resolution.x;
         float y= size/resolution.y;
         #endif
-        // vec3 topL = TEXTURE( tex0, vec2( st.x - x, st.y - y ) ).rgb;
-        // vec3 midL = TEXTURE( tex0, vec2( st.x - x, st.y     ) ).rgb;
-        // vec3 botL = TEXTURE( tex0, vec2( st.x - x, st.y + y ) ).rgb;
-        // vec3 topR = TEXTURE( tex0, vec2( st.x + x, st.y - y ) ).rgb;
-        // vec3 midR = TEXTURE( tex0, vec2( st.x + x, st.y     ) ).rgb;
-        // vec3 botR = TEXTURE( tex0, vec2( st.x + x, st.y + y ) ).rgb;
-        // vec3 topMid = TEXTURE( tex0, vec2( st.x , st.y - y ) ).rgb;
-        // vec3 botMid = TEXTURE( tex0, vec2( st.x , st.y + y ) ).rgb;
-        
-        // vec3 horizBlur = (topL+botL + 2.0*midL   + topR+botR+2.0*midR)/8.0;
-        // vec3 vertBlur  = (topL+topR + 2.0*topMid + botR+botL+2.0*botMid)/8.0;
-        
-        
 
 
         vec4 originColor = TEXTURE( tex0, st   );

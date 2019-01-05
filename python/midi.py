@@ -8,6 +8,7 @@ import struct
 from video_effect import video_effect
 from serial_effect import serial_effect
 from OSC import OSCClient, OSCMessage
+import nanoKontrolMap as midiMap
 
 ########################################
 # 2 types of command/class :
@@ -29,7 +30,7 @@ from OSC import OSCClient, OSCMessage
 def receive_midi_msg(msg):
 
 
-        #print (msg)
+        # print (msg)
 
         for c in list_of_all['videoFx']:
                 if (c.midiChannel == msg.control):
@@ -58,7 +59,7 @@ def update_videoFx( vidFx):
 
 
 def send_serial( ard_id, val ):
-        print "Serial . id: "+str(ard_id)+" value: "+str(val)
+        print ("Serial . id: "+str(ard_id)+" value: "+str(val))
         #msg = bytearray([ ard_id, val, 255])
         msg = str(chr(ard_id))+str(chr(val))+str(chr(255))
         if(ser):
@@ -66,18 +67,18 @@ def send_serial( ard_id, val ):
                         ser.write(msg)
 
                         
-                except Exception, e:
-                        print e
+                except Exception as e:
+                        print (e)
 
 def send_osc(address, value):
-        print "OSC addresse: "+str(address)+" value: "+str(value)
+        print ("OSC addresse: "+str(address)+" value: "+str(value))
         oscMsg = OSCMessage()
         oscMsg.setAddress(address)
-        oscMsg.append(int(value))
+        oscMsg.append(value)
         try:
                 oscClient.send(oscMsg)
-        except Exception, e:
-                print e
+        except Exception as e:
+                print (e)
 
 
 def main():
@@ -85,36 +86,45 @@ def main():
 
         global list_of_videoFx 
         list_of_videoFx = []
-        list_of_videoFx.append ( video_effect("sharpness", 5 , "/enhancement/sharpness"))
-        list_of_videoFx.append ( video_effect("Constrate", 4 , "/enhancement/contrast"))
-        list_of_videoFx.append ( video_effect("Saturation", 6, "/enhancement/saturation"))
-        list_of_videoFx.append ( video_effect("Brightness", 7, "/enhancement/brightness"))
-        list_of_videoFx.append ( video_effect("Filter +", 62, "/filters/nextFilter"))
-        list_of_videoFx.append ( video_effect("Filter -", 61, "/filters/previousFilter"))
-        list_of_videoFx.append ( video_effect("init Filter", 60, "/filters/initFilter"))
+        list_of_videoFx.append ( video_effect("sharpness",  midiMap.faders[5]   , "/enhancement/sharpness"))
+        list_of_videoFx.append ( video_effect("Constrate",  midiMap.faders[4]   , "/enhancement/contrast"))
+        list_of_videoFx.append ( video_effect("Saturation", midiMap.faders[6]   , "/enhancement/saturation"))
+        list_of_videoFx.append ( video_effect("Brightness", midiMap.faders[7]   , "/enhancement/brightness"))
+        list_of_videoFx.append ( video_effect("Filter +",   62                  , "/filters/nextFilter"))
+        list_of_videoFx.append ( video_effect("Filter -",   61                  , "/filters/previousFilter"))
+        list_of_videoFx.append ( video_effect("init Filter",60                  , "/filters/initFilter"))
         #list_of_videoFx.append ( video_effect("zoom", 20, "/zoomCrop/topMargin"))
         #list_of_videoFx.append ( video_effect("zoom", 21, "/zoomCrop/leftMargin"))
         #list_of_videoFx.append ( video_effect("zoom", 0, "/zoomCrop/zoomLevel"))
-        list_of_videoFx.append ( video_effect("zoom", 59, "/whiteBalance/wbNext"))
-        list_of_videoFx.append ( video_effect("zoom", 58, "/whiteBalance/wbPrev"))
+        list_of_videoFx.append ( video_effect("zoom", 59                        , "/whiteBalance/wbNext"))
+        list_of_videoFx.append ( video_effect("zoom", 58                        , "/whiteBalance/wbPrev"))
+
+        list_of_videoFx.append ( video_effect("kal_enable", midiMap.prevb       , "/shaders/kaleidoscope/enabled"))
+        list_of_videoFx.append ( video_effect("mirror_enable", midiMap.nextb    , "/shaders/mirror/enabled"))
+        list_of_videoFx.append ( video_effect("bord_enable", midiMap.stopb       , "/shaders/borders/enabled"))
+        list_of_videoFx.append ( video_effect("toon_enable", midiMap.playb       , "/shaders/toon/enabled"))
+        list_of_videoFx.append ( video_effect("curve_enable", midiMap.recb      , "/shaders/ShadowHighlights/BASE_CHANNEL"))
+        list_of_videoFx.append ( video_effect("lowR", midiMap.encoders[5]       , "/shaders/ShadowHighlights/globalCol/x",lambda x:x/64.0))
+        list_of_videoFx.append ( video_effect("lowG", midiMap.encoders[6]       , "/shaders/ShadowHighlights/globalCol/y",lambda x:x/64.0))
+        list_of_videoFx.append ( video_effect("lowB", midiMap.encoders[7]       , "/shaders/ShadowHighlights/globalCol/z",lambda x:x/64.0))
         
         global list_of_serial
         list_of_serial = []
-        list_of_serial.append( serial_effect("ledR jardin", 32, 0, False))
-        list_of_serial.append( serial_effect("ledG jardin", 48, 1, False))
-        list_of_serial.append( serial_effect("ledB jardin", 64, 2 , False))
-        list_of_serial.append( serial_effect("ledPower jardin", 0, 3, False))
-        list_of_serial.append( serial_effect("ledR haut", 33, 4, False))
-        list_of_serial.append( serial_effect("ledG haut", 49, 5, False))
-        list_of_serial.append( serial_effect("ledB haut", 65, 6, False))
-        list_of_serial.append( serial_effect("ledPower haut", 1, 7, False))
-        list_of_serial.append( serial_effect("ledR cour", 34, 8,False))
-        list_of_serial.append( serial_effect("ledG cour", 50, 9, False))
-        list_of_serial.append( serial_effect("ledB cour", 66, 10 , False))
-        list_of_serial.append( serial_effect("ledPower cour", 2, 11, False))
-        list_of_serial.append( serial_effect("relay1", 35, 20, True))
-        list_of_serial.append( serial_effect("relay2", 36, 21, True))
-	list_of_serial.append( serial_effect("rien", 3, 30, False))
+        list_of_serial.append( serial_effect("ledR jardin",     midiMap.solos  [0], 0 , False))
+        list_of_serial.append( serial_effect("ledG jardin",     midiMap.mutes  [0], 1 , False))
+        list_of_serial.append( serial_effect("ledB jardin",     midiMap.records[0], 2 , False))
+        list_of_serial.append( serial_effect("ledPower jardin", midiMap.faders [0], 3 , False))
+        list_of_serial.append( serial_effect("ledR haut",       midiMap.solos  [1], 4 , False))
+        list_of_serial.append( serial_effect("ledG haut",       midiMap.mutes  [1], 5 , False))
+        list_of_serial.append( serial_effect("ledB haut",       midiMap.records[1], 6 , False))
+        list_of_serial.append( serial_effect("ledPower haut",   midiMap.faders [1], 7 , False))
+        list_of_serial.append( serial_effect("ledR cour",       midiMap.solos  [2], 8 , False))
+        list_of_serial.append( serial_effect("ledG cour",       midiMap.mutes  [2], 9 , False))
+        list_of_serial.append( serial_effect("ledB cour",       midiMap.records[2], 10, False))
+        list_of_serial.append( serial_effect("ledPower cour",   midiMap.faders [2], 11, False))
+        list_of_serial.append( serial_effect("relay1",          35,                 20, False))
+        list_of_serial.append( serial_effect("relay2",          36,                 21, False))
+        list_of_serial.append( serial_effect("rien",            3,                  30, False))
         
         global list_of_all 
         list_of_all = dict()
@@ -137,7 +147,7 @@ def main():
                 else:
                         inport = None
         except :
-                print "Impossible to connect to Midi device"
+                print ("Impossible to connect to Midi device")
                 inport = None   
 
         if(inport):
@@ -149,19 +159,19 @@ def main():
                 baudrate = 115200
                 if sys.platform.startswith('darwin'):
                         ser = serial.Serial('/dev/cu.usbmodem1421',baudrate)
-                        print "Serial connected"
+                        print ("Serial connected")
                 elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
                         try:
                                 ser = serial.Serial('/dev/ttyACM0',baudrate)
-                                print "ACM0"
+                                print ("ACM0")
                         except :
                                 ser = serial.Serial('/dev/ttyACM1', baudrate)
-                                print "ACM1"
+                                print ("ACM1")
                         
                 else:
                         ser = None
         except :
-                print "Impossible to connect to Serial"
+                print ("Impossible to connect to Serial")
                 ser = None      
 
 
@@ -176,8 +186,8 @@ def main():
                 for c in list_of_all['serial']:
                         update_serial(c)
 
-                #print "Serial"
-                #print str(ser.readline())
+                #print ("Serial")
+                #print (str(ser.readline()))
                           
 
 

@@ -56,6 +56,7 @@ void ofApp::setup()
 #endif
     displayTestImage = root->addParameter<TypedActionParameter<bool> >("displayTestImage",false, [this](const bool & s) {if (s) {getTestImage().load("images/tst.jpg");}else {getTestImage().clear();}});
     auto doDrawInfoParam = root->addParameter<TypedActionParameter<bool> >("displayDebugInfo",false, [this](const bool & s) {doDrawInfo=s;});
+    auto reload = root->addParameter<TypedActionParameter<bool> >("reloadShaders",false, [this](const bool & s) { if (!shaderFx->reload()) {ofLogError() << "couldn't reload shader";}});
     presetManager = make_shared<PresetManager>(root);
     root->addSharedParameterContainer(presetManager);
     presetManager->setup(ofFile("presets").getAbsolutePath());
@@ -69,6 +70,10 @@ root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
 #if USE_SHADERS
     shaderFx->setup();
 #endif
+    for(auto  s:shaderFx->availableShaders.getNamedPtrSet().vIterator()){
+        presetManager->recallPreset(s,"1");
+        s->enabled->setValue(s->getName()=="ShadowHighlights"); // keep only the curves on
+    }
 
     oscBind.setup(root, "localhost", 11001);
 
@@ -84,7 +89,9 @@ root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
     settings.parseJSON(jsonBuffer.getText());
     settings.enableTexture = bool(USE_SHADERS);
     videoGrabber.setup(settings);
-    ofSetVerticalSync(false);
+    vidGrab.setWhiteBalanceGainR(1.0);
+    vidGrab.setWhiteBalanceGainB(1.0);
+    ofSetVerticalSync(true);
     // ofSetFrameRate(30);
     int settingsCount = 0;
 
@@ -199,7 +206,8 @@ void ofApp::processOSC() {
 
         string add0 = splitted[0];
         string add1 = splitted[1];
-        ofLogVerbose() << "\n osc message received add0: " << add0 << " add1 " << add1 << " value: " << ofToString(value);
+        // ofLogVerbose() << "\n osc message received add0: " << add0 << " add1 " << add1 << " value: " << ofToString(m.getArgAsString(0));
+        ofLogVerbose() << "\n osc message received: " << m;
 
 #if !EMULATE_ON_OSX
         for (int i = 0; i < NB_SETTINGS; i++) {
@@ -299,7 +307,7 @@ void ofApp::onCharacterReceived(KeyListenerEventData& e)
 
 void ofApp::drawInfoIfAsked() {
     // if (ofGetFrameNum() % 60 * 2 == 0) {ofLogVerbose() << ofGetFrameRate();}
-    
+
     if (doDrawInfo || doPrintInfo)
     {
         stringstream info;

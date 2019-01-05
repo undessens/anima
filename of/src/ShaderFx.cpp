@@ -165,7 +165,7 @@ public:
         maskPath = addParameter<StringParameter>("maskPath", "");
         maskPath->setValue("mask1.jpg", this);
     };
-    
+
     void updateParams(float deltaT)final{
         if (maskPath->hasChanged(true)) { // need to be don whi
             loadImage(maskPath->getValue());
@@ -292,6 +292,7 @@ void addAndRegisterType (CONTAINER & cont, Args... args) {
 
 void ShaderFx::setup() {
 
+    addAndRegisterType<ShaderBase>(nodes, "green2gs");
     addAndRegisterType<ShaderBase>(nodes, "blur");
     addAndRegisterType<TOONShader>(nodes);
     addAndRegisterType<ShaderBase>(nodes, "borders");
@@ -334,6 +335,7 @@ void ShaderBase::autoParseUniforms() {
 
                 bool isFloat = words[1] == "float";
                 bool isVec = words[1] == "vec2";
+                bool isVec3 = words[1] == "vec3";
                 const string pname = ofSplitString(words[2], ";", true, true)[0];
                 const auto & reserved = reservedUniformsMap.find(pname);
                 if (reserved != reservedUniformsMap.end()) {
@@ -341,7 +343,7 @@ void ShaderBase::autoParseUniforms() {
                     continue;
                 }
                 string defaultV = "";
-                if (isFloat || isVec ) {
+                if (isFloat || isVec || isVec3) {
                     int commStart = l.find("//");
                     Node::PtrT<ParameterBase> vp(nullptr);
                     if (commStart != -1) {
@@ -362,10 +364,15 @@ void ShaderBase::autoParseUniforms() {
                     if (isFloat) {
                         vp = addfP(pname, ofToFloat(defaultV));
                     }
-                    else {
+                    else if (isVec) {
                         auto spl = ofSplitString(defaultV, ",");
-                        while (spl.size() < 2) {spl.push_back("0");}
+                        while (spl.size() < 2) {spl.push_back(spl.size()>0?spl[0]:"0");}
                         vp = addvP(pname, ofVec2f(ofToFloat(spl[0]), ofToFloat(spl[1])));
+                    }
+                    else if (isVec3) {
+                        auto spl = ofSplitString(defaultV, ",");
+                        while (spl.size() < 3) {spl.push_back(spl.size()>0?spl[0]:"0");}
+                        vp = addv3P(pname, ofVec3f(ofToFloat(spl[0]), ofToFloat(spl[1]),ofToFloat(spl[2])));
                     }
 
                 }

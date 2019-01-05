@@ -1,14 +1,15 @@
 // simple class to test various omx settings
 
+
+
 class OMXController : public ParameterContainer{
 public:
   OMXController(ofxOMXVideoGrabber & _vidGrab):ParameterContainer("omx"),vidGrab(_vidGrab){
 
-    
-    addParameter<TypedActionParameter<float> >("sharpness",0,[this](const float & s){vidGrab.setSharpness(s);});
-    addParameter<TypedActionParameter<float> >("contrast",0,[this](const float & s){vidGrab.setContrast(s);});
-    addParameter<TypedActionParameter<float> >("brightness",0,[this](const float & s){vidGrab.setBrightness(s);});
-    addParameter<TypedActionParameter<float> >("saturation",0,[this](const float & s){vidGrab.setSaturation(s);});
+    addParameter<TypedActionParameter<float> >("sharpness",0, [this](const float & s){vidGrab.setSharpness(s);});
+    addParameter<TypedActionParameter<float> >("contrast",0,    [this](const float & s){vidGrab.setContrast(s);});
+    addParameter<TypedActionParameter<float> > ("brightness",0,  [this](const float & s){vidGrab.setBrightness(s);});
+    addParameter<TypedActionParameter<float> >("saturation",0,  [this](const float & s){vidGrab.setSaturation(s);});
     addParameter<TypedActionParameter<bool> >("frameStabilization",false,[this](const bool & s){vidGrab.setFrameStabilization(s);});
     addParameter<TypedActionParameter<int> >("dre",0,[this](const int & s){vidGrab.setDRE(s);});
     addParameter<TypedActionParameter<bool> >("flickerCancellation",false,[this](const bool & s){vidGrab.setFlickerCancellation(s);});
