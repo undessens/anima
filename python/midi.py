@@ -126,7 +126,7 @@ def main():
             def func(x):
                 for ii in range(8): # clear others but us
                     send_midiCC(midiMap.records[ii],int(ii==i)*127)
-                return x>0 or None
+                return i if x>0 else None
             return func;
 
         for i in range(3,8):

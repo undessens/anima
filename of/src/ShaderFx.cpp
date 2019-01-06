@@ -299,9 +299,10 @@ public:
                 int maxWait = 9999999;
                 while(vid.isPlaying() && maxWait>0){maxWait--;}
             }
+            vid.setLoopState(OF_LOOP_NORMAL);
             vid.load(path);
             // vid.setUseTexture(true);
-            vid.setLoopState(OF_LOOP_NORMAL);
+            // vid.setLoopState(OF_LOOP_NORMAL);
             vid.play();
         };
         ~VideoMedia() {

@@ -11,7 +11,8 @@ class OMXController : public ParameterContainer,private ofxOMXVideoGrabberListen
 public:
     OMXController(ofxOMXVideoGrabber & _vidGrab): ParameterContainer("omx"), vidGrab(_vidGrab) {
         
-        vidGrab.settings.recordingFilePath = ofToDataPath("images/0_anima.mp4");
+        vidGrab.settings.recordingFilePath = ofFile("images/0_anima.mp4").getAbsolutePath();
+        ofLog() << "setting recording path to : " << vidGrab.settings.recordingFilePath;
         vidGrab.settings.videoGrabberListener = this;
         
 
@@ -87,6 +88,9 @@ public:
 
     void startStopRec(bool s){
         if (s > 0) {
+                vidGrab.settings.recordingFilePath = ofFile("images/0_anima.mp4").getAbsolutePath();
+                ofLog() << "setting recording path to : " << vidGrab.settings.recordingFilePath;
+                vidGrab.settings.videoGrabberListener = this;
                 ofLog() << string("start recording to : ") << vidGrab.settings.recordingFilePath;
                 ofAddListener(ofEvents().update, this, &OMXController::onUpdate);
                 vidGrab.startRecording();

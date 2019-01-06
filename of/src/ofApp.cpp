@@ -57,12 +57,7 @@ void ofApp::setup()
 #if USE_SHADERS
     shaderFx->setup();
 #endif
-    initParameters();
-    for (auto  s : shaderFx->availableShaders.getNamedPtrSet().vIterator()) {
-        presetManager->recallPreset(s, "1");
-        s->enabled->setValue(false); 
-        // s->enabled->setValue(s->getName() == "ShadowHighlights"); // keep only the curves on
-    }
+    
 
     oscBind.setup(root, "localhost", 11001);
 
@@ -77,6 +72,7 @@ void ofApp::setup()
     ofBuffer jsonBuffer = ofBufferFromFile("settings.json");
     settings.parseJSON(jsonBuffer.getText());
     settings.enableTexture = bool(USE_SHADERS);
+
     videoGrabber.setup(settings);
 
     ofSetVerticalSync(true);
@@ -110,6 +106,12 @@ void ofApp::setup()
     videoGrabber.setup(ofGetWidth(), ofGetHeight(), true);
 #endif
 
+    initParameters();
+    for (auto  s : shaderFx->availableShaders.getNamedPtrSet().vIterator()) {
+        presetManager->recallPreset(s, "1");
+        s->enabled->setValue(false); 
+        // s->enabled->setValue(s->getName() == "ShadowHighlights"); // keep only the curves on
+    }
 
 
 #if USE_ARB
