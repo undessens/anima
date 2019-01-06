@@ -1,7 +1,9 @@
 
 
 #include "ShaderFx.h"
-
+#ifdef TARGET_RASPBERRY_PI
+#include "ofRPIVideoPlayer.h" // for mask shader
+#endif
 
 
 
@@ -153,6 +155,7 @@ public:
 
 class MaskShader : public ShaderBase {
 public:
+
     MaskShader(): ShaderBase("Mask") {
 
     }
@@ -161,91 +164,167 @@ public:
         maskResolution->isSavable = false;
         maskThreshold = fParams.getRef("maskThreshold");
         invertMask = fParams.getRef("invertMask");
-        setMaskPath = addParameter<ActionParameter>("setMaskPath", std::bind(&MaskShader::loadImage, this, std::placeholders::_1));
+        setMaskPath = addParameter<ActionParameter>("setMaskPath", std::bind(&MaskShader::loadMediaFromPath, this, std::placeholders::_1));
+        auto setMaskIndex = addParameter<TypedActionParameter<int>>("setMaskIndex", 0, std::bind(&MaskShader::loadMediaAtIdx, this, std::placeholders::_1));
         maskPath = addParameter<StringParameter>("maskPath", "");
         maskPath->setValue("mask1.jpg", this);
     };
 
     void updateParams(float deltaT)final{
-        if (maskPath->hasChanged(true)) { // need to be don whi
-            loadImage(maskPath->getValue());
+        if (maskPath->hasChanged(true)) { // need to be done while drawing
+            loadMediaFromPath(maskPath->getValue());
         }
-        if (maskResolution->getValue() != ofVec2f(maskImg.getWidth(), maskImg.getHeight())) {
-            DBGE("oups");
+        if (!maskMedia) {DBGE("no media"); return;}
+        if (maskMedia->isLoading()) {DBGW("media is loading"); return;}
 
+        if (maskResolution->getValue() != maskMedia->getSize()) {
+            DBGE("oups");
+            maskResolution->setValue(maskMedia->getSize());
         }
-        if (maskImg.isAllocated()) {
-            if (!maskImg.isUsingTexture()) {
+        if (maskMedia->isAllocated() ) {
+
+            maskMedia->update();
+            if (! maskMedia->getTexture()) {
                 DBGE("maskImage not unsing texture");
             }
-            shader.setUniformTexture("maskTex", maskImg.getTexture(), 1);
+            else {
+                auto & tex = *maskMedia->getTexture();
+                auto texSize = ofVec2f(tex.getWidth(), tex.getHeight());
+                if (!tex.isAllocated()) {
+                    DBGE("texture not allocated");
+                }
+                if ( texSize != maskMedia->getSize()) {
+                    DBGE("texture have the wrong size" << texSize);
+                }
+                shader.setUniformTexture("maskTex", *maskMedia->getTexture(), 1);
+            }
         }
-       
+        else{
+            DBGE("mask not allocated");
+        }
+
     }
     void parameterValueChanged(ParameterBase * p)final{
         //        if(p==)
     }
-    void loadImage(const string & s) {
-        {   ofFile f(s);
-            if (f.exists() && f.isFile()) {ofImage im(f); setImage(im); return;}
+    void loadMediaFromPath(const string & s) {
+
+        string truePath = s;
+        if (!ofFilePath::isAbsolute(s) && !ofIsStringInString(s, defaultFolder)) {
+            truePath = defaultFolder + s;
         }
-        {
-            ofFile f(string("images/") + s);
-            if (f.exists()&& f.isFile()) {
-                ofImage im(f);
-                setImage(im);
+
+        ofFile f(truePath);
+        if (f.exists() && f.isFile()) {
+            auto ext  = ofFilePath::getFileExt(truePath);
+            ofLog() << "opening " << truePath << " : ext : " << ext;
+            if (ofContains(VideoMedia::exts, ext)) {
+                ofLog() << "opening video";
+                maskMedia = make_shared<VideoMedia>(truePath);
+            }
+            else if (ofContains(ImageMedia::exts, ext)) {
+                ofLog() << "opening image";
+                maskMedia = make_shared<ImageMedia>(truePath);
+            }
+            else {
+                maskMedia = nullptr;
+                ofLogError() << "no valid extension for : " << s;
                 return;
             }
         }
+        if (!maskMedia)                  {DBGE("maskShader :  weird error"); return;}
+        if (!maskMedia->isLoading() && !maskMedia->isAllocated())  {DBGE("maskShader :  media not allocated"); return;}
 
-
-        DBGE("image not found " << s);
+        maskResolution->setValue(maskMedia->getSize());
 
     };
 
-    void setImage( ofImage & im ) {
-        if (!im.isAllocated()) {
-            DBGE("maskShader :  image not allocated");
-            return;
-        }
-////        auto fboType = im.getImageType()==OF_IMAGE_GRAYSCALE?GL_LUMINANCE:GL_RGBA;
-//        ofFbo::Settings settings(nullptr);
-//        settings.width = im.getWidth();
-//        settings.height = im.getHeight();
-////        int     numColorbuffers;        // how many color buffers to create
-////        std::vector<GLint> colorFormats;        // format of the color attachments for MRT.
-//        settings.useDepth = false;                // whether to use depth buffer or not
-//        settings.useStencil= false;               // whether to use stencil buffer or not
-//        settings.depthStencilAsTexture = false;           // use a texture instead of a renderbuffer for depth (useful to draw it or use it in a shader later)
-//        settings.textureTarget=GL_TEXTURE_RECTANGLE_ARB;          // GL_TEXTURE_2D or GL_TEXTURE_RECTANGLE_ARB
-//        settings.internalformat =GL_RGBA;         // GL_RGBA, GL_RGBA16F_ARB, GL_RGBA32F_ARB, GL_LUMINANCE32F_ARB etc.
-////        GLint   depthStencilInternalFormat;     // GL_DEPTH_COMPONENT(16/24/32)
-////        int     wrapModeHorizontal;     // GL_REPEAT, GL_MIRRORED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER etc.
-////        int     wrapModeVertical;       // GL_REPEAT, GL_MIRRORED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER etc.
-//        settings.minFilter = GL_LINEAR;               // GL_NEAREST, GL_LINEAR etc.
-//        settings.maxFilter = GL_LINEAR;               // GL_NEAREST, GL_LINEAR etc.
-//        settings.numSamples = 0;              // number of samples for multisampling (set 0 to disable)
-//        maskFbo.allocate(settings);
-//
-//        im.update();
-//        maskFbo.begin();
-//        ofSetColor(255);
-//        im.draw(0,0,im.getWidth(),im.getHeight());
-//        maskFbo.end();
-//
+    void loadMediaAtIdx(const int& idx) {
+        ofDirectory mediaFolder("images");
 
-        maskImg = im;
-        maskResolution->setValue(ofVec2f(maskImg.getWidth(), maskImg.getHeight()));
+        for (auto & s : ImageMedia::exts) {mediaFolder.allowExt(s);}
+        for (auto & s : VideoMedia::exts) {mediaFolder.allowExt(s);}
+        int totalNumFile = mediaFolder.listDir();
+        auto files = mediaFolder.getFiles();
+        ofSort(files);
+        if (totalNumFile == 0) {ofLogError() << "no media found" ; return;}
+        // if (idx > totalNumFile) {idx %= totalNumFile;}
+        loadMediaFromPath(files[idx % totalNumFile].getAbsolutePath());
+
     }
+
+
     ActionParameter::Ptr setMaskPath;
     StringParameter::Ptr maskPath;
     FloatParameter::Ptr maskThreshold, invertMask;
     NumericParameter<ofVec2f>::Ptr maskResolution;
     ofFbo maskFbo;
     ofImage maskImg;
+    struct AbstractMedia {
+        virtual ~AbstractMedia() {};
+        virtual ofTexture * getTexture() = 0;
+        virtual void update() = 0;
+        virtual bool isLoading() = 0;
+        virtual ofVec2f getSize() = 0;
+        virtual bool isAllocated() = 0;
+
+    };
+    struct ImageMedia  : public AbstractMedia {
+        static vector<string> exts;
+        ImageMedia(const string & path): img(path) {};
+        void update()final{};
+        bool isLoading()final{return false;}
+        ofTexture * getTexture()final{return &img.getTexture();}
+        bool isAllocated()final{return img.isAllocated();}
+        ofVec2f getSize()final{return {img.getWidth(), img.getHeight()};}
+    private:
+        ofImage img;
+    };
+
+#ifdef TARGET_RASPBERRY_PI
+#define VID_PLAYER_TYPE    ofRPIVideoPlayer 
+#else
+#define VID_PLAYER_TYPE ofVideoPlayer
+#endif
+    struct VideoMedia  : public AbstractMedia {
+        static vector<string> exts;
+        static ofRPIVideoPlayer & getVidPlayer() {
+            static VID_PLAYER_TYPE vp;
+            return vp;
+        }
+        VideoMedia(const string & path) :vid(getVidPlayer()) {
+            if(vid.isPlaying()){
+                DBG("video try to close first")
+                vid.close();
+                int maxWait = 9999999;
+                while(vid.isPlaying() && maxWait>0){maxWait--;}
+            }
+            vid.load(path);
+            // vid.setUseTexture(true);
+            vid.setLoopState(OF_LOOP_NORMAL);
+            vid.play();
+        };
+        ~VideoMedia() {
+            vid.close();
+        }
+        bool isLoading()final{return false;}
+        void update()final{vid.update();};
+        ofTexture * getTexture()final{return vid.getTexturePtr();}
+        bool isAllocated()final{return vid.isLoaded();}
+        ofVec2f getSize()final{return {vid.getWidth(), vid.getHeight()};}
+    private:
+
+        VID_PLAYER_TYPE & vid;
+
+    };
+
+    shared_ptr<AbstractMedia> maskMedia;
+    static string defaultFolder;
 
 };
-
+string MaskShader::defaultFolder = "images/";
+vector<string> MaskShader::ImageMedia::exts {"jpg", "png"};
+vector<string> MaskShader::VideoMedia::exts {"mp4"};
 
 class TOONShader: public ShaderBase {
 public:
@@ -256,27 +335,27 @@ public:
         hueRes  = fParams.getRef("hueRes");
         satRes  = fParams.getRef("satRes");
         valRes  = fParams.getRef("valRes");
-        
+
 
     };
     void parameterValueChanged(ParameterBase * p)final{
-            if(p==hueRes.get() ){
-                if(auto def = defineParams.getRef("USE_HUE")){
-                    def->setValue(hueRes->getValue()==0?0:1);
-               }
-           }
-           else if(p==satRes.get() ){
-                if(auto def = defineParams.getRef("USE_SAT")){
-                    def->setValue(satRes->getValue()==0?0:1);
-               }
-           }
-           else if(p==valRes.get() ){
-                if(auto def = defineParams.getRef("USE_VAL")){
-                    def->setValue(valRes->getValue()==0?0:1);
-               }
-           }
+        if (p == hueRes.get() ) {
+            if (auto def = defineParams.getRef("USE_HUE")) {
+                def->setValue(hueRes->getValue() == 0 ? 0 : 1);
+            }
+        }
+        else if (p == satRes.get() ) {
+            if (auto def = defineParams.getRef("USE_SAT")) {
+                def->setValue(satRes->getValue() == 0 ? 0 : 1);
+            }
+        }
+        else if (p == valRes.get() ) {
+            if (auto def = defineParams.getRef("USE_VAL")) {
+                def->setValue(valRes->getValue() == 0 ? 0 : 1);
+            }
+        }
     };
-    FloatParameterListType::ElemPtr hueRes,satRes,valRes;
+    FloatParameterListType::ElemPtr hueRes, satRes, valRes;
 
 };
 
@@ -292,7 +371,7 @@ void addAndRegisterType (CONTAINER & cont, Args... args) {
 
 void ShaderFx::setup() {
 
-    addAndRegisterType<ShaderBase>(nodes, "green2gs");
+    // addAndRegisterType<ShaderBase>(nodes, "green2gs");
     addAndRegisterType<ShaderBase>(nodes, "blur");
     addAndRegisterType<TOONShader>(nodes);
     addAndRegisterType<ShaderBase>(nodes, "borders");
@@ -366,13 +445,13 @@ void ShaderBase::autoParseUniforms() {
                     }
                     else if (isVec) {
                         auto spl = ofSplitString(defaultV, ",");
-                        while (spl.size() < 2) {spl.push_back(spl.size()>0?spl[0]:"0");}
+                        while (spl.size() < 2) {spl.push_back(spl.size() > 0 ? spl[0] : "0");}
                         vp = addvP(pname, ofVec2f(ofToFloat(spl[0]), ofToFloat(spl[1])));
                     }
                     else if (isVec3) {
                         auto spl = ofSplitString(defaultV, ",");
-                        while (spl.size() < 3) {spl.push_back(spl.size()>0?spl[0]:"0");}
-                        vp = addv3P(pname, ofVec3f(ofToFloat(spl[0]), ofToFloat(spl[1]),ofToFloat(spl[2])));
+                        while (spl.size() < 3) {spl.push_back(spl.size() > 0 ? spl[0] : "0");}
+                        vp = addv3P(pname, ofVec3f(ofToFloat(spl[0]), ofToFloat(spl[1]), ofToFloat(spl[2])));
                     }
 
                 }

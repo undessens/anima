@@ -80,6 +80,15 @@ def send_osc(address, value):
         except Exception as e:
                 print (e)
 
+def send_midiCC(cc,v,channel=None):
+    port = mido.open_output('nanoKONTROL2 MIDI 1')
+    
+    if port:
+        msg = mido.Message('control_change',channel=0, control=cc, value=v,time=0)
+        # print("sending cc",msg)
+        port.send(msg)
+    else:
+        print("can't send to midi")
 
 def main():
         
@@ -103,13 +112,32 @@ def main():
         list_of_videoFx.append ( video_effect("mirror_enable", midiMap.nextb    , "/shaders/mirror/enabled"))
         list_of_videoFx.append ( video_effect("bord_enable", midiMap.stopb       , "/shaders/borders/enabled"))
         list_of_videoFx.append ( video_effect("toon_enable", midiMap.playb       , "/shaders/toon/enabled"))
-        list_of_videoFx.append ( video_effect("curve_enable", midiMap.recb      , "/shaders/ShadowHighlights/enabled"))
+        list_of_videoFx.append ( video_effect("mask_enable", midiMap.recb       , "/shaders/Mask/enabled"))
+        
 
         list_of_videoFx.append ( video_effect("whiteB", midiMap.solos[7]       , "/omx/disableWhiteB"))
+        list_of_videoFx.append ( video_effect("curve_enable", midiMap.mutes[7] , "/shaders/ShadowHighlights/enabled"))
         list_of_videoFx.append ( video_effect("lowR", midiMap.encoders[5]       , "/omx/colors/x",lambda x:(x+0.5)*4))
         list_of_videoFx.append ( video_effect("lowG", midiMap.encoders[6]       , "/omx/colors/y",lambda x:(x+0.5)*4))
         list_of_videoFx.append ( video_effect("lowB", midiMap.encoders[7]       , "/omx/colors/z",lambda x:(x+0.5)*4))
         
+        # shader params
+        def s_functor(i):
+            def func(x):
+                for ii in range(8): # clear others but us
+                    send_midiCC(midiMap.records[ii],int(ii==i)*127)
+                return x>0 or None
+            return func;
+
+        for i in range(3,8):
+            list_of_videoFx.append ( video_effect("maskImg"+str(i), midiMap.records[i], "/shaders/Mask/setMaskIndex",s_functor(i-3))) 
+
+        list_of_videoFx.append ( video_effect("kal_scale", midiMap.encoders[0] , "/shaders/kaleidoscope/scale",lambda x:[1.0+x/64.0 for _ in range(2)]))
+        list_of_videoFx.append ( video_effect("kal_offx", midiMap.encoders[1] , "/shaders/kaleidoscope/offset/x",lambda x:x/64.0 - 0.5))
+        list_of_videoFx.append ( video_effect("kal_offy", midiMap.encoders[2] , "/shaders/kaleidoscope/offset/y",lambda x:x/64.0 - 0.5))
+        list_of_videoFx.append ( video_effect("kal_velAngle", midiMap.encoders[3] , "/shaders/kaleidoscope/vAngle",lambda x:(x/64.0 - 0.5)*.02))
+        list_of_videoFx.append ( video_effect("kal_resetAngle", midiMap.mutes[3] , "/shaders/kaleidoscope/rotation",lambda x:0))
+
         global list_of_serial
         list_of_serial = []
         list_of_serial.append( serial_effect("ledR jardin",     midiMap.solos  [0], 0 , False))

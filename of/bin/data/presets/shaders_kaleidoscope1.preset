@@ -1,19 +1,18 @@
 {
   ALGO_NUM:0,
   DO_SKEW:0,
-  MIRROR_OUT:0,
-  PI:3,
+  MIRROR_OUT:1,
   TRI_MODE:0,
   dbg:0,
   dbg2:0,
   dbg3:0,
   debug:0,
   enabled:1,
-  offset:[-0.03, 0.01],
+  offset:[0, 0],
   order:0,
   rotation:0,
-  scale:[1.95, 1.67],
+  scale:[1.49, 1.49],
   vAngle:0,
   zoom:1,
-  zoomoffset:[1, 0]
+  zoomoffset:[0, 0]
 }

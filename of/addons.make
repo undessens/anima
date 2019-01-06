@@ -1,2 +1,3 @@
 ofxOMXCamera
 ofxOsc
+ofxOMXPlayer
