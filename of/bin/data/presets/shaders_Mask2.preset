@@ -1,0 +1,11 @@
+{
+  IMAGE_IS_MASK:0,
+  INVERT_MASK:0,
+  enabled:1,
+  maskPath:mask1.jpg,
+  maskThreshold:0.5,
+  order:0,
+  setMaskIndex:1,
+  smoothThresh:0.31,
+  tst:1.67905e+38
+}

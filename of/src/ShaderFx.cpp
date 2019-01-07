@@ -164,7 +164,7 @@ public:
         maskResolution->isSavable = false;
         maskThreshold = fParams.getRef("maskThreshold");
         invertMask = fParams.getRef("invertMask");
-        setMaskPath = addParameter<ActionParameter>("setMaskPath", std::bind(&MaskShader::loadMediaFromPath, this, std::placeholders::_1));
+
         auto setMaskIndex = addParameter<TypedActionParameter<int>>("setMaskIndex", 0, std::bind(&MaskShader::loadMediaAtIdx, this, std::placeholders::_1));
         maskPath = addParameter<StringParameter>("maskPath", "");
         maskPath->setValue("mask1.jpg", this);
@@ -205,7 +205,17 @@ public:
 
     }
     void parameterValueChanged(ParameterBase * p)final{
-        //        if(p==)
+        if (p == enabled.get()) {
+            if (enabled->getValue()) {
+                string maskPathWhenDisabled = maskPath->getValue();
+                ofLog() << "resetting mask : " << maskPathWhenDisabled;
+                maskPath->setValue(""); // to notify reload
+                maskPath->setValue(maskPathWhenDisabled);
+            }
+            else {
+                maskMedia = nullptr;
+            }
+        }
     }
     void loadMediaFromPath(const string & s) {
 
@@ -220,10 +230,12 @@ public:
             ofLog() << "opening " << truePath << " : ext : " << ext;
             if (ofContains(VideoMedia::exts, ext)) {
                 ofLog() << "opening video";
+                maskMedia =nullptr;
                 maskMedia = make_shared<VideoMedia>(truePath);
             }
             else if (ofContains(ImageMedia::exts, ext)) {
                 ofLog() << "opening image";
+                maskMedia =nullptr;
                 maskMedia = make_shared<ImageMedia>(truePath);
             }
             else {
@@ -249,12 +261,13 @@ public:
         ofSort(files);
         if (totalNumFile == 0) {ofLogError() << "no media found" ; return;}
         // if (idx > totalNumFile) {idx %= totalNumFile;}
-        loadMediaFromPath(files[idx % totalNumFile].getAbsolutePath());
+        maskPath->setValue(files[idx % totalNumFile].getAbsolutePath());
+
 
     }
 
+    
 
-    ActionParameter::Ptr setMaskPath;
     StringParameter::Ptr maskPath;
     FloatParameter::Ptr maskThreshold, invertMask;
     NumericParameter<ofVec2f>::Ptr maskResolution;
@@ -282,7 +295,7 @@ public:
     };
 
 #ifdef TARGET_RASPBERRY_PI
-#define VID_PLAYER_TYPE    ofRPIVideoPlayer 
+#define VID_PLAYER_TYPE    ofRPIVideoPlayer
 #else
 #define VID_PLAYER_TYPE ofVideoPlayer
 #endif
@@ -292,12 +305,17 @@ public:
             static VID_PLAYER_TYPE vp;
             return vp;
         }
-        VideoMedia(const string & path) :vid(getVidPlayer()) {
-            if(vid.isPlaying()){
-                DBG("video try to close first")
+        VideoMedia(const string & path) 
+        : vid(getVidPlayer()) 
+        {
+            if (vid.isPlaying()) {
+                DBG("video try to close first");
                 vid.close();
                 int maxWait = 9999999;
-                while(vid.isPlaying() && maxWait>0){maxWait--;}
+                while (vid.isPlaying() && maxWait > 0) {
+                    maxWait--;
+                }
+                if(maxWait==0)DBGE("could'nt wait for vid to stop");
             }
             vid.setLoopState(OF_LOOP_NORMAL);
             vid.load(path);
@@ -306,6 +324,7 @@ public:
             vid.play();
         };
         ~VideoMedia() {
+            DBG("deleting video media ")
             vid.close();
         }
         bool isLoading()final{return false;}

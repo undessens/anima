@@ -99,20 +99,13 @@ def main():
         list_of_videoFx.append ( video_effect("Constrate",  midiMap.faders[4]   , "/enhancement/contrast"))
         list_of_videoFx.append ( video_effect("Saturation", midiMap.faders[6]   , "/enhancement/saturation"))
         list_of_videoFx.append ( video_effect("Brightness", midiMap.faders[7]   , "/enhancement/brightness"))
-        list_of_videoFx.append ( video_effect("Filter +",   62                  , "/filters/nextFilter"))
-        list_of_videoFx.append ( video_effect("Filter -",   61                  , "/filters/previousFilter"))
-        list_of_videoFx.append ( video_effect("init Filter",60                  , "/filters/initFilter"))
-        #list_of_videoFx.append ( video_effect("zoom", 20, "/zoomCrop/topMargin"))
-        #list_of_videoFx.append ( video_effect("zoom", 21, "/zoomCrop/leftMargin"))
-        #list_of_videoFx.append ( video_effect("zoom", 0, "/zoomCrop/zoomLevel"))
-        list_of_videoFx.append ( video_effect("zoom", 59                        , "/whiteBalance/wbNext"))
-        list_of_videoFx.append ( video_effect("zoom", 58                        , "/whiteBalance/wbPrev"))
 
         list_of_videoFx.append ( video_effect("kal_enable", midiMap.prevb       , "/shaders/kaleidoscope/enabled"))
         list_of_videoFx.append ( video_effect("mirror_enable", midiMap.nextb    , "/shaders/mirror/enabled"))
         list_of_videoFx.append ( video_effect("bord_enable", midiMap.stopb       , "/shaders/borders/enabled"))
         list_of_videoFx.append ( video_effect("toon_enable", midiMap.playb       , "/shaders/toon/enabled"))
         list_of_videoFx.append ( video_effect("mask_enable", midiMap.recb       , "/shaders/Mask/enabled"))
+        list_of_videoFx.append ( video_effect("mask_image_front", midiMap.markerr       , "/shaders/Mask/IMAGE_IS_MASK"))
         
 
         list_of_videoFx.append ( video_effect("whiteB", midiMap.solos[7]       , "/omx/disableWhiteB"))
@@ -126,7 +119,7 @@ def main():
             def func(x):
                 for ii in range(8): # clear others but us
                     send_midiCC(midiMap.records[ii],int(ii==i)*127)
-                return i if x>0 else None
+                return i 
             return func;
 
         for i in range(3,8):
@@ -136,7 +129,8 @@ def main():
         list_of_videoFx.append ( video_effect("kal_offx", midiMap.encoders[1] , "/shaders/kaleidoscope/offset/x",lambda x:x/64.0 - 0.5))
         list_of_videoFx.append ( video_effect("kal_offy", midiMap.encoders[2] , "/shaders/kaleidoscope/offset/y",lambda x:x/64.0 - 0.5))
         list_of_videoFx.append ( video_effect("kal_velAngle", midiMap.encoders[3] , "/shaders/kaleidoscope/vAngle",lambda x:(x/64.0 - 0.5)*.02))
-        list_of_videoFx.append ( video_effect("kal_resetAngle", midiMap.mutes[3] , "/shaders/kaleidoscope/rotation",lambda x:0))
+        list_of_videoFx.append ( video_effect("kal_resetAngle", midiMap.solos[3] , "/shaders/kaleidoscope/rotation",lambda x:0))
+        list_of_videoFx.append ( video_effect("kal_rec", midiMap.setb , "/omx/rec"))
 
         global list_of_serial
         list_of_serial = []
@@ -152,8 +146,8 @@ def main():
         list_of_serial.append( serial_effect("ledG cour",       midiMap.mutes  [2], 9 , False))
         list_of_serial.append( serial_effect("ledB cour",       midiMap.records[2], 10, False))
         list_of_serial.append( serial_effect("ledPower cour",   midiMap.faders [2], 11, False))
-        list_of_serial.append( serial_effect("relay1",          35,                 20, False))
-        list_of_serial.append( serial_effect("relay2",          36,                 21, False))
+        list_of_serial.append ( serial_effect("lightcour", midiMap.trackl                 , 20,True))
+        list_of_serial.append ( serial_effect("lightjar", midiMap.trackr                  , 21,True))
         list_of_serial.append( serial_effect("rien",            3,                  30, False))
         
         global list_of_all 
