@@ -48,27 +48,39 @@ public:
         addParameter<TypedActionParameter<float> >("zoom", 0, [this](const float & s) {vidGrab.setDigitalZoomFromFloat(s);});
         addParameter<TypedActionParameter<ofVec2f> >("enhancement", ofVec2f(0.0), [this](const ofVec2f & s) {vidGrab.setColorEnhancement(s.x > 0 || s.y > 0 , s.x, s.y);}); // -4 to 4
 
-        ofVec3f midColorWB {146, 34, 82}; // custom rgb wheights faking a white balance with light temps of anima
-        midColorWB.normalize();
-        midColorWB *= 255;
+        
 
+      
+        
+        
+        
         auto colorsP = addParameter<TypedActionParameter<ofVec3f> >("colors", ofVec3f(255.0), [this](const ofVec3f & s) {
-            auto ns = s.getNormalized() * 255.0;
-            vidGrab.extraImageFXController.setImageFilter(OMX_ImageFilterColourBalance, {0, (int)ns.x, (int)ns.y, (int)ns.z, 0, 0});
-        }
-                                                    ); // -4 to 4
+            
+            // if(disableWBP->getValue()){
+                auto ns = s.getNormalized() * 255.0;
+                vidGrab.extraImageFXController.setImageFilter(OMX_ImageFilterColourBalance, {0, (int)ns.x, (int)ns.y, (int)ns.z, 0, 0});
+            // }
 
-        addParameter<TypedActionParameter<bool> >("disableWhiteB", false, [this, midColorWB,colorsP](const bool & s) {
+        }); 
+
+        addParameter<TypedActionParameter<bool> >("disableWhiteB", false, [this,colorsP](const bool & s) {
             vidGrab.setWhiteBalance(s ? "None" : "Auto"); vidGrab.setWhiteBalanceGainR(1.0); vidGrab.setWhiteBalanceGainB(1.0);
+            static ofVec3f tempColorsValue(255);
+            // #if 
             if (s) {
                 // vidGrab.extraImageFXController.setImageFilter(OMX_ImageFilterColourBalance, {0, (int)midColorWB.x, (int)midColorWB.y, (int)midColorWB.z, 0, 0});
-                colorsP->setValue(midColorWB);
+                colorsP->setValue(tempColorsValue);
             }
             else {
+                tempColorsValue = colorsP->getValue();
                 colorsP->setValue(ofVec3f(255.0));
                 // vidGrab.extraImageFXController.setImageFilter(OMX_ImageFilterColourBalance, {0, 255, 255, 255, 0, 0});
             }
+            // #endif
         });
+
+
+
         vidGrab.extraImageFXController.setImageFilter(OMX_ImageFilterColourBalance, {0, 255, 255, 255, 0, 0});
         //     filterParamConfig.addParam("lens", 0, 255, 0);
         // filterParamConfig.addParam("r", 0, 255, 255);

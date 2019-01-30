@@ -17,7 +17,9 @@ class video_effect:
 			self.currentValue = newVal
 			self.isModified = True
 
-
+	def getMappedValue(self):
+		return self.mapFunc(self.currentValue)
+		
 	def update(self):
 		#Can smooth the final value send in OSC, using an easing method
 		if self.isModified:

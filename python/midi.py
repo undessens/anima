@@ -26,6 +26,8 @@ import nanoKontrolMap as midiMap
 
 
 
+brightnessFx = video_effect("Brightness", midiMap.faders[7]   , "/enhancement/brightness")
+contrastFx = video_effect("Constrate",  midiMap.faders[4]   , "/enhancement/contrast")
 
 def receive_midi_msg(msg):
 
@@ -51,9 +53,18 @@ def update_serial( ser):
                 #ser.printResult()
                 send_serial( ser.arduinoID, result)
 
+def lowerContrastIfBrightnessDown(vidFx,result):
+    global brightnessFx, contrastFx
+    maxB = 31
+    if(vidFx == brightnessFx and result < maxB):
+        tv = contrastFx.getMappedValue()
+        send_osc ( contrastFx.oscAddress, tv*result/maxB)
+
 def update_videoFx( vidFx):
         result = vidFx.update()
         if result != None :
+                
+                lowerContrastIfBrightnessDown(vidFx,result)
                 #vidFx.printResult()
                 send_osc ( vidFx.oscAddress, result)
 
@@ -93,12 +104,12 @@ def send_midiCC(cc,v,channel=None):
 def main():
         
 
-        global list_of_videoFx 
+        global list_of_videoFx ,brightnessFx,contrastFx
         list_of_videoFx = []
         list_of_videoFx.append ( video_effect("sharpness",  midiMap.faders[5]   , "/enhancement/sharpness"))
-        list_of_videoFx.append ( video_effect("Constrate",  midiMap.faders[4]   , "/enhancement/contrast"))
+        list_of_videoFx.append ( contrastFx)
         list_of_videoFx.append ( video_effect("Saturation", midiMap.faders[6]   , "/enhancement/saturation"))
-        list_of_videoFx.append ( video_effect("Brightness", midiMap.faders[7]   , "/enhancement/brightness"))
+        list_of_videoFx.append ( brightnessFx)
 
         list_of_videoFx.append ( video_effect("kal_enable", midiMap.prevb       , "/shaders/kaleidoscope/enabled"))
         list_of_videoFx.append ( video_effect("mirror_enable", midiMap.nextb    , "/shaders/mirror/enabled"))
