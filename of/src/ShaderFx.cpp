@@ -401,6 +401,8 @@ void ShaderFx::setup() {
     addAndRegisterType<KaleidoscopeShader>(nodes);
     addAndRegisterType<MaskShader>(nodes);
 
+    addAndRegisterType<ShaderBase>(nodes, "pixelate");
+
     // soloShader(availableShaders["blur"]);
 
 }
