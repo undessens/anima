@@ -1176,6 +1176,26 @@
                   "target": "",
                   "bypass": false,
                   "norelease": true
+                },
+                {
+                  "type": "toggle",
+                  "id": "@{parent.address}/@{this.label}",
+                  "linkId": "",
+                  "height": "auto",
+                  "label": "whiteBG",
+                  "color": "auto",
+                  "css": "",
+                  "doubleTap": false,
+                  "on": 1,
+                  "off": 0,
+                  "precision": 2,
+                  "address": "@{this.id}",
+                  "preArgs": "",
+                  "target": "",
+                  "bypass": false,
+                  "led": false,
+                  "default": "",
+                  "value": ""
                 }
               ],
               "label": false,

@@ -25,10 +25,35 @@ import nanoKontrolMap as midiMap
 ########################################
 
 
-
+####
+## used as global to force lower contrast when low Brightness (have a true black)
 brightnessFx = video_effect("Brightness", midiMap.faders[7]   , "/enhancement/brightness")
 contrastFx = video_effect("Constrate",  midiMap.faders[4]   , "/enhancement/contrast")
 
+
+class Strobe:
+    def __init__(self):
+        self.isOn = 0
+        self.lastT = 0
+        self.value = 0
+        self.period = 1
+        self.alternate = 1
+    def update(self):
+        if self.isOn:
+            cTime = time.time();
+            if(cTime-self.lastT>self.period):
+                self.lastT = cTime
+                self.value = not self.value
+                v = 1
+                if not self.value:
+                    v = 0
+                lvalue = v
+                if self.alternate :
+                    lvalue = 0 if v else 127
+                send_serial(20,lvalue)
+                send_serial(21,v)
+
+strobe = Strobe();
 def receive_midi_msg(msg):
 
 
@@ -43,6 +68,9 @@ def receive_midi_msg(msg):
                 if (c.midiChannel == msg.control):
                         c.setValue(msg.value)
                         #c.printResult()
+        for c in list_of_all['functions']:
+            if (c.midiChannel == msg.control):
+                        c.setValue(msg.value)
 
 
 
@@ -50,8 +78,12 @@ def receive_midi_msg(msg):
 def update_serial( ser):
         result = ser.update()
         if result !=None:
-                #ser.printResult()
-                send_serial( ser.arduinoID, result)
+            ids = ser.arduinoID
+            if  not isinstance(ids,list):
+                ids = [ids]
+            #ser.printResult()
+            for i in ids:
+                send_serial( i, result)
 
 def lowerContrastIfBrightnessDown(vidFx,result):
     global brightnessFx, contrastFx
@@ -101,6 +133,10 @@ def send_midiCC(cc,v,channel=None):
     else:
         print("can't send to midi")
 
+def setMaskWhiteBG(s):
+    send_osc("/shaders/Mask/whiteBG",s);
+    return None
+
 def main():
         
 
@@ -111,19 +147,24 @@ def main():
         list_of_videoFx.append ( video_effect("Saturation", midiMap.faders[6]   , "/enhancement/saturation"))
         list_of_videoFx.append ( brightnessFx)
 
-        list_of_videoFx.append ( video_effect("kal_enable", midiMap.prevb       , "/shaders/kaleidoscope/enabled"))
-        list_of_videoFx.append ( video_effect("mirror_enable", midiMap.nextb    , "/shaders/mirror/enabled"))
-        list_of_videoFx.append ( video_effect("bord_enable", midiMap.stopb       , "/shaders/borders/enabled"))
-        list_of_videoFx.append ( video_effect("toon_enable", midiMap.playb       , "/shaders/toon/enabled"))
-        list_of_videoFx.append ( video_effect("mask_enable", midiMap.recb       , "/shaders/Mask/enabled"))
-        list_of_videoFx.append ( video_effect("mask_image_front", midiMap.markerr       , "/shaders/Mask/IMAGE_IS_MASK"))
-        
+        list_of_videoFx.append ( video_effect("",midiMap.prevb      , "/shaders/kaleidoscope/enabled"))
+        list_of_videoFx.append ( video_effect("",midiMap.nextb      , "/shaders/mirror/enabled"))
+        list_of_videoFx.append ( video_effect("",midiMap.stopb      , "/shaders/borders/enabled"))
+        list_of_videoFx.append ( video_effect("",midiMap.playb      , "/shaders/toon/enabled"))
+        list_of_videoFx.append ( video_effect("",midiMap.recb       , "/shaders/Mask/enabled"))
+        list_of_videoFx.append ( video_effect("",midiMap.markerl    , "/shaders/Mask/reset",lambda x:setMaskWhiteBG(1) or x or None))
+        list_of_videoFx.append ( video_effect("",midiMap.markerr    , "/shaders/Mask/next",lambda x:  x or None))
+        list_of_videoFx.append ( video_effect("",midiMap.faders[0]  , "/shaders/Mask/transparency",lambda x:  x/127.0))
 
-        list_of_videoFx.append ( video_effect("whiteB", midiMap.solos[7]       , "/omx/disableWhiteB"))
-        list_of_videoFx.append ( video_effect("curve_enable", midiMap.mutes[7] , "/shaders/ShadowHighlights/enabled"))
-        list_of_videoFx.append ( video_effect("lowR", midiMap.encoders[5]       , "/omx/colors/x",lambda x:(x+0.5)*4))
-        list_of_videoFx.append ( video_effect("lowG", midiMap.encoders[6]       , "/omx/colors/y",lambda x:(x+0.5)*4))
-        list_of_videoFx.append ( video_effect("lowB", midiMap.encoders[7]       , "/omx/colors/z",lambda x:(x+0.5)*4))
+        list_of_videoFx.append ( video_effect("",midiMap.solos[0]  , "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 15 if x>0 else None ))
+        list_of_videoFx.append ( video_effect("",midiMap.mutes[0]  , "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 16 if x>0 else None ))
+        list_of_videoFx.append ( video_effect("",midiMap.records[0], "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 17 if x>0 else None ))
+
+        list_of_videoFx.append ( video_effect("", midiMap.solos[7]      , "/omx/disableWhiteB"))
+        list_of_videoFx.append ( video_effect("", midiMap.mutes[7]      , "/shaders/ShadowHighlights/enabled"))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[5]   , "/omx/colors/x",lambda x:(x+0.5)*4))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[6]   , "/omx/colors/y",lambda x:(x+0.5)*4))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[7]   , "/omx/colors/z",lambda x:(x+0.5)*4))
         
         # shader params
         def s_functor(i):
@@ -134,38 +175,56 @@ def main():
             return func;
 
         for i in range(3,8):
-            list_of_videoFx.append ( video_effect("maskImg"+str(i), midiMap.records[i], "/shaders/Mask/setMaskIndex",s_functor(i-3))) 
+            list_of_videoFx.append ( video_effect("", midiMap.records[i], "/shaders/Mask/setMaskIndex",s_functor(i-3))) 
 
-        list_of_videoFx.append ( video_effect("kal_scale", midiMap.encoders[0] , "/shaders/kaleidoscope/scale",lambda x:[1.0+x/64.0 for _ in range(2)]))
-        list_of_videoFx.append ( video_effect("kal_offx", midiMap.encoders[1] , "/shaders/kaleidoscope/offset/x",lambda x:x/64.0 - 0.5))
-        list_of_videoFx.append ( video_effect("kal_offy", midiMap.encoders[2] , "/shaders/kaleidoscope/offset/y",lambda x:x/64.0 - 0.5))
-        list_of_videoFx.append ( video_effect("kal_velAngle", midiMap.encoders[3] , "/shaders/kaleidoscope/vAngle",lambda x:(x/64.0 - 0.5)*.02))
-        list_of_videoFx.append ( video_effect("kal_resetAngle", midiMap.solos[3] , "/shaders/kaleidoscope/rotation",lambda x:0))
-        list_of_videoFx.append ( video_effect("kal_rec", midiMap.setb , "/omx/rec"))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[0] , "/shaders/kaleidoscope/scale",lambda x:[1.0+x/64.0 for _ in range(2)]))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[1] , "/shaders/kaleidoscope/offset/x",lambda x:x/64.0 - 0.5))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[2] , "/shaders/kaleidoscope/offset/y",lambda x:x/64.0 - 0.5))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[3] , "/shaders/kaleidoscope/vAngle",lambda x:(x/64.0 - 0.5)*.02))
+        list_of_videoFx.append ( video_effect("", midiMap.solos[3]    , "/shaders/kaleidoscope/rotation",lambda x:0))
+        # list_of_videoFx.append ( video_effect("kal_rec", midiMap.setb , "/omx/rec"))
 
         global list_of_serial
         list_of_serial = []
-        list_of_serial.append( serial_effect("ledR jardin",     midiMap.solos  [0], 0 , False))
-        list_of_serial.append( serial_effect("ledG jardin",     midiMap.mutes  [0], 1 , False))
-        list_of_serial.append( serial_effect("ledB jardin",     midiMap.records[0], 2 , False))
-        list_of_serial.append( serial_effect("ledPower jardin", midiMap.faders [0], 3 , False))
-        list_of_serial.append( serial_effect("ledR haut",       midiMap.solos  [1], 4 , False))
-        list_of_serial.append( serial_effect("ledG haut",       midiMap.mutes  [1], 5 , False))
-        list_of_serial.append( serial_effect("ledB haut",       midiMap.records[1], 6 , False))
-        list_of_serial.append( serial_effect("ledPower haut",   midiMap.faders [1], 7 , False))
-        list_of_serial.append( serial_effect("ledR cour",       midiMap.solos  [2], 8 , False))
-        list_of_serial.append( serial_effect("ledG cour",       midiMap.mutes  [2], 9 , False))
-        list_of_serial.append( serial_effect("ledB cour",       midiMap.records[2], 10, False))
-        list_of_serial.append( serial_effect("ledPower cour",   midiMap.faders [2], 11, False))
-        list_of_serial.append ( serial_effect("lightcour", midiMap.trackl                 , 20,True))
-        list_of_serial.append ( serial_effect("lightjar", midiMap.trackr                  , 21,True))
-        list_of_serial.append( serial_effect("rien",            3,                  30, False))
+        list_of_serial.append( serial_effect("ledR haut",       midiMap.solos  [1], 4     , False))
+        list_of_serial.append( serial_effect("ledG haut",       midiMap.mutes  [1], 5     , False))
+        list_of_serial.append( serial_effect("ledB haut",       midiMap.records[1], 6     , False))
+        list_of_serial.append( serial_effect("ledPower haut",   midiMap.faders [1], 7     , False))
+        list_of_serial.append( serial_effect("ledR cour+j",     midiMap.solos  [2], [0,8] , False))
+        list_of_serial.append( serial_effect("ledG cour+j",     midiMap.mutes  [2], [1,9] , False))
+        list_of_serial.append( serial_effect("ledB cour+j",     midiMap.records[2], [2,10], False))
+        list_of_serial.append( serial_effect("ledPower cour+j", midiMap.faders [2], [3,11], False))
+        list_of_serial.append( serial_effect("lightcour",       midiMap.trackl    , 20    ,True))
+        list_of_serial.append( serial_effect("lightjar",        midiMap.trackr    , 21    ,True))
+        
+        global list_of_functions
+        list_of_functions =[]
+        class midiF:
+            def __init__(self,cc,fun):
+                self.midiChannel = cc
+                self.value = 0
+                self.fun = fun
+                self.changed = False
+            def setValue(self,v):
+                self.value = v
+                self.changed = True
+            def update_fun(self):
+                if(self.changed):
+                    self.fun(self.value)
+
+        def toggleStrobe(v):
+            global strobe
+            if v :
+                strobe.isOn = not strobe.isOn
+
+        list_of_functions.append(midiF(midiMap.cycleb,toggleStrobe))
         
         global list_of_all 
         list_of_all = dict()
 
         list_of_all['videoFx'] = list_of_videoFx
         list_of_all['serial'] = list_of_serial
+        list_of_all['functions'] = list_of_functions
 
         # OSC connect
         global oscClient
@@ -209,7 +268,7 @@ def main():
                 print ("Impossible to connect to Serial")
                 ser = None      
 
-
+            
         while True:
                 #Main update
                 #Frequency update 20Hz
@@ -220,7 +279,9 @@ def main():
                         update_videoFx(c)
                 for c in list_of_all['serial']:
                         update_serial(c)
-
+                for c in list_of_all['functions']:
+                    c.update_fun();
+                strobe.update()
                 #print ("Serial")
                 #print (str(ser.readline()))
                           

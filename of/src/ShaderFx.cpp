@@ -159,6 +159,7 @@ public:
     MaskShader(): ShaderBase("Mask") {
 
     }
+    int cidx = 0;
     void initParams()final{
         maskResolution  = vParams.getRef("maskResolution");
         maskResolution->isSavable = false;
@@ -167,16 +168,34 @@ public:
 
         auto setMaskIndex = addParameter<TypedActionParameter<int>>("setMaskIndex", 0, std::bind(&MaskShader::loadMediaAtIdx, this, std::placeholders::_1));
         maskPath = addParameter<StringParameter>("maskPath", "");
-        maskPath->setValue("mask1.jpg", this);
-
+        maskPath->setValue("00.jpg", this);
+        
         auto next = addTrigger("next", [this](TriggerParameter* t){
-            static int i(0);
-            loadMediaAtIdx(i);
-            i++;
+            cidx++;
+            loadMediaAtIdx(cidx);
             auto files = getMediaList();
-            i%=files.size();
+            cidx%=files.size();
         });
+
+        auto reset = addTrigger("reset", [this](TriggerParameter* t){
+            cidx = 0;
+            loadMediaAtIdx(0);
+        });
+
     };
+
+    int getNumImageSeries(){
+        auto files = getMediaList();
+        int i =  0;
+        for(auto & f : files){
+            auto n = f.getBaseName();
+            if(n.size()==2){
+                i++;
+            }
+            else{break;}
+        }
+        return i;
+    }
 
     void updateParams(float deltaT)final{
         if (maskPath->hasChanged(true)) { // need to be done while drawing
@@ -251,6 +270,14 @@ public:
                 ofLogError() << "no valid extension for : " << s;
                 return;
             }
+            int i = 0;
+            for(auto& fff:getMediaList() ){
+                if(fff.getBaseName() == ofFilePath::getBaseName(truePath)){
+                    cidx = i;
+                    break;
+                }
+                i++;
+            }
         }
         if (!maskMedia)                  {DBGE("maskShader :  weird error"); return;}
         if (!maskMedia->isLoading() && !maskMedia->isAllocated())  {DBGE("maskShader :  media not allocated"); return;}
@@ -260,10 +287,8 @@ public:
     };
     vector<ofFile> getMediaList(){
         ofDirectory mediaFolder("images");
-
         for (auto & s : ImageMedia::exts) {mediaFolder.allowExt(s);}
         for (auto & s : VideoMedia::exts) {mediaFolder.allowExt(s);}
-        int totalNumFile = mediaFolder.listDir();
         auto files = mediaFolder.getFiles();
         ofSort(files);
         return files;
@@ -272,8 +297,9 @@ public:
         auto files = getMediaList();
         int totalNumFile= files.size();
         if (totalNumFile == 0) {ofLogError() << "no media found" ; return;}
+        cidx = idx% totalNumFile;
         // if (idx > totalNumFile) {idx %= totalNumFile;}
-        maskPath->setValue(files[idx % totalNumFile].getAbsolutePath());
+        maskPath->setValue(files[cidx].getAbsolutePath());
 
 
     }

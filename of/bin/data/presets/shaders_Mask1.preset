@@ -1,5 +1,5 @@
 {
-  IMAGE_IS_MASK:0,
+  IMAGE_IS_MASK:1,
   INVERT_MASK:0,
   enabled:1,
   maskPath:mask1.jpg,
