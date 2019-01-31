@@ -168,6 +168,14 @@ public:
         auto setMaskIndex = addParameter<TypedActionParameter<int>>("setMaskIndex", 0, std::bind(&MaskShader::loadMediaAtIdx, this, std::placeholders::_1));
         maskPath = addParameter<StringParameter>("maskPath", "");
         maskPath->setValue("mask1.jpg", this);
+
+        auto next = addTrigger("next", [this](TriggerParameter* t){
+            static int i(0);
+            loadMediaAtIdx(i);
+            i++;
+            auto files = getMediaList();
+            i%=files.size();
+        });
     };
 
     void updateParams(float deltaT)final{
@@ -250,8 +258,7 @@ public:
         maskResolution->setValue(maskMedia->getSize());
 
     };
-
-    void loadMediaAtIdx(const int& idx) {
+    vector<ofFile> getMediaList(){
         ofDirectory mediaFolder("images");
 
         for (auto & s : ImageMedia::exts) {mediaFolder.allowExt(s);}
@@ -259,6 +266,11 @@ public:
         int totalNumFile = mediaFolder.listDir();
         auto files = mediaFolder.getFiles();
         ofSort(files);
+        return files;
+    }
+    void loadMediaAtIdx(const int& idx) {
+        auto files = getMediaList();
+        int totalNumFile= files.size();
         if (totalNumFile == 0) {ofLogError() << "no media found" ; return;}
         // if (idx > totalNumFile) {idx %= totalNumFile;}
         maskPath->setValue(files[idx % totalNumFile].getAbsolutePath());
@@ -294,14 +306,14 @@ public:
         ofImage img;
     };
 
-#ifdef TARGET_RASPBERRY_PI
+#if TARGET_RASPBERRY_PI
 #define VID_PLAYER_TYPE    ofRPIVideoPlayer
 #else
 #define VID_PLAYER_TYPE ofVideoPlayer
 #endif
     struct VideoMedia  : public AbstractMedia {
         static vector<string> exts;
-        static ofRPIVideoPlayer & getVidPlayer() {
+        static VID_PLAYER_TYPE & getVidPlayer() {
             static VID_PLAYER_TYPE vp;
             return vp;
         }
@@ -393,6 +405,7 @@ void ShaderFx::setup() {
 
     // addAndRegisterType<ShaderBase>(nodes, "green2gs");
     addAndRegisterType<ShaderBase>(nodes, "blur");
+
     addAndRegisterType<TOONShader>(nodes);
     addAndRegisterType<ShaderBase>(nodes, "borders");
     addAndRegisterType<ShaderBase>(nodes, "mirror");
@@ -400,9 +413,9 @@ void ShaderFx::setup() {
     addAndRegisterType<CurveShader>(nodes);
     addAndRegisterType<KaleidoscopeShader>(nodes);
     addAndRegisterType<MaskShader>(nodes);
-
     addAndRegisterType<ShaderBase>(nodes, "pixelate");
 
+    
     // soloShader(availableShaders["blur"]);
 
 }

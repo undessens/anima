@@ -12,6 +12,7 @@ uniform float tst;
 uniform vec2 resolution;
 uniform vec2 maskResolution;
 uniform float maskThreshold; //(0.5)
+uniform float transparency; //(0.0)
 
 
 uniform float smoothThresh; // (0.31)
@@ -27,7 +28,8 @@ vec3 maskIt(vec3 source,vec3 mask){
         1.0 -
         #endif
         getLuminance(mask.rgb));
-        
+        maskV+=transparency;
+        maskV = min(maskV,1.0);
         return source.rgb*maskV;
 }
 
