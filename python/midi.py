@@ -149,7 +149,7 @@ def main():
 
         list_of_videoFx.append ( video_effect("",midiMap.prevb      , "/shaders/kaleidoscope/enabled"))
         list_of_videoFx.append ( video_effect("",midiMap.nextb      , "/shaders/mirror/enabled"))
-        list_of_videoFx.append ( video_effect("",midiMap.stopb      , "/shaders/borders/enabled"))
+        list_of_videoFx.append ( video_effect("",midiMap.stopb      , "/shaders/pixelate/enabled"))
         list_of_videoFx.append ( video_effect("",midiMap.playb      , "/shaders/toon/enabled"))
         list_of_videoFx.append ( video_effect("",midiMap.recb       , "/shaders/Mask/enabled"))
         list_of_videoFx.append ( video_effect("",midiMap.markerl    , "/shaders/Mask/reset",lambda x:setMaskWhiteBG(1) or x or None))
@@ -182,18 +182,19 @@ def main():
         list_of_videoFx.append ( video_effect("", midiMap.encoders[2] , "/shaders/kaleidoscope/offset/y",lambda x:x/64.0 - 0.5))
         list_of_videoFx.append ( video_effect("", midiMap.encoders[3] , "/shaders/kaleidoscope/vAngle",lambda x:(x/64.0 - 0.5)*.02))
         list_of_videoFx.append ( video_effect("", midiMap.solos[3]    , "/shaders/kaleidoscope/rotation",lambda x:0))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[4]    , "/shaders/pixelate/size", lambda x:x))
         # list_of_videoFx.append ( video_effect("kal_rec", midiMap.setb , "/omx/rec"))
 
         global list_of_serial
         list_of_serial = []
-        list_of_serial.append( serial_effect("ledR haut",       midiMap.solos  [1], 4     , False))
-        list_of_serial.append( serial_effect("ledG haut",       midiMap.mutes  [1], 5     , False))
-        list_of_serial.append( serial_effect("ledB haut",       midiMap.records[1], 6     , False))
-        list_of_serial.append( serial_effect("ledPower haut",   midiMap.faders [1], 7     , False))
-        list_of_serial.append( serial_effect("ledR cour+j",     midiMap.solos  [2], [0,8] , False))
-        list_of_serial.append( serial_effect("ledG cour+j",     midiMap.mutes  [2], [1,9] , False))
-        list_of_serial.append( serial_effect("ledB cour+j",     midiMap.records[2], [2,10], False))
-        list_of_serial.append( serial_effect("ledPower cour+j", midiMap.faders [2], [3,11], False))
+        list_of_serial.append( serial_effect("ledR haut",       midiMap.solos  [2], 4     , False))
+        list_of_serial.append( serial_effect("ledG haut",       midiMap.mutes  [2], 5     , False))
+        list_of_serial.append( serial_effect("ledB haut",       midiMap.records[2], 6     , False))
+        list_of_serial.append( serial_effect("ledPower haut",   midiMap.faders [2], 7     , False))
+        list_of_serial.append( serial_effect("ledR cour+j",     midiMap.solos  [3], [0,8] , False))
+        list_of_serial.append( serial_effect("ledG cour+j",     midiMap.mutes  [3], [1,9] , False))
+        list_of_serial.append( serial_effect("ledB cour+j",     midiMap.records[3], [2,10], False))
+        list_of_serial.append( serial_effect("ledPower cour+j", midiMap.faders [3], [3,11], False))
         list_of_serial.append( serial_effect("lightcour",       midiMap.trackl    , 20    ,True))
         list_of_serial.append( serial_effect("lightjar",        midiMap.trackr    , 21    ,True))
         
