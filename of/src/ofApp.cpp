@@ -4,6 +4,27 @@
 #include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
 
 
+#define CAN_MAP_VIDEO 1
+#if CAN_MAP_VIDEO
+#include "ofxGLWarper.h"
+ofxGLWarper warper;
+ParameterContainer::Ptr warperParameters;
+NumericParameter<ofVec2f>::Ptr topLeft,topRight, bottomLeft, bottomRight;
+ParameterContainer::LambdaListener warperSync("warperSync",[](ParameterContainer * parent,ParameterBase * changedP){
+    ofVec2f screenSize (ofGetWidth(),ofGetHeight());
+    glm::vec2 tl( topLeft->getValue()*screenSize);
+    glm::vec2 tr( topRight->getValue()*screenSize);
+    glm::vec2 bl( bottomLeft->getValue()*screenSize);
+    glm::vec2 br( bottomRight->getValue()*screenSize);
+    warper.setAllCorners(tl,tr,bl,br);
+    warper.save();
+
+});
+#endif
+
+
+
+
 #define USE_SHADERS 1
 
 #ifndef DO_STREAM
@@ -58,7 +79,44 @@ void ofApp::setup()
     shaderFx->setup();
 #endif
     
+#if CAN_MAP_VIDEO
 
+    warper.setup();
+
+    warper.load();
+    warper.activate(false);
+    // if no file found
+    if( warper.getCorner(ofxGLWarper::CornerLocation::TOP_RIGHT)==glm::vec2(0,0)){
+        glm::vec2 v;
+        v= glm::vec2(ofGetWidth(),0);
+        warper.setCorner(ofxGLWarper::CornerLocation::TOP_RIGHT,    v);
+        v =glm::vec2(0,ofGetHeight());
+        warper.setCorner(ofxGLWarper::CornerLocation::BOTTOM_LEFT,  v);
+        v =  glm::vec2(ofGetWidth(),ofGetHeight());
+        warper.setCorner(ofxGLWarper::CornerLocation::BOTTOM_RIGHT,v);
+    }
+    warperParameters = make_shared<ParameterContainer>("mapping");
+
+    topLeft     = warperParameters->
+    addParameter<NumericParameter<ofVec2f>>("tl",
+                                            warper.getCorner(ofxGLWarper::CornerLocation::TOP_LEFT)/ glm::vec2(ofGetWidth(),ofGetHeight()));
+
+    topRight    = warperParameters->
+    addParameter<NumericParameter<ofVec2f>>("tr",
+                                            warper.getCorner(ofxGLWarper::CornerLocation::TOP_RIGHT)/ glm::vec2(ofGetWidth(),ofGetHeight()));
+
+
+    bottomLeft  = warperParameters->
+    addParameter<NumericParameter<ofVec2f>>("bl",
+                                            warper.getCorner(ofxGLWarper::CornerLocation::BOTTOM_LEFT)/ glm::vec2(ofGetWidth(),ofGetHeight()));
+
+    bottomRight = warperParameters->
+    addParameter<NumericParameter<ofVec2f>>("br",
+                                            warper.getCorner(ofxGLWarper::CornerLocation::BOTTOM_RIGHT)/ glm::vec2(ofGetWidth(),ofGetHeight()));
+
+    warperParameters->parameterContainerListeners.add(&warperSync);
+    root->addSharedParameterContainer(warperParameters);
+#endif
     oscBind.setup(root, "localhost", 11001);
 
 
@@ -129,6 +187,7 @@ void ofApp::setup()
 
 
 
+
 }
 
 void ofApp::initParameters() {
@@ -164,6 +223,14 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
+
+#if CAN_MAP_VIDEO
+    ofFill();
+    ofSetColor(ofColor::black);
+    ofDrawRectangle(0,0,ofGetWidth(),ofGetHeight());
+    ofSetColor(ofColor::white);
+    warper.begin();
+#endif
     if (displayTestImage->getValue()) {
         getTestImage().resize(ofGetWidth(), ofGetHeight());
     }
@@ -188,10 +255,16 @@ void ofApp::draw()
     drawnTexture.draw(0, 0, ofGetWidth(), ofGetHeight());
 #endif
 
+#if CAN_MAP_VIDEO
+    warper.end();
+#endif
+
     drawInfoIfAsked();
 #if DO_STREAM
     getStreamVid().publishScreen(); // has internal control over fps
 #endif
+
+
 
 }
 
@@ -275,7 +348,22 @@ void ofApp::keyPressed  (int key)
         if (!shaderFx->reload()) {
             ofLogError() << "couldn't reload shader";
         }
+        break;
     }
+#if CAN_MAP_VIDEO
+        case 'w':{
+            warper.toggleActive();
+            break;
+        }
+        case '+':{
+            int selectedCorner = warper.getSelectedCornerLocation();
+            if(selectedCorner<0) selectedCorner = 0;
+            else{selectedCorner++;selectedCorner%=4;}
+//            static_cast<ofxGLWarper::CornerLocation>
+            warper.selectCorner((ofxGLWarper::CornerLocation)selectedCorner);
+            break;
+        }
+            #endif
 
 
 #if !EMULATE_ON_OSX

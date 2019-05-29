@@ -1,3 +1,4 @@
 ofxOMXCamera
 ofxOsc
 ofxOMXPlayer
+ofxGLWarper
