@@ -736,6 +736,20 @@ public:
         virtual void childParameterChanged(ParameterContainer* parent, ParameterBase * p) = 0;
 
     };
+
+
+    struct LambdaListener : public Listener {
+        typedef std::function<void(ParameterContainer* parent, ParameterBase * p)> FunctionType;
+        LambdaListener(const string & n,FunctionType && f): Listener(n),func(f) {};
+        virtual ~LambdaListener() {};
+
+        void childParameterChanged(ParameterContainer* parent, ParameterBase * p) override{
+            func( parent,  p);
+        };
+    private:
+        FunctionType func;
+
+    };
     ListenerList<Listener> parameterContainerListeners;
 
 private:
