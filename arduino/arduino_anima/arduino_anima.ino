@@ -94,7 +94,9 @@ void loop() {
 
 void processBuffer() {
 
-  // Serial.println("process buffer");
+
+  //Serial.println("process buffer");
+
 
   byte cmd = buffer[0];
   
@@ -160,7 +162,8 @@ void processBuffer() {
       state2 = (buffer[1]==0);
       digitalWrite( PINRELAY2, state2 );
       break;
-      
+    default:
+      break;
 
 
   }
