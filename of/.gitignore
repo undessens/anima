@@ -1,4 +1,5 @@
 bin/data/images/
+bin/data/warpConfig.xml
 bin/of*
 obj/
 *.gch
@@ -9,6 +10,7 @@ obj/
 .test
 itermLauncher
 
+IDEWorkspaceChecks.plist
 
 #########################
 # .gitignore file for Xcode4 / OS X Source projects
