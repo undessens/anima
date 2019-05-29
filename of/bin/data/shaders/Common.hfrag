@@ -1,3 +1,4 @@
+
 #define TARGET_RASPBERRY_PI 0 // will be changed by of
 #define USE_ARB 1
 
@@ -13,6 +14,7 @@ precision lowp vec4;
 #define TEXTURE texture2D
 #define FRAG_COLOR gl_FragColor
 #else
+
 #define IN in
 #define OUT out
 #define TEXTURE texture
@@ -24,18 +26,27 @@ OUT vec4 fragColor;
 #define ST() v_texcoord
 
 #if USE_ARB
+
 #if TARGET_RASPBERRY_PI
-#extension GL_ARB_texture_rectangle : enable
+    #extension GL_ARB_texture_rectangle : enable
 #endif
-#define SAMPLER_2D_TYPE sampler2DRect
-uniform sampler2DRect tex0;
-#define NORMALIZE_UV(non_normed_uv) ((non_normed_uv)/resolution.xy)
-#define NORMUV2TEXCOORD(normed_uv) ((normed_uv)*resolution.xy)
+    #define SAMPLER_2D_TYPE sampler2DRect
+    uniform sampler2DRect tex0;
+    #define NORMALIZE_UV(non_normed_uv) ((non_normed_uv)/resolution.xy)
+    #define NORMUV2TEXCOORD(normed_uv) ((normed_uv)*resolution.xy)
+
 #else
-#define SAMPLER_2D_TYPE sampler2D
-uniform sampler2D tex0;
-#define NORMALIZE_UV(non_normed_uv) non_normed_uv
-#define NORMUV2TEXCOORD(normed_uv) normed_uv
+
+    #define SAMPLER_2D_TYPE sampler2D
+    uniform sampler2D tex0;
+#if TARGET_RASPBERRY_PI
+    #define NORMALIZE_UV(non_normed_uv) non_normed_uv
+    #define NORMUV2TEXCOORD(normed_uv) normed_uv
+#else
+    #define NORMALIZE_UV(non_normed_uv) ((non_normed_uv)/resolution.xy)
+    #define NORMUV2TEXCOORD(normed_uv) ((normed_uv)*resolution.xy)
+#endif
+
 #endif
 
 

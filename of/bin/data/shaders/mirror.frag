@@ -8,7 +8,7 @@ uniform float switchSide; // (1)
 // uniform float rotation; // default (1)
 uniform float offset; // (0.5)
 // uniform vec2 mouse;
-// uniform float time;
+ uniform float time;
 
 
 
@@ -67,10 +67,13 @@ void main( )
     uv.y = mirrorOut(uv.y);
 
 
-    
-   vec4 col = TEXTURE(tex0,NORMUV2TEXCOORD(uv));
-   //  vec2 cuv = ST();
-   // vec4 col = vec4(cuv,0.0,1.0);
+        vec4 col =  TEXTURE(tex0,NORMUV2TEXCOORD(uv));
+
+//    vec2 cuv =NORMALIZE_UV(ST());
+//    float t = mod(time,100.0);
+
+//    vec4 col =  texture(tex0,vec2(t));//NORMUV2TEXCOORD(uv));
+//    vec4 col = vec4(cuv,0.0,1.0);
     // Output to screen
     FRAG_COLOR = col;
 }

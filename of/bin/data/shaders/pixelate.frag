@@ -17,9 +17,9 @@ void main(void) {
         #if !USE_ARB
         st *= resolution ;
         #endif
-
+        st -= resolution/2;
         st = (floor(st/vec2(size))+0.5)*vec2(size);
-
+        st += resolution/2;
         #if !USE_ARB
         st /= resolution ;
         #endif

@@ -64,8 +64,12 @@ public:
         settings.shaderSources[GL_VERTEX_SHADER ] = versionHeader + ofBufferFromFile("shaders/default.vert").getText();
         for (auto &d : defineParams.mapIterator()) {settings.intDefines[d.first] = d.second->getValue();}
         settings.intDefines["USE_ARB"] = USE_ARB;
+
+        settings.intDefines["TARGET_RASPBERRY_PI"] =
 #ifdef TARGET_RASPBERRY_PI
-        settings.intDefines["TARGET_RASPBERRY_PI"] = 1;
+        1;
+#else
+        0;
 #endif
         settings.sourceDirectoryPath = ofToDataPath("shaders/");
         settings.bindDefaults = true;
