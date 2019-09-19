@@ -67,7 +67,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -103,7 +107,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -139,7 +147,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -175,7 +187,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -211,7 +227,11 @@
               "target": "",
               "bypass": false,
               "touchAddress": "",
-              "meterAddress": ""
+              "meterAddress": "",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -247,7 +267,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -283,7 +307,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -319,7 +347,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -355,7 +387,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -391,7 +427,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -514,9 +554,10 @@
           "touchAddress": "",
           "meterAddress": "",
           "width": "auto",
-          "left": 30,
-          "top": 450,
-          "height": "auto"
+          "left": 50,
+          "top": 360,
+          "height": "auto",
+          "sensitivity": 1
         },
         {
           "type": "fader",
@@ -555,7 +596,8 @@
           "width": "auto",
           "left": 150,
           "top": 510,
-          "height": "auto"
+          "height": "auto",
+          "sensitivity": 1
         },
         {
           "type": "fader",
@@ -594,7 +636,113 @@
           "width": "auto",
           "left": 290,
           "top": 490,
-          "height": "auto"
+          "height": "auto",
+          "sensitivity": 1
+        },
+        {
+          "type": "panel",
+          "top": 330,
+          "left": 180,
+          "id": "panel_1",
+          "linkId": "",
+          "width": "auto",
+          "height": "auto",
+          "label": "auto",
+          "color": "auto",
+          "css": "",
+          "scroll": true,
+          "border": true,
+          "default": "",
+          "value": "",
+          "precision": 2,
+          "address": "/panel_1",
+          "preArgs": "",
+          "target": "",
+          "bypass": false,
+          "variables": "@{parent.variables}",
+          "widgets": [
+            {
+              "type": "fader",
+              "top": 30,
+              "left": 80,
+              "id": "fader_1",
+              "linkId": "",
+              "width": "auto",
+              "height": "auto",
+              "label": "auto",
+              "color": "auto",
+              "css": "",
+              "horizontal": false,
+              "alignRight": false,
+              "pips": true,
+              "input": true,
+              "meter": false,
+              "compact": true,
+              "dashed": false,
+              "snap": true,
+              "spring": false,
+              "doubleTap": false,
+              "range": {
+                "min": 0,
+                "max": 1
+              },
+              "steps": "",
+              "logScale": false,
+              "unit": "",
+              "origin": "auto",
+              "default": 0.5,
+              "value": "",
+              "precision": 2,
+              "address": "/fader_1",
+              "preArgs": "",
+              "target": "",
+              "bypass": false,
+              "touchAddress": "",
+              "meterAddress": "",
+              "sensitivity": 1
+            },
+            {
+              "type": "fader",
+              "top": 0,
+              "left": 0,
+              "id": "fader_3",
+              "linkId": "",
+              "width": "auto",
+              "height": "auto",
+              "label": "auto",
+              "color": "auto",
+              "css": "",
+              "horizontal": false,
+              "alignRight": false,
+              "pips": true,
+              "input": true,
+              "meter": false,
+              "compact": true,
+              "dashed": false,
+              "snap": true,
+              "spring": false,
+              "doubleTap": false,
+              "range": {
+                "min": 0,
+                "max": 1
+              },
+              "steps": "",
+              "logScale": false,
+              "unit": "",
+              "origin": "auto",
+              "default": 0.5,
+              "value": "",
+              "precision": 2,
+              "address": "/fader_1",
+              "preArgs": "",
+              "target": "",
+              "bypass": false,
+              "touchAddress": "",
+              "meterAddress": "",
+              "sensitivity": 1
+            }
+          ],
+          "tabs": []
         }
       ],
       "tabs": [],
@@ -654,6 +802,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -690,7 +841,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -775,7 +930,11 @@
               "bypass": false,
               "touchAddress": "",
               "split": false,
-              "width": "50%"
+              "width": "50%",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "xy",
@@ -812,7 +971,11 @@
               "bypass": false,
               "touchAddress": "",
               "split": false,
-              "width": "50%"
+              "width": "50%",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -875,7 +1038,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             },
             {
               "type": "fader",
@@ -911,7 +1077,11 @@
               "alignRight": false,
               "meter": false,
               "compact": true,
-              "meterAddress": ""
+              "meterAddress": "",
+              "left": "auto",
+              "top": "auto",
+              "width": "auto",
+              "sensitivity": 1
             },
             {
               "type": "clone",
@@ -924,6 +1094,9 @@
                   "class": "R"
                 }
               },
+              "left": "auto",
+              "top": "auto",
+              "width": "auto",
               "label": "",
               "variables": "@{parent.variables}"
             },
@@ -961,7 +1134,11 @@
               "alignRight": false,
               "meter": false,
               "compact": true,
-              "meterAddress": ""
+              "meterAddress": "",
+              "left": "auto",
+              "top": "auto",
+              "width": "auto",
+              "sensitivity": 1
             },
             {
               "type": "clone",
@@ -974,6 +1151,9 @@
                   "class": "G"
                 }
               },
+              "left": "auto",
+              "top": "auto",
+              "width": "auto",
               "label": "",
               "variables": "@{parent.variables}"
             },
@@ -1011,7 +1191,11 @@
               "alignRight": false,
               "meter": false,
               "compact": true,
-              "meterAddress": ""
+              "meterAddress": "",
+              "left": "auto",
+              "top": "auto",
+              "width": "auto",
+              "sensitivity": 1
             },
             {
               "type": "clone",
@@ -1024,6 +1208,9 @@
                   "class": "B"
                 }
               },
+              "left": "auto",
+              "top": "auto",
+              "width": "auto",
               "label": "",
               "variables": "@{parent.variables}"
             }
@@ -1119,7 +1306,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 },
                 {
                   "type": "toggle",
@@ -1139,7 +1329,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 },
                 {
                   "type": "push",
@@ -1157,7 +1350,11 @@
                   "preArgs": "",
                   "target": "",
                   "bypass": false,
-                  "norelease": true
+                  "norelease": true,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto",
+                  "value": ""
                 },
                 {
                   "type": "push",
@@ -1175,7 +1372,11 @@
                   "preArgs": "",
                   "target": "",
                   "bypass": false,
-                  "norelease": true
+                  "norelease": true,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto",
+                  "value": ""
                 },
                 {
                   "type": "toggle",
@@ -1195,7 +1396,10 @@
                   "bypass": false,
                   "led": false,
                   "default": "",
-                  "value": ""
+                  "value": "",
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 }
               ],
               "label": false,
@@ -1217,6 +1421,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -1253,7 +1460,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -1289,7 +1500,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "switch",
@@ -1317,7 +1532,11 @@
                 6,
                 7,
                 8
-              ]
+              ],
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "traversing": true
             },
             {
               "type": "fader",
@@ -1353,7 +1572,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -1509,7 +1732,8 @@
           "unit": "",
           "origin": "auto",
           "touchAddress": "",
-          "meterAddress": ""
+          "meterAddress": "",
+          "sensitivity": 1
         }
       ],
       "tabs": [],
@@ -1568,7 +1792,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 },
                 {
                   "type": "dropdown",
@@ -1588,7 +1815,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 },
                 {
                   "type": "dropdown",
@@ -1608,7 +1838,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 }
               ],
               "label": false,
@@ -1630,6 +1863,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -1666,7 +1902,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -1702,7 +1942,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -1738,7 +1982,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -1774,7 +2022,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -1859,6 +2111,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -1895,7 +2150,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -1931,7 +2190,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -1967,7 +2230,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -2019,6 +2286,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -2055,7 +2325,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -2091,7 +2365,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -2127,7 +2405,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -2179,6 +2461,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -2215,7 +2500,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -2251,7 +2540,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -2287,7 +2580,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -2358,7 +2655,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 },
                 {
                   "type": "dropdown",
@@ -2380,7 +2680,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 }
               ],
               "label": false,
@@ -2402,6 +2705,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -2438,7 +2744,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -2558,7 +2868,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 },
                 {
                   "type": "toggle",
@@ -2578,7 +2891,10 @@
                   "address": "@{this.id}",
                   "preArgs": "",
                   "target": "",
-                  "bypass": false
+                  "bypass": false,
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto"
                 }
               ],
               "label": false,
@@ -2600,6 +2916,9 @@
               "bypass": false,
               "variables": "@{parent.variables}",
               "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             },
             {
@@ -2636,7 +2955,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -2672,7 +2995,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -2708,7 +3035,11 @@
               "origin": "auto",
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -2819,7 +3150,8 @@
               "address": "/presets/save",
               "preArgs": "@{parent.address} ",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "traversing": true
             }
           ],
           "left": "auto",
@@ -2878,7 +3210,8 @@
               "address": "/presets/recall",
               "preArgs": "@{parent.address}",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "traversing": true
             }
           ],
           "left": "auto",
@@ -2951,7 +3284,8 @@
           "preArgs": "",
           "target": "",
           "bypass": false,
-          "doubleTap": false
+          "doubleTap": false,
+          "value": ""
         },
         {
           "type": "push",
@@ -2972,7 +3306,8 @@
           "preArgs": "",
           "target": "",
           "bypass": false,
-          "doubleTap": false
+          "doubleTap": false,
+          "value": ""
         },
         {
           "type": "input",
@@ -2995,7 +3330,8 @@
           "address": "/targetFPS",
           "preArgs": "",
           "target": "",
-          "bypass": false
+          "bypass": false,
+          "asYouType": false
         },
         {
           "type": "toggle",
@@ -3088,6 +3424,29 @@
           "led": false,
           "default": "",
           "value": ""
+        },
+        {
+          "type": "toggle",
+          "top": 150,
+          "left": 460,
+          "id": "PauseApp",
+          "linkId": "",
+          "width": "auto",
+          "height": "auto",
+          "label": "auto",
+          "color": "auto",
+          "css": "",
+          "on": 1,
+          "off": 0,
+          "precision": 0,
+          "address": "/Pause",
+          "preArgs": "",
+          "target": "",
+          "bypass": false,
+          "doubleTap": false,
+          "led": false,
+          "default": "",
+          "value": ""
         }
       ],
       "tabs": [],
@@ -3143,7 +3502,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             },
             {
               "type": "dropdown",
@@ -3180,7 +3542,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             },
             {
               "type": "dropdown",
@@ -3223,7 +3588,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             },
             {
               "type": "dropdown",
@@ -3251,7 +3619,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             },
             {
               "type": "dropdown",
@@ -3273,7 +3644,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             },
             {
               "type": "dropdown",
@@ -3300,7 +3674,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             },
             {
               "type": "dropdown",
@@ -3323,7 +3700,10 @@
               "address": "@{this.id}",
               "preArgs": "",
               "target": "",
-              "bypass": false
+              "bypass": false,
+              "left": "auto",
+              "top": "auto",
+              "width": "auto"
             }
           ],
           "label": false,
@@ -3387,7 +3767,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3423,7 +3807,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3459,7 +3847,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3495,7 +3887,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3531,7 +3927,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3567,7 +3967,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3603,7 +4007,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3639,7 +4047,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3675,7 +4087,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3711,7 +4127,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             },
             {
               "type": "fader",
@@ -3747,7 +4167,11 @@
               "bypass": false,
               "touchAddress": "",
               "meterAddress": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "sensitivity": 1
             }
           ],
           "label": false,
@@ -3811,7 +4235,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "toggle",
@@ -3831,7 +4258,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": 170
+              "width": 170,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "toggle",
@@ -3851,7 +4281,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": 140
+              "width": 140,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             }
           ],
           "scroll": true,
@@ -3899,7 +4332,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": 120
+              "width": 120,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "toggle",
@@ -3919,7 +4355,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": 110
+              "width": 110,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "toggle",
@@ -3939,7 +4378,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": 150
+              "width": 150,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "toggle",
@@ -3959,7 +4401,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": 150
+              "width": 150,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "toggle",
@@ -3979,7 +4424,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": 130
+              "width": 130,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "toggle",
@@ -3999,7 +4447,10 @@
               "led": false,
               "on": 1,
               "off": 0,
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             }
           ],
           "scroll": true,
@@ -4102,7 +4553,10 @@
               "led": false,
               "default": "",
               "value": "",
-              "width": "auto"
+              "width": "auto",
+              "left": "auto",
+              "top": "auto",
+              "height": "auto"
             },
             {
               "type": "switch",
@@ -4127,7 +4581,11 @@
               "preArgs": "",
               "target": "",
               "bypass": false,
-              "width": 380
+              "width": 380,
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
+              "traversing": true
             },
             {
               "type": "strip",
@@ -4202,9 +4660,13 @@
                       "address": "/presets/save",
                       "preArgs": "@{parent.address} ",
                       "target": "",
-                      "bypass": false
+                      "bypass": false,
+                      "traversing": true
                     }
                   ],
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto",
                   "scroll": true
                 },
                 {
@@ -4258,12 +4720,19 @@
                       "address": "/presets/recall",
                       "preArgs": "@{parent.address}",
                       "target": "",
-                      "bypass": false
+                      "bypass": false,
+                      "traversing": true
                     }
                   ],
+                  "left": "auto",
+                  "top": "auto",
+                  "width": "auto",
                   "scroll": true
                 }
               ],
+              "left": "auto",
+              "top": "auto",
+              "height": "auto",
               "tabs": []
             }
           ],
@@ -4368,7 +4837,8 @@
               "split": false,
               "left": 0,
               "top": 0,
-              "width": "100%"
+              "width": "100%",
+              "sensitivity": 1
             }
           ],
           "label": "auto",
@@ -4428,7 +4898,8 @@
               "split": false,
               "left": 0,
               "top": 0,
-              "width": "100%"
+              "width": "100%",
+              "sensitivity": 1
             }
           ],
           "label": "auto",
@@ -4488,7 +4959,8 @@
               "split": false,
               "left": 0,
               "top": 0,
-              "width": "100%"
+              "width": "100%",
+              "sensitivity": 1
             }
           ],
           "label": "auto",
@@ -4565,7 +5037,8 @@
               "split": false,
               "left": 0,
               "top": 0,
-              "width": "100%"
+              "width": "100%",
+              "sensitivity": 1
             }
           ],
           "popupLabel": "",
@@ -4613,7 +5086,8 @@
           "target": "",
           "bypass": true,
           "touchAddress": "",
-          "meterAddress": ""
+          "meterAddress": "",
+          "sensitivity": 1
         },
         {
           "type": "toggle",
