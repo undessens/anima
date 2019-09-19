@@ -72,4 +72,6 @@ public:
      void processOSC();
 
      void initParameters();
+     void setAppPaused(const bool & s);
+     bool appPaused = false;
 };

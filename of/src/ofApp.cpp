@@ -201,7 +201,13 @@ void ofApp::initParameters() {
     auto doDrawInfoParam = root->addParameter<TypedActionParameter<bool> >("displayDebugInfo", false, [this](const bool & s) {doDrawInfo = s;});
     auto reload = root->addParameter<TypedActionParameter<bool> >("reloadShaders", false, [this](const bool & s) { if (!shaderFx->reload()) {ofLogError() << "couldn't reload shader";}});
     auto vSync = root->addParameter<TypedActionParameter<bool> >("Vsync", false, [this](const bool & s) { ofSetVerticalSync(s);});
+    auto pause = root->addParameter<TypedActionParameter<bool> >("Pause", false, [this](const bool & s) { setAppPaused(s);});
 
+
+}
+void ofApp::setAppPaused(const bool & s){
+    appPaused = s;
+    ofSetBackgroundAuto(!s);
 
 }
 
@@ -223,6 +229,7 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
+    if(appPaused){return;}
 
 #if CAN_MAP_VIDEO
     ofFill();
