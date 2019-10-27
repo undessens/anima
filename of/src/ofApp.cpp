@@ -270,7 +270,7 @@ void ofApp::draw()
 #if DO_STREAM
     getStreamVid().publishScreen(); // has internal control over fps
 #endif
-
+    ofSetColor(255);
 
 
 }
