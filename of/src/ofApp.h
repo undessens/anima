@@ -27,6 +27,7 @@
 
 #define NB_SETTINGS 4
 
+class MediaSourcePlayer; 
 class ofApp : public ofBaseApp
 #if !EMULATE_ON_OSX
  ,public KeyListener
@@ -44,11 +45,6 @@ public:
     #if !EMULATE_ON_OSX
     void onCharacterReceived(KeyListenerEventData& e);
     TerminalListener consoleListener;
-    ofxOMXCameraSettings omxCameraSettings;
-    ofxOMXVideoGrabber videoGrabber;
-    CameraSettings* listOfSettings[NB_SETTINGS];
-    #else
-    ofVideoGrabber videoGrabber;
     #endif
     
     
@@ -74,4 +70,5 @@ public:
      void initParameters();
      void setAppPaused(const bool & s);
      bool appPaused = false;
+     unique_ptr<MediaSourcePlayer> mediaSource;
 };

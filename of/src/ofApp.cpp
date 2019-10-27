@@ -2,7 +2,7 @@
 
 #include "ofApp.h"
 #include "main.cpp.impl" // weird but remove useless main compilation unit (rpi is slooow)
-
+#include "MediaSource.hpp"
 
 #define CAN_MAP_VIDEO 1
 #if CAN_MAP_VIDEO
@@ -125,49 +125,13 @@ void ofApp::setup()
 #if !EMULATE_ON_OSX
     //allows keys to be entered via terminal remotely (ssh)
     consoleListener.setup(this);
-
-    ofxOMXCameraSettings settings;
-    ofBuffer jsonBuffer = ofBufferFromFile("settings.json");
-    settings.parseJSON(jsonBuffer.getText());
-    settings.enableTexture = bool(USE_SHADERS);
-
-    videoGrabber.setup(settings);
-
     ofSetVerticalSync(true);
-    // ofSetFrameRate(30);
-    int settingsCount = 0;
-
-    SettingsEnhancement* enhancement = new SettingsEnhancement();
-    enhancement->setup(&videoGrabber);
-    enhancement->name = "enhancement";
-    listOfSettings[settingsCount] = enhancement;
-    settingsCount++;
-
-    SettingsZoomCrop* zoomCrop = new SettingsZoomCrop();
-    zoomCrop->setup(&videoGrabber);
-    zoomCrop->name = "zoomCrop";
-    listOfSettings[settingsCount] = zoomCrop;
-    settingsCount++;
-
-    SettingsFilters* filters = new SettingsFilters();
-    filters->setup(&videoGrabber);
-    filters->name = "filters";
-    listOfSettings[settingsCount] = filters;
-    settingsCount++;
-
-    SettingsWhiteBalance* whiteBalance = new SettingsWhiteBalance();
-    whiteBalance->setup(&videoGrabber);
-    whiteBalance->name = "whiteBalance";
-    listOfSettings[settingsCount] = whiteBalance;
-    settingsCount++;
-#else
-    videoGrabber.setup(ofGetWidth(), ofGetHeight(), true);
 #endif
-
+    mediaSource = make_unique<MediaSourcePlayer>();
     initParameters();
     for (auto  s : shaderFx->availableShaders.getNamedPtrSet().vIterator()) {
         presetManager->recallPreset(s, "1");
-        s->enabled->setValue(false); 
+        s->enabled->setValue(false);
         // s->enabled->setValue(s->getName() == "ShadowHighlights"); // keep only the curves on
     }
 
@@ -193,15 +157,16 @@ void ofApp::setup()
 void ofApp::initParameters() {
 
 
-    auto tfps = root->addParameter<ActionParameter>("targetFPS", [this](const string & s) {float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);});
+    auto tfps = root->addParameter<ActionParameter>("targetFPS", [](const string & s) {float tfps = MAX(10.0, ofToFloat(s)); ofSetFrameRate(tfps); DBG("setting FPS to " << tfps);});
 #if DO_STREAM
     auto doStream = root->addParameter<TypedActionParameter<bool> >("doStream", false, [this](const bool & needStream) {getStreamVid().setStreamState(needStream); DBG("setting Streaming to " << (needStream ? "true" : "false"));});
 #endif
-    displayTestImage = root->addParameter<TypedActionParameter<bool> >("displayTestImage", false, [this](const bool & s) {if (s) {getTestImage().load("images/tst.jpg");} else {getTestImage().clear();}});
+    displayTestImage = root->addParameter<TypedActionParameter<bool> >("displayTestImage", false, [](const bool & s) {if (s) {getTestImage().load("images/tst.jpg");} else {getTestImage().clear();}});
     auto doDrawInfoParam = root->addParameter<TypedActionParameter<bool> >("displayDebugInfo", false, [this](const bool & s) {doDrawInfo = s;});
     auto reload = root->addParameter<TypedActionParameter<bool> >("reloadShaders", false, [this](const bool & s) { if (!shaderFx->reload()) {ofLogError() << "couldn't reload shader";}});
-    auto vSync = root->addParameter<TypedActionParameter<bool> >("Vsync", false, [this](const bool & s) { ofSetVerticalSync(s);});
+    auto vSync = root->addParameter<TypedActionParameter<bool> >("Vsync", false, [](const bool & s) { ofSetVerticalSync(s);});
     auto pause = root->addParameter<TypedActionParameter<bool> >("Pause", false, [this](const bool & s) { setAppPaused(s);});
+    auto togglePause = root->addParameter<ActionParameter >("togglePause", [this](const string & s) { setAppPaused(!appPaused);});
 
 
 }
@@ -216,11 +181,7 @@ void ofApp::setAppPaused(const bool & s){
 void ofApp::update()
 {
     shaderFx->update();
-#if EMULATE_ON_OSX
-    if (!displayTestImage->getValue()) {
-        videoGrabber.update();
-    }
-#endif
+    mediaSource->update();
 
     processOSC();
 }
@@ -242,12 +203,8 @@ void ofApp::draw()
         getTestImage().resize(ofGetWidth(), ofGetHeight());
     }
 
-    ofTexture & drawnTexture = displayTestImage->getValue() ? getTestImage().getTexture() :
-#if EMULATE_ON_OSX
-                               videoGrabber.getTexture();
-#else
-                               videoGrabber.getTextureReference();
-#endif
+    ofTexture & drawnTexture = displayTestImage->getValue() ? getTestImage().getTexture() : mediaSource->getTexture();
+
 
 #if USE_SHADERS
     ofSetColor(255);
@@ -331,32 +288,32 @@ void ofApp::keyPressed  (int key)
     switch (key)
     {
 
-    case 'd':
-    {
-        doDrawInfo = !doDrawInfo;
-        break;
-    }
-    case 'i':
-    {
-        doPrintInfo = !doPrintInfo;
-        break;
-    }
-    case 'p' :
-    {
-        presetManager->savePreset(shaderFx, "1");
-        break;
-    }
-    case 'm' :
-    {
-        presetManager->recallPreset(shaderFx, "1");
-        break;
-    }
-    case 's': {
-        if (!shaderFx->reload()) {
-            ofLogError() << "couldn't reload shader";
+        case 'd':
+        {
+            doDrawInfo = !doDrawInfo;
+            break;
         }
-        break;
-    }
+        case 'i':
+        {
+            doPrintInfo = !doPrintInfo;
+            break;
+        }
+        case 'p' :
+        {
+            presetManager->savePreset(shaderFx, "1");
+            break;
+        }
+        case 'm' :
+        {
+            presetManager->recallPreset(shaderFx, "1");
+            break;
+        }
+        case 's': {
+            if (!shaderFx->reload()) {
+                ofLogError() << "couldn't reload shader";
+            }
+            break;
+        }
 #if CAN_MAP_VIDEO
         case 'w':{
             warper.toggleActive();
@@ -366,34 +323,39 @@ void ofApp::keyPressed  (int key)
             int selectedCorner = warper.getSelectedCornerLocation();
             if(selectedCorner<0) selectedCorner = 0;
             else{selectedCorner++;selectedCorner%=4;}
-//            static_cast<ofxGLWarper::CornerLocation>
+            //            static_cast<ofxGLWarper::CornerLocation>
             warper.selectCorner((ofxGLWarper::CornerLocation)selectedCorner);
             break;
         }
-            #endif
+#endif
 
 
 #if !EMULATE_ON_OSX
-    case 'r' :
-    {
-        videoGrabber.reset();
-        break;
-    }
-    case 'z' :
-    {
-        videoGrabber.startRecording();
-        break;
-    }
-    case 'x' :
-    {
-        videoGrabber.stopRecording();
-        break;
-    }
+        case 'r' :
+        {
+            mediaSource->reset();
+            break;
+        }
+        case 'z' :
+        {
+            mediaSource->startRecording();
+            break;
+        }
+        case 'x' :
+        {
+            mediaSource->stopRecording();
+            break;
+        }
 #endif
-    default:
-    {
-        break;
-    }
+        case 'y' :
+        {
+            mediaSource->goToNextSource();
+            break;
+        }
+        default:
+        {
+            break;
+        }
 
     }
 }
@@ -413,18 +375,18 @@ void ofApp::drawInfoIfAsked() {
         stringstream info;
         info << endl;
         info << "App FPS: " << ofGetFrameRate() << endl;
-        info << "CAMERA RESOLUTION: "   << videoGrabber.getWidth() << "x" << videoGrabber.getHeight()
+        info << "CAMERA RESOLUTION: "   << mediaSource->getWidth() << "x" << mediaSource->getHeight()
 #if !EMULATE_ON_OSX
-             << " @ " << videoGrabber.getFrameRate() << "FPS"
+        << " @ " << mediaSource->getFrameRate() << "FPS"
 #endif
-             << endl;
+        << endl;
 
         if (doDrawInfo)
         {
             int x = 100;
-            if (videoGrabber.getWidth() < 1280)
+            if (mediaSource->getWidth() < 1280)
             {
-                x = videoGrabber.getWidth();
+                x = mediaSource->getWidth();
             }
             ofDrawBitmapStringHighlight(info.str(), x, 40, ofColor(ofColor::black, 50), ofColor::yellow);
         }
