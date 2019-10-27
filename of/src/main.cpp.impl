@@ -7,13 +7,15 @@ int main()
   #ifdef TARGET_RASPBERRY_PI
     ofGLESWindowSettings settings;
     settings.glesVersion = 2;
+    settings.windowMode = OF_FULLSCREEN;
   #else
     ofGLWindowSettings settings;
     settings.setGLVersion(3,2);
+    settings.windowMode = OF_WINDOW;
   #endif
     settings.setSize(1280,720);
     settings.setPosition({0,0});
-    settings.windowMode = OF_WINDOW;
+
 
     ofCreateWindow(settings);
 
