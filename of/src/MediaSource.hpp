@@ -248,7 +248,7 @@ public:
 
         FileSource::defaultFolder  = ofDirectory("/Users/Tintamar/Documents/phone_bup/WhatsApp/Media/WhatsApp Video");
 #else
-        FileSource::defaultFolder  = "medias";
+        FileSource::defaultFolder  = ofDirectory("medias");
 #endif
         setupSources();
 
