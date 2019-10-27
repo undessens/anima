@@ -25,7 +25,7 @@ ParameterContainer::LambdaListener warperSync("warperSync",[](ParameterContainer
 
 
 
-#define USE_SHADERS 1
+
 
 #ifndef DO_STREAM
 #define DO_STREAM 0
@@ -69,9 +69,6 @@ void ofApp::setup()
     root->addSharedParameterContainer(presetManager);
     presetManager->setup(ofFile("presets").getAbsolutePath());
 
-#ifdef TARGET_RASPBERRY_PI
-    root->addSharedParameterContainer(make_shared<OMXController>(videoGrabber));
-#endif
 
     shaderFx = make_shared<ShaderFx>();
     root->addSharedParameterContainer(shaderFx);
@@ -128,6 +125,15 @@ void ofApp::setup()
     ofSetVerticalSync(true);
 #endif
     mediaSource = make_unique<MediaSourcePlayer>();
+    auto ws = mediaSource->getWebcamSource();
+    if(!ws){
+        ofLogError() << "!!!!!!!!!!!!! webcam not initialized !!!!!!!!!!!!!!!" ;
+    }
+    else{
+#ifdef TARGET_RASPBERRY_PI
+    root->addSharedParameterContainer(make_shared<OMXController>(ws->getGrabber()));
+#endif
+    }
     initParameters();
     for (auto  s : shaderFx->availableShaders.getNamedPtrSet().vIterator()) {
         presetManager->recallPreset(s, "1");

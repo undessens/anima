@@ -135,11 +135,12 @@ public:
     }
 
     void innerUpdate() override{
-        //#if EMULATE_ON_OSX
+        #if EMULATE_ON_OSX
         //        if (!displayTestImage->getValue()) {
         videoGrabber.update();
         //        }
-        //#endif
+        #endif
+        // OMX dont have update method
     }
 
     ofTexture & innerGetTexture() override{
@@ -151,9 +152,11 @@ public:
 #endif
     }
     ofBaseDraws & getBaseDraw() override{
-        return videoGrabber;
+        return innerGetTexture();
     }
-
+    #if !EMULATE_ON_OSX
+    ofVideoGrabber & getGrabber(){return videoGrabber;}
+    #endif
 private:
 #if !EMULATE_ON_OSX
     ofxOMXCameraSettings omxCameraSettings;
@@ -237,9 +240,12 @@ public:
     }SOURCE_TYPE;
 
     MediaSourcePlayer(){
+#if EMULATE_ON_OSX
 
-        //        FileSource::defaultFolder  = ofDirectory(ofFilePath::getUserHomeDir());
         FileSource::defaultFolder  = ofDirectory("/Users/Tintamar/Documents/phone_bup/WhatsApp/Media/WhatsApp Video");
+#else
+        FileSource::defaultFolder  = "medias";
+#endif
         setupSources();
 
     }
@@ -296,11 +302,14 @@ public:
         return currentSourceIdx>=0?medias[currentSourceIdx].get():nullptr;
     }
 
+    WebcamSource *getWebcamSource(){return webcamGrabberRef;}
+
 private:
 
     void setupSources(){
         freeAll();
         medias.emplace_back(new WebcamSource(0));
+        webcamGrabberRef = dynamic_cast<WebcamSource*>(medias[0].get());
         setSourceFromURI(WebcamSource::numDeviceToURI(0));
         auto parsedFolder = FileSource::defaultFolder;
         if(parsedFolder.exists()){
@@ -348,7 +357,7 @@ private:
 
     int  currentSourceIdx = -1;
     ofTexture fakeTexture;
-
+    WebcamSource * webcamGrabberRef=nullptr;
 };
 
 

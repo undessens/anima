@@ -11,6 +11,7 @@
     #define USE_ARB 0
 #endif
 
+#define USE_SHADERS 1
 
 #define CAN_MAP_VIDEO 1
 
