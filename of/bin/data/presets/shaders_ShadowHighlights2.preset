@@ -1,0 +1,15 @@
+{
+  BASE_CHANNEL:1,
+  MULTI_CHANNEL:1,
+  enabled:1,
+  globalCol:[1, 1, 1],
+  highB:[0.8, 0.8],
+  highG:[0.8, 0.8],
+  highR:[0.8, 0.8],
+  highT:[0.813, 0.824],
+  lowB:[0.2, 0.2],
+  lowG:[0.2, 0.2],
+  lowR:[0.2, 0.2],
+  lowT:[0.125, 0],
+  order:0
+}

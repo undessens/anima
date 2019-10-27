@@ -1,7 +1,7 @@
 {
     "ISO": 0,
     "LED": true,
-    "autoISO": true,
+    "autoISO": false,
     "autoShutter": false,
     "brightness": 50,
     "contrast": -10,
@@ -16,8 +16,8 @@
     "doRecording": false,
     "dreLevel": 0,
     "enablePixels": false,
-    "enableTexture": false,
-    "exposurePreset": "Auto",
+    "enableTexture": true,
+    "exposurePreset": "None",
     "flickerCancellation": true,
     "frameStabilization": false,
     "framerate": 30,
@@ -29,5 +29,7 @@
     "saturation": 0,
     "sharpness": -50,
     "shutterSpeed": 0,
-    "zoomLevel": 0
+    "whiteBalance":"Auto",
+    "zoomLevel": 0,
+    "enableExtraVideoFilter": true
 }

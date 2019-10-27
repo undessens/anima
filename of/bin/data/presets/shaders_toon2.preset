@@ -1,0 +1,16 @@
+{
+  USE_HUE:0,
+  USE_SAT:1,
+  USE_VAL:1,
+  enabled:1,
+  hueOff:0,
+  hueRes:0,
+  hueSmooth:0.1,
+  order:0,
+  satOff:0.82,
+  satRes:1,
+  satSmooth:0.41,
+  valOff:0.36,
+  valRes:2,
+  valSmooth:0.15
+}
