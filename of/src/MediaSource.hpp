@@ -155,13 +155,17 @@ public:
         return innerGetTexture();
     }
     #if !EMULATE_ON_OSX
-    ofVideoGrabber & getGrabber(){return videoGrabber;}
+    ofxOMXVideoGrabber & getGrabber(){return videoGrabber;}
+    CameraSettings* getSetting(const int i){return listOfSettings[i];}
+    int getNumSettings(){return NB_SETTINGS;}
     #endif
 private:
 #if !EMULATE_ON_OSX
     ofxOMXCameraSettings omxCameraSettings;
     ofxOMXVideoGrabber videoGrabber;
-    CameraSettings* listOfSettings[NB_SETTINGS];
+    int NB_SETTINGS = 4;
+    CameraSettings* listOfSettings[4];
+
 #else
     ofVideoGrabber videoGrabber;
 #endif

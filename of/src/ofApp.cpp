@@ -125,13 +125,13 @@ void ofApp::setup()
     ofSetVerticalSync(true);
 #endif
     mediaSource = make_unique<MediaSourcePlayer>();
-    auto ws = mediaSource->getWebcamSource();
-    if(!ws){
+    webcam = mediaSource->getWebcamSource();
+    if(!webcam){
         ofLogError() << "!!!!!!!!!!!!! webcam not initialized !!!!!!!!!!!!!!!" ;
     }
     else{
 #ifdef TARGET_RASPBERRY_PI
-    root->addSharedParameterContainer(make_shared<OMXController>(ws->getGrabber()));
+    root->addSharedParameterContainer(make_shared<OMXController>(webcam->getGrabber()));
 #endif
     }
     initParameters();
@@ -258,18 +258,19 @@ void ofApp::processOSC() {
         ofLogVerbose() << "\n osc message received: " << m;
 
 #if !EMULATE_ON_OSX
-        for (int i = 0; i < NB_SETTINGS; i++) {
-            // ofLogVerbose() << " For: " << ofToString(i);
 
-            if ( add0 == (listOfSettings[i]->name)) {
+        for (int i = 0; i < webcam->getNumSettings(); i++) {
+            // ofLogVerbose() << " For: " << ofToString(i);
+            auto setting = webcam->getSetting(i);
+            if ( add0 == setting->name) {
                 ofLogVerbose() << "\n OSC settings:" << add0 << " - " << add1 << " : " << ofToString(value);
 
                 //ROUTE osc message according the type of settings
                 // Then transmit the adress and value to the specific setting class
-                (listOfSettings[i])->onOsc(add1, value);
+                setting->onOsc(add1, value);
 
                 //Finally update the class to apply new settings
-                (listOfSettings[i])->update();
+                setting->update();
 
             }
 
@@ -383,7 +384,7 @@ void ofApp::drawInfoIfAsked() {
         info << "App FPS: " << ofGetFrameRate() << endl;
         info << "CAMERA RESOLUTION: "   << mediaSource->getWidth() << "x" << mediaSource->getHeight()
 #if !EMULATE_ON_OSX
-        << " @ " << mediaSource->getFrameRate() << "FPS"
+        << " @ " << webcam->getGrabber().getFrameRate() << "FPS"
 #endif
         << endl;
 

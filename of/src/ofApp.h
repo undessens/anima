@@ -25,9 +25,10 @@
 #include "ShaderFx.h"
 #include "ParameterContainer/PresetManager.hpp"
 
-#define NB_SETTINGS 4
 
-class MediaSourcePlayer; 
+
+class MediaSourcePlayer;
+class WebcamSource;
 class ofApp : public ofBaseApp
 #if !EMULATE_ON_OSX
  ,public KeyListener
@@ -71,4 +72,5 @@ public:
      void setAppPaused(const bool & s);
      bool appPaused = false;
      unique_ptr<MediaSourcePlayer> mediaSource;
+     WebcamSource * webcam = nullptr;
 };
