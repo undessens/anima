@@ -182,7 +182,8 @@ def main():
         list_of_videoFx.append ( video_effect("", midiMap.encoders[2] , "/shaders/kaleidoscope/offset/y",lambda x:x/64.0 - 0.5))
         list_of_videoFx.append ( video_effect("", midiMap.encoders[3] , "/shaders/kaleidoscope/vAngle",lambda x:(x/64.0 - 0.5)*.02))
         list_of_videoFx.append ( video_effect("", midiMap.solos[3]    , "/shaders/kaleidoscope/rotation",lambda x:0))
-        list_of_videoFx.append ( video_effect("", midiMap.encoders[4]    , "/shaders/pixelate/size", lambda x:x))
+        list_of_videoFx.append ( video_effect("", midiMap.encoders[4]    , "/shaders/pixelate/size", lambda x:1+x))
+        list_of_videoFx.append ( video_effect("", midiMap.solos[1]    , "/togglePause", lambda x:x))
         # list_of_videoFx.append ( video_effect("kal_rec", midiMap.setb , "/omx/rec"))
 
         global list_of_serial
