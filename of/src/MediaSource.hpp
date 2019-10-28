@@ -185,7 +185,8 @@ public:
 
     }
     string getShortenedURI() override{
-        return ofFilePath::makeRelative(uri, FileSource::defaultFolder);
+
+        return ofFilePath::makeRelative(FileSource::defaultFolder,uri);
     }
     static string normalizeURI(const string & uri){
         if(uri.length()>0){
