@@ -178,7 +178,8 @@ void ofApp::initParameters() {
 }
 void ofApp::setAppPaused(const bool & s){
     appPaused = s;
-    ofSetBackgroundAuto(!s);
+//    ofSetBackgroundAuto(!s); // not working on raspberry pi 
+    *(shaderFx->bFreeze) = s;
 
 }
 
@@ -196,7 +197,7 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-    if(appPaused){return;}
+
 
 #if CAN_MAP_VIDEO
     ofFill();
@@ -295,6 +296,11 @@ void ofApp::keyPressed  (int key)
     switch (key)
     {
 
+        case 'u':
+        {
+            setAppPaused(!appPaused);
+            break;
+        }
         case 'd':
         {
             doDrawInfo = !doDrawInfo;
@@ -313,6 +319,12 @@ void ofApp::keyPressed  (int key)
         case 'm' :
         {
             presetManager->recallPreset(shaderFx, "1");
+            break;
+        }
+        case 'n' :
+        {
+            *(shaderFx->nodes["toon"]->leaves.getWithTypeNamed<Parameter<bool>>("enabled")) = true;
+            *(shaderFx->nodes["kaleidoscope"]->leaves.getWithTypeNamed<Parameter<bool>>("enabled")) = true;
             break;
         }
         case 's': {

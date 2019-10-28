@@ -160,7 +160,7 @@ private:
 
 
 
-
+#define FORCE_FBO 1
 class ShaderFx : public ParameterContainer {
 public:
     ShaderFx():
@@ -172,6 +172,7 @@ public:
 
         curShaderName = addParameter<StringParameter>("shaderName", "");
         bDrawDbg = addParameter<BoolParameter>("drawDbg", false);
+        bFreeze = addParameter<BoolParameter>("freeze", false);
 
         addTrigger("next", [this](TriggerParameter *) {nextShader();});
         addTrigger("reload", [this](TriggerParameter *) {reload();});
@@ -186,10 +187,20 @@ public:
 
     void draw(const ofTexture & tex, const float deltaT) {
         if (!shouldProcess()) {return;}
+
         ofRectangle targetR {0, 0, (float)ofGetWidth(), (float)ofGetHeight()};
+        if(*bFreeze){
+            pingPong.getBack()->draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
+            return;
+        }
         ofVec2f resolution {targetR.getWidth(), targetR.getHeight()};
         int numShaders = getNumShadersEnabled();
-        if (numShaders == 0) {
+#if FORCE_FBO
+        pingPong.allocateIfNeeded(targetR.getWidth(), targetR.getHeight());
+        pingPong.getBack()->begin();
+#endif
+        if (numShaders == 0 ) {
+
             tex.draw(targetR );
         }
         else if (numShaders == 1) {
@@ -199,12 +210,21 @@ public:
             s->end();
 
         }
-        else {
+#if FORCE_FBO
+        pingPong.getBack()->end();
+#endif
+        if(numShaders>1){
+
             pingPong.allocateIfNeeded(targetR.getWidth(), targetR.getHeight());
             int i = 0;
             for (auto s : enabledShaders) {
+
                 bool isLast = i == enabledShaders.size() - 1;
-                if (!isLast)    {pingPong.getFront()->begin();}
+                bool drawInFBO = !isLast;
+#if FORCE_FBO
+                drawInFBO = true;
+#endif
+                if (drawInFBO){pingPong.getFront()->begin();}
 
                 s->begin(resolution, deltaT);
 
@@ -216,12 +236,14 @@ public:
                 }
 
                 s->end();
-
-                if (!isLast)    {pingPong.getFront()->end();}
-                pingPong.swap();
+                if (drawInFBO){pingPong.getFront()->end();}
+                {pingPong.swap();}
                 i++;
             }
         }
+
+        pingPong.getBack()->draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
+
     }
 
     void nextShader()                 {
@@ -269,12 +291,14 @@ public:
 
     void drawDbg() {if (currentShader && bDrawDbg->getValue()) {currentShader->drawDbg();}}
 
-    TypedView<ShaderBase, Node> availableShaders;        
+    TypedView<ShaderBase, Node> availableShaders;
+    BoolParameter::Ptr bFreeze;
 private:
 
     ShaderBase::Ptr currentShader;
     Parameter<string>::Ptr curShaderName;
     BoolParameter::Ptr bDrawDbg;
+
 
     struct PingPongBuffer {
         PingPongBuffer() : alloW(0), alloH(0) {}
