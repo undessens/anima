@@ -193,6 +193,7 @@ public:
         }
         return uri;
     }
+
     ofFile mediaFile;
 };
 
@@ -320,11 +321,13 @@ private:
         webcamGrabberRef = dynamic_cast<WebcamSource*>(medias[0].get());
         setSourceFromURI(WebcamSource::numDeviceToURI(0));
         auto parsedFolder = FileSource::defaultFolder;
+        ofLog() << "looking medias in folder : " << parsedFolder.getAbsolutePath();
         if(parsedFolder.exists()){
             parsedFolder.listDir();
             parsedFolder.sort();
             for(auto & f:parsedFolder.getFiles()){
                 if(MediaSource* s = createFileSource(f)){
+                    ofLog() << "adding media from file : " << s->getURI();
                     medias.emplace_back(s);
                 }
             }
