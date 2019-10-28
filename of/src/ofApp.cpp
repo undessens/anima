@@ -173,7 +173,7 @@ void ofApp::initParameters() {
     auto vSync = root->addParameter<TypedActionParameter<bool> >("Vsync", false, [](const bool & s) { ofSetVerticalSync(s);});
     auto pause = root->addParameter<TypedActionParameter<bool> >("Pause", false, [this](const bool & s) { setAppPaused(s);});
     auto togglePause = root->addParameter<ActionParameter >("togglePause", [this](const string & s) { setAppPaused(!appPaused);});
-
+    auto sourceIndex =root->addParameter<ActionParameter >("mediaPath", [this](const string & s) { mediaSource->setSourceFromURI(s);});
 
 }
 void ofApp::setAppPaused(const bool & s){
@@ -219,9 +219,14 @@ void ofApp::draw()
     auto curT = ofGetElapsedTimef();
     float deltaT = curT - lastFrameTime ;
     lastFrameTime  = curT;
-
+    if(mediaSource->isDrawingWebcam()){ // process only webcam
     shaderFx->draw(drawnTexture, deltaT);
     shaderFx->drawDbg();
+    }
+    else{
+        ofSetColor(255);
+        drawnTexture.draw(0,0,ofGetWidth(),ofGetHeight());
+    }
 
 #elif EMULATE_ON_OSX
     drawnTexture.draw(0, 0, ofGetWidth(), ofGetHeight());

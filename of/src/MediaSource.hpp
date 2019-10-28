@@ -269,7 +269,7 @@ public:
         }
     }
 
-    void setSourceFromURI(const string uri){ // 0 is camera, >0 is files located in default folder
+    void setSourceFromURI(const string uri){ // webcam:0 is camera, string is relative Path located in default folder
         ArrayPtr<MediaSource> newSource = nullptr;
         int i = 0;
         int newSourceIdx = -1;
@@ -287,8 +287,12 @@ public:
                 lastS->free();
             }
             newSource->load();
+            currentSourceIdx = newSourceIdx;
         }
-        currentSourceIdx = newSourceIdx;
+        else{
+            ofLogError() << "can't load source : " << uri;
+        }
+
         //        currentSource = newSource; //Idx already set before
     }
 
@@ -305,7 +309,7 @@ public:
     MediaSource * getCurrentSource(){
         return currentSourceIdx>=0?medias[currentSourceIdx].get():nullptr;
     }
-
+    bool isDrawingWebcam(){return currentSourceIdx==0;}
     WebcamSource *getWebcamSource(){return webcamGrabberRef;}
 
 private:
