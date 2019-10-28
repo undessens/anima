@@ -159,8 +159,9 @@ private:
 
 
 
-
+#ifndef FORCE_FBO
 #define FORCE_FBO 1
+#endif
 class ShaderFx : public ParameterContainer {
 public:
     ShaderFx():

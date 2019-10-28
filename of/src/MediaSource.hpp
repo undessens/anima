@@ -3,7 +3,7 @@
 //    if (ending.size() > value.size()) return false;
 //    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 //}
-#define FREE_FILESOURCE_WHEN_NOT_USED 1
+//#define FREE_FILESOURCE_WHEN_NOT_USED 1
 
 class MediaSource{
 public:
