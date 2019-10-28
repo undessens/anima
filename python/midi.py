@@ -224,15 +224,14 @@ def main():
         
 
         def toggleLights(v):
-            if v>0:
-                if(lightJar.currentValue==0 and lightCour.currentValue==0) :
-                    lightJar.currentValue = 127
-                    lightCour.currentValue = 127
-                else :
-                    lightJar.currentValue = 0
-                    lightCour.currentValue = 0
-                lightJar.isModified = True
-                lightCour.isModified = True
+            if(lightJar.currentValue==0 and lightCour.currentValue==0) :
+                lightJar.currentValue = 127
+                lightCour.currentValue = 127
+            else :
+                lightJar.currentValue = 0
+                lightCour.currentValue = 0
+            lightJar.isModified = True
+            lightCour.isModified = True
 
         list_of_functions.append(midiF(midiMap.cycleb,toggleLights))
         
