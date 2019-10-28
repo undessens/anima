@@ -215,6 +215,7 @@ def main():
             def update_fun(self):
                 if(self.changed):
                     self.fun(self.value)
+                    self.changed=False
 
         # def toggleStrobe(v):
         #     global strobe
