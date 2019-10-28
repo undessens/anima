@@ -190,30 +190,39 @@ public:
 
         ofRectangle targetR {0, 0, (float)ofGetWidth(), (float)ofGetHeight()};
         if(*bFreeze){
+            ofLog() << "drawFreezed";
             pingPong.getBack()->draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
             return;
         }
         ofVec2f resolution {targetR.getWidth(), targetR.getHeight()};
         int numShaders = getNumShadersEnabled();
-#if FORCE_FBO
-        pingPong.allocateIfNeeded(targetR.getWidth(), targetR.getHeight());
-        pingPong.getBack()->begin();
-#endif
-        if (numShaders == 0 ) {
 
+        if (numShaders == 0 ) {
+#if FORCE_FBO
+            pingPong.allocateIfNeeded(targetR.getWidth(), targetR.getHeight());
+            pingPong.getBack()->begin();
+#endif
             tex.draw(targetR );
+#if FORCE_FBO
+            pingPong.getBack()->end();
+#endif
         }
         else if (numShaders == 1) {
+#if FORCE_FBO
+            pingPong.allocateIfNeeded(targetR.getWidth(), targetR.getHeight());
+            pingPong.getBack()->begin();
+#endif
             const ShaderBase::Ptr  s = *(enabledShaders.begin());
             s->begin(resolution, deltaT);
             tex.draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
             s->end();
+#if FORCE_FBO
+            pingPong.getBack()->end();
+#endif
 
         }
-#if FORCE_FBO
-        pingPong.getBack()->end();
-#endif
-        if(numShaders>1){
+
+       else{
 
             pingPong.allocateIfNeeded(targetR.getWidth(), targetR.getHeight());
             int i = 0;
@@ -237,13 +246,13 @@ public:
 
                 s->end();
                 if (drawInFBO){pingPong.getFront()->end();}
-                {pingPong.swap();}
+                pingPong.swap();
                 i++;
             }
         }
-
+#if FORCE_FBO
         pingPong.getBack()->draw(targetR.getX(), targetR.getY(), targetR.getWidth(), targetR.getHeight());
-
+#endif
     }
 
     void nextShader()                 {

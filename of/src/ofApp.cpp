@@ -178,7 +178,8 @@ void ofApp::initParameters() {
 }
 void ofApp::setAppPaused(const bool & s){
     appPaused = s;
-//    ofSetBackgroundAuto(!s); // not working on raspberry pi 
+    ofLog() << "setAppPaused : " << s;
+//    ofSetBackgroundAuto(!s); // not working on raspberry pi
     *(shaderFx->bFreeze) = s;
 
 }

@@ -154,7 +154,7 @@ def main():
         list_of_videoFx.append ( video_effect("",midiMap.recb       , "/shaders/Mask/enabled"))
         list_of_videoFx.append ( video_effect("",midiMap.markerl    , "/shaders/Mask/reset",lambda x:setMaskWhiteBG(1) or x or None))
         list_of_videoFx.append ( video_effect("",midiMap.markerr    , "/shaders/Mask/next",lambda x:  x or None))
-        list_of_videoFx.append ( video_effect("",midiMap.faders[0]  , "/shaders/Mask/transparency",lambda x:  x/127.0))
+        # list_of_videoFx.append ( video_effect("",midiMap.faders[0]  , "/shaders/Mask/transparency",lambda x:  x/127.0))
 
         list_of_videoFx.append ( video_effect("",midiMap.solos[0]  , "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 15 if x>0 else None ))
         list_of_videoFx.append ( video_effect("",midiMap.mutes[0]  , "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 16 if x>0 else None ))
