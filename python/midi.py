@@ -156,9 +156,9 @@ def main():
         list_of_videoFx.append ( video_effect("",midiMap.markerr    , "/shaders/Mask/next",lambda x:  x or None))
         # list_of_videoFx.append ( video_effect("",midiMap.faders[0]  , "/shaders/Mask/transparency",lambda x:  x/127.0))
 
-        list_of_videoFx.append ( video_effect("",midiMap.solos[0]  , "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 15 if x>0 else None ))
-        list_of_videoFx.append ( video_effect("",midiMap.mutes[0]  , "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 16 if x>0 else None ))
-        list_of_videoFx.append ( video_effect("",midiMap.records[0], "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 17 if x>0 else None ))
+        list_of_videoFx.append ( video_effect("",midiMap.solos[0]  , "/enhancement/brightness",lambda x: 0 if x>0 else brightnessFx.currentValue ))
+        # list_of_videoFx.append ( video_effect("",midiMap.mutes[0]  , "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 16 if x>0 else None ))
+        # list_of_videoFx.append ( video_effect("",midiMap.records[0], "/shaders/Mask/setMaskIndex",lambda x: setMaskWhiteBG(0) or 17 if x>0 else None ))
 
         list_of_videoFx.append ( video_effect("", midiMap.solos[7]      , "/omx/disableWhiteB"))
         list_of_videoFx.append ( video_effect("", midiMap.mutes[7]      , "/shaders/ShadowHighlights/enabled"))
@@ -196,8 +196,10 @@ def main():
         list_of_serial.append( serial_effect("ledG cour+j",     midiMap.mutes  [3], [1,9] , False))
         list_of_serial.append( serial_effect("ledB cour+j",     midiMap.records[3], [2,10], False))
         list_of_serial.append( serial_effect("ledPower cour+j", midiMap.faders [3], [3,11], False))
-        list_of_serial.append( serial_effect("lightcour",       midiMap.trackl    , 20    ,True))
-        list_of_serial.append( serial_effect("lightjar",        midiMap.trackr    , 21    ,True))
+        lightCour = serial_effect("lightcour",       midiMap.trackl    , 20    ,True)
+        lightJar  = serial_effect("lightjar",        midiMap.trackr    , 21    ,True)
+        list_of_serial.append( lightCour)
+        list_of_serial.append( lightJar)
         
         global list_of_functions
         list_of_functions =[]
@@ -214,12 +216,24 @@ def main():
                 if(self.changed):
                     self.fun(self.value)
 
-        def toggleStrobe(v):
-            global strobe
-            if v :
-                strobe.isOn = not strobe.isOn
+        # def toggleStrobe(v):
+        #     global strobe
+        #     if v :
+        #         strobe.isOn = not strobe.isOn
 
-        list_of_functions.append(midiF(midiMap.cycleb,toggleStrobe))
+        
+
+        def toggleLights():
+            if(lightJar.currentValue==0 and lightCour.currentValue==0) :
+                lightJar.currentValue = 127
+                lightCour.currentValue = 127
+            else :
+                lightJar.currentValue = 0
+                lightCour.currentValue = 0
+            lightJar.isModified = True
+            lightCour.isModified = True
+
+        list_of_functions.append(midiF(midiMap.cycleb,toggleLights))
         
         global list_of_all 
         list_of_all = dict()
