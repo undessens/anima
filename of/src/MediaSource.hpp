@@ -13,7 +13,7 @@ public:
         free();
     }
     virtual string getName() {return uri;}
-
+    virtual string getShortenedURI(){return uri;}
 
     void load(bool force = false,bool autoPlay=true){
         if(!isLoaded || force){
@@ -184,7 +184,9 @@ public:
     virtual ~FileSource(){
 
     }
-
+    string getShortenedURI() override{
+        return ofFilePath::makeRelative(uri, FileSource::defaultFolder);
+    }
     static string normalizeURI(const string & uri){
         if(uri.length()>0){
             if(uri[0]!='/'){
@@ -275,7 +277,7 @@ public:
         int i = 0;
         int newSourceIdx = -1;
         for(auto & m:medias){
-            if(m->getURI()==uri){
+            if(m->getURI()==uri || m->getShortenedURI()==uri){
                 newSource = m.get();
                 newSourceIdx = i;
                 break;
@@ -327,7 +329,7 @@ private:
             parsedFolder.sort();
             for(auto & f:parsedFolder.getFiles()){
                 if(MediaSource* s = createFileSource(f)){
-                    ofLog() << "adding media from file : " << s->getURI();
+                    ofLog() << "adding media from file : " << s->getShortenedURI();
                     medias.emplace_back(s);
                 }
             }
